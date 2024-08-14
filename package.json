@@ -1,0 +1,51 @@
+{
+  "name": "fashionstylenet",
+  "version": "1.0.0",
+  "description": "A fashion-oriented social network application",
+  "main": "dist/public/assets/js/index.js",
+  "scripts": {
+    "start": "node dist/public/assets/js/index.js",
+    "dev": "ts-node src/index.ts",
+    "build": "npm run prebuild && tsc && npm run postbuild",
+    "prebuild": "rimraf dist && mkdir -p dist/public/assets/js",
+    "postbuild": "echo Compilation terminée. Les fichiers se trouvent dans dist/public/assets/js",
+    "watch": "tsc -w",
+    "clean": "rimraf dist",
+    "lint": "eslint . --ext .ts",
+    "test": "ts-node src/index.ts"
+  },
+  "keywords": [
+    "fashion",
+    "social network",
+    "typescript",
+    "express"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.18.0",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/body-parser": "^1.19.5",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.2.0",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "eslint": "^8.0.0",
+    "prisma": "^5.18.0",
+    "rimraf": "^5.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
