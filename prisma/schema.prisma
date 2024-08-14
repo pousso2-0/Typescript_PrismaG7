@@ -1,0 +1,237 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  CLIENT
+  TAILLEUR
+  VENDEUR
+  ADMIN
+}
+
+model User {
+  id                   Int            @id @default(autoincrement())
+  name                 String
+  email                String         @unique
+  password             String
+  type                 UserType
+  profilePicture       String?
+  bio                  String?
+  location             String?
+  dateOfBirth          DateTime?
+  gender               String?
+  phone                String?        @unique
+  website              String?
+  followersCount       Int            @default(0)
+  followingCount       Int            @default(0)
+  postsCount           Int            @default(0)
+  isPrivate            Boolean        @default(false)
+  notificationsEnabled Boolean        @default(true)
+  reportCount          Int            @default(0)
+  isBlocked            Boolean        @default(false)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  posts                Post[]
+  comments             Comment[]
+  reactions            Reaction[]
+  favorites            Favorite[]
+  followedBy           Follow[]       @relation("Follower")
+  following            Follow[]       @relation("Followee")
+  sentMessages         Message[]      @relation("Sender")
+  receivedMessages     Message[]      @relation("Receiver")
+  mesure               Mesure?
+  notifications        Notification[]
+  statuses             Status[]
+  votes                Vote[]         @relation("UserVotes")
+  votesAsTailor        Vote[]         @relation("TailorVotes")
+  views                View[]
+  viewedStatuses       View[]         @relation("StatusViewer")
+  reports              Report[]       @relation("Signaler")
+  retweets             Retweet[]
+  reportedBy           Report[]       @relation("Signaled")
+}
+
+model Post {
+  id              Int        @id @default(autoincrement())
+  userId          Int
+  content         String
+  isPublic        Boolean    @default(true)
+  reactionCount   Int        @default(0)
+  commentsCount   Int        @default(0)
+  sharesCount     Int        @default(0)
+  viewsCount      Int        @default(0)
+  commentsEnabled Boolean    @default(true)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  user            User       @relation(fields: [userId], references: [id])
+  comments        Comment[]
+  reactions       Reaction[]
+  favorites       Favorite[]
+  views           View[]
+  shares          Retweet[]
+  media           Media[]    // Relation to Media model
+}
+
+model Media {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  url       String
+  type      String   // E.g., 'image', 'video'
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post      Post     @relation(fields: [postId], references: [id])
+}
+
+model Comment {
+  id        Int        @id @default(autoincrement())
+  postId    Int
+  userId    Int
+  content   String
+  reaction  String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  post      Post       @relation(fields: [postId], references: [id])
+  user      User       @relation(fields: [userId], references: [id])
+  reactions Reaction[]
+}
+
+model Reaction {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  reactionType String
+  postId       Int?
+  commentId    Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
+  post         Post?    @relation(fields: [postId], references: [id])
+  comment      Comment? @relation(fields: [commentId], references: [id])
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  postId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+}
+
+model Follow {
+  id         Int  @id @default(autoincrement())
+  followerId Int
+  followeeId Int
+  follower   User @relation("Follower", fields: [followerId], references: [id])
+  followee   User @relation("Followee", fields: [followeeId], references: [id])
+
+  @@unique([followerId, followeeId])
+}
+
+model Message {
+  id             Int      @id @default(autoincrement())
+  senderId       Int
+  receiverId     Int
+  content        String
+  isRead         Boolean  @default(false)
+  conversationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  sender         User     @relation("Sender", fields: [senderId], references: [id])
+  receiver       User     @relation("Receiver", fields: [receiverId], references: [id])
+}
+
+model Mesure {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  taille         Float    @default(0)
+  tourPoitrine   Float    @default(0)
+  tourTaille     Float    @default(0)
+  tourHanche     Float    @default(0)
+  longueurDos    Float    @default(0)
+  largeurEpaules Float    @default(0)
+  longueurManche Float    @default(0)
+  tourCou        Float    @default(0)
+  longueurJambe  Float    @default(0)
+  tourCuisse     Float    @default(0)
+  tourBras       Float    @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Status {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  content    String?
+  mediaType  String?
+  mediaUrl   String?
+  viewsCount Int      @default(0)
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  user       User     @relation(fields: [userId], references: [id])
+  viewedBy   View[]   @relation("StatusView")
+}
+
+model Vote {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  tailorId  Int
+  rating    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation("UserVotes", fields: [userId], references: [id])
+  tailor    User     @relation("TailorVotes", fields: [tailorId], references: [id])
+}
+
+model View {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  postId    Int?
+  statusId  Int?
+  createdAt DateTime @default(now())
+
+  user         User    @relation(fields: [userId], references: [id], map: "FK_View_User")
+  post         Post?   @relation(fields: [postId], references: [id])
+  status       Status? @relation("StatusView", fields: [statusId], references: [id])
+  statusViewer User    @relation("StatusViewer", fields: [userId], references: [id], map: "FK_View_StatusViewer")
+}
+
+model Retweet {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  postId    Int
+  content   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+}
+
+model Report {
+  id         Int      @id @default(autoincrement())
+  signaledId Int
+  signalerId Int
+  reasons    String // Changed from String[] to String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  signaled   User     @relation("Signaled", fields: [signaledId], references: [id])
+  signaler   User     @relation("Signaler", fields: [signalerId], references: [id])
+
+  @@unique([signaledId, signalerId])
+}

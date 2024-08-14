@@ -1,0 +1,29 @@
+// Initialisez un projet Node.js :
+npm init -y
+
+// Installez TypeScript et les types Node.js :
+npm install typescript @types/node --save-dev
+
+// Initialisez TypeScript :
+npx tsc --init
+
+// Installer l'extension Prisma :
+npx tsc --init
+
+//Installez Prisma :
+npm install prisma --save-dev
+
+// Initialisez Prisma dans votre projet :
+npx prisma init
+
+// le tout en une commande 
+npm init -y npm install typescript @types/node ts-node prisma @prisma/client express @types/express --save-dev
+
+// Installez le client Prisma :
+npm install @prisma/client
+
+// D'abord, créez une migration initiale :
+npx prisma migrate dev --name init
+
+// Si vous avez déjà une base de données et que vous voulez simplement la mettre à jour, utilisez :
+npx prisma migrate dev
