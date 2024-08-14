@@ -7,7 +7,7 @@ const options = {
     info: {
       title: 'Tailor API',
       version: '1.0.0',
-      description: 'Documentation de notre API pour le réseau social des tailleurs',
+      description: 'Documentation de notre API pour le réseau social des tailleurs.',
     },
     servers: [
       {
