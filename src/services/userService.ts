@@ -1,60 +1,38 @@
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import UserValidator from '../utils/Validators/userValidator';
 import { generateToken } from '../utils/tokenUtils';
-// import { ValidationError, DatabaseError } from '../types/errors';
+import { ValidationError, DatabaseError } from '../errors/customErrors';
+import { Register, Login, UpdateUser} from '../Interfaces/UserInterface';
 
 const prisma = new PrismaClient();
 
-export class UserService {
-  // static async register(userData: Partial<User>): Promise<{ token: string }> {
-  //   try {
-  //     const { email, password } = userData;
+class UserService {
+  static async register(userData: Register) {
+    try {
+      const validatedData = UserValidator.validateRegister(userData);
+      
+      const existingUser = await prisma.user.findUnique({ where: { email: validatedData.email } });
+      if (existingUser) throw new ValidationError('Email already in use');
 
-  //     if (!email || !password) {
-  //       // throw new ValidationError('Email and password are required');
-  //     }
+      const hashedPassword = await bcrypt.hash(validatedData.password, 10);
 
-  //     const existingUser = await prisma.user.findUnique({ where: { email } });
-  //     if (existingUser) {
-  //       // throw new ValidationError('Email already in use');
-  //     }
+      const newUser = await prisma.user.create({
+        data: {
+          ...validatedData,
+          password: hashedPassword,
+        },
+      });
 
-  //     const hashedPassword = await bcrypt.hash(password, 10);
+      const token = generateToken({ userId: newUser.id, type: newUser.type });
+      return { token };
+    } catch (error:any) {
+      if (error instanceof ValidationError) throw error;
+      throw new DatabaseError(`Registration failed: ${error.message}`);
+    }
+  }
 
-  //     const newUser = await prisma.user.create({
-  //       data: {
-  //         ...userData,
-  //         password: hashedPassword,
-  //       },
-  //     });
-
-  //     const token = generateToken({ userId: newUser.id, type: newUser.type });
-
-  //     return { token };
-  //   } catch (error) {
-  //     if (error instanceof ValidationError) {
-  //       throw error;
-  //     }
-  //     throw new DatabaseError(`Registration failed: ${error.message}`);
-  //   }
-  // }
-
-  // static async login(email: string, password: string): Promise<{ token: string }> {
-  //   const user = await prisma.user.findUnique({ where: { email } });
-  //   if (!user) {
-  //     throw new ValidationError('User not found');
-  //   }
-
-  //   const isMatch = await bcrypt.compare(password, user.password);
-  //   if (!isMatch) {
-  //     throw new ValidationError('Invalid credentials');
-  //   }
-
-  //   const token = generateToken({ userId: user.id, type: user.type });
-  //   return { token };
-  // }
-
-  // Ajoutez d'autres méthodes de service ici...
+ 
 }
 
-// export default UserService;
+export default UserService;
