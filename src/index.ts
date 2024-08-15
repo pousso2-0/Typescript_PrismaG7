@@ -4,8 +4,10 @@ import compression from 'compression';
 import cors from 'cors';
 
 
+
 import { PORT } from './config/env';
 import errorHandler from './middlewares/errorHandler';
+import Routes from './routes/index';
 import logger from './utils/logger';
 // import configureRoutes from './routes';
 import { swaggerUi, specs } from './config/swagger';
@@ -20,7 +22,7 @@ app.use(compression());
 app.use(cors());
 
 // Configuration des routes
-// configureRoutes(app);
+Routes(app);
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));

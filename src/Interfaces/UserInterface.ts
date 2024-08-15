@@ -37,26 +37,42 @@ import { User } from '@prisma/client';
 // };
 
 
+export type loginInput = Pick < User, 'email' | 'password'>;
+
+export interface UserProfile extends User {
+  id: number;
+  name: string;
+  email: string;
+  profilePicture: string | null;
+  bio: string | null;
+  location: string | null;
+  dateOfBirth: Date | null;
+  gender: string | null;
+  phone: string | null;
+  website: string | null;
+  followersCount: number;
+  followingCount: number ;
+  postsCount: number ;
+  isPrivate: boolean ;
+  notificationsEnabled: boolean ;
+  reportCount: number;
+  isBlocked: boolean ;
+  notifications: [];
+  followers: [];
+  following: [];
+  bookmarks: [];
+  posts: [];
+  comments: [];
+
+}
+
+
+
 export interface Register{
   name: string; // Assurez-vous que ces propriétés correspondent au modèle Prisma
   email: string;
   password: string;
   type: 'CLIENT' | 'TAILLEUR' | 'VENDEUR' | 'ADMIN';
-  profilePicture?: string;
-  bio?: string;
-  location?: string;
-  dateOfBirth?: Date;
-  gender?: string;
-  phone?: string;
-  website?: string;
-  followersCount?: number;
-  followingCount?: number;
-  postsCount?: number;
-  isPrivate?: boolean;
-  notificationsEnabled?: boolean;
-  reportCount?: number;
-  isBlocked?: boolean;
-  
 }
 
   export interface Login{

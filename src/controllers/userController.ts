@@ -12,8 +12,36 @@ class UserController {
       return res.status(400).json({ message: error.message });
     }
   }
+  static async login(req: Request, res: Response) {
+    try {
+      const authToken = await UserService.login(req.body);
+      res.json(authToken);
+    } catch (error: any) {
+      res.status(401).json({ message: error.message });
+    }
+  }
 
- 
+  static async logout(req: Request, res: Response) {
+    try {
+      const token = req.headers.authorization?.split(' ')[1];
+      if (!token) {
+        return res.status(400).json({ message: "No token provided" });
+      }
+      // Implement logout logic if needed (e.g., invalidating tokens)
+      res.status(200).json({ message: "Logout successful" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+  static async getCurrentUserProfile(req: Request, res: Response) {
+    try {
+      const profile = await UserService.getUserById(req.userId as number); // assuming userId is added to req by middleware
+      res.json(profile);
+    } catch (error: any) {
+      res.status(404).json({ message: error.message });
+    }
+  }
+
 }
 
 export default UserController;

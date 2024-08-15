@@ -1,5 +1,6 @@
 import express from 'express';
-import UserController from '../controllers/userController.js';
+import UserController from '../controllers/userController';
+import {authMiddleware} from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
@@ -58,3 +59,58 @@ const router = express.Router();
  */
 router.post('/register', UserController.register);
 
+
+/**
+ * @swagger
+ * /api/users/login:
+ *   post:
+ *     summary: Connexion d'un utilisateur
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Connexion réussie
+ *       401:
+ *         description: Identifiants incorrects
+ */
+router.post('/login', UserController.login);
+
+/**
+ * @swagger
+ * /api/users/logout:
+ *   post:
+ *     summary: Déconnexion de l'utilisateur
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: Déconnexion réussie
+ */
+router.post('/logout', UserController.logout);
+
+/**
+ * @swagger
+ * /api/users/profile:
+ *   get:
+ *     summary: Récupérer le profil de l'utilisateur connecté
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profil de l'utilisateur
+ */
+router.get('/profile', authMiddleware, UserController.getCurrentUserProfile);
+
+
+
+export default router;

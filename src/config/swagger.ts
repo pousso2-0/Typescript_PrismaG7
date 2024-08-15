@@ -7,12 +7,16 @@ const options = {
     info: {
       title: 'Tailor API',
       version: '1.0.0',
-      description: 'Documentation de notre API pour le réseau social des tailleurs....',
+      description: 'Documentation de notre API pour le réseau social des tailleurs',
     },
     servers: [
       {
         url: `https://backendg7-jhgt.onrender.com/`,
         description: 'Serveur de développement',
+      },
+      {
+        url: `http://localhost:3000/`,
+        description: 'Serveur local',
       },
       
     ],
@@ -31,7 +35,7 @@ const options = {
       },
     ],
   },
-  apis: ['./src/routes/*.js'], // Chemin vers vos fichiers de routes
+  apis: ['src/routes/*'], // Chemin vers vos fichiers de routes
 };
 
 const specs = swaggerJsdoc(options);
