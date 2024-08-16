@@ -1,6 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient,   User} from '@prisma/client';
 import bcrypt from 'bcrypt';
 import UserValidator from '../utils/Validators/userValidator';
+import {PREMIUM_COST , PREMIUM_DEFAULT_CREDITS} from '../config/env';
 import { generateToken } from '../utils/tokenUtils';
 import { ValidationError, DatabaseError } from '../errors/customErrors';
 import { UserProfile ,  Register, Login, UpdateUser} from '../Interfaces/UserInterface';
@@ -55,7 +56,80 @@ class UserService {
     return user as UserProfile;
   }
 
+  static async updateCredits(userId: number, amount: number): Promise<UserProfile> {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { credits: { increment: amount } },
+    });
 
+    if (!user) throw new ValidationError("User not found");
+
+    return user as UserProfile;
+  }
+
+  static async upgradeToPremium(userId: number): Promise<UserProfile> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) throw new ValidationError("User not found");
+
+    if (user.credits < PREMIUM_COST) {
+      throw new ValidationError("Not enough credits to upgrade to premium");
+    }
+
+    const premiumExpiresAt = new Date();
+    premiumExpiresAt.setMonth(premiumExpiresAt.getMonth() + 1);
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        subscriptionType: 'premium',
+        premiumExpiresAt,
+        credits: user.credits - PREMIUM_COST + PREMIUM_DEFAULT_CREDITS,
+      },
+    });
+
+    return updatedUser as UserProfile;
+  }
+
+  static async checkAndUpdatePremiumStatus(userId: number): Promise<UserProfile> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) throw new ValidationError("User not found");
+
+    if (user.subscriptionType === 'premium' && user.premiumExpiresAt && user.premiumExpiresAt < new Date()) {
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          subscriptionType: 'free',
+          premiumExpiresAt: null,
+        },
+      });
+
+      return updatedUser as UserProfile;
+    }
+
+    return user as UserProfile;
+  }
+
+  static async buyCredits(userId: number, amount: number): Promise<UserProfile> {
+    const creditsToBuy = Math.floor(amount / 100);
+    return this.updateCredits(userId, creditsToBuy);
+  }
+
+  static async getPremiumUsers(): Promise<User[]> {
+    return prisma.user.findMany({
+      where: {
+        subscriptionType: 'premium',
+        premiumExpiresAt: {
+          gt: new Date()  // Filtrer les utilisateurs dont l'abonnement premium est encore valide
+        }
+      }
+    });
+  }
  
 }
 

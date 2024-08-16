@@ -1,0 +1,16 @@
+-- DropForeignKey
+ALTER TABLE `View` DROP FOREIGN KEY `FK_View_StatusViewer`;
+
+-- DropForeignKey
+ALTER TABLE `View` DROP FOREIGN KEY `FK_View_User`;
+
+-- AlterTable
+ALTER TABLE `User` ADD COLUMN `credits` INTEGER NOT NULL DEFAULT 30,
+    ADD COLUMN `premiumExpiresAt` DATETIME(3) NULL,
+    ADD COLUMN `subscriptionType` VARCHAR(191) NOT NULL DEFAULT 'free';
+
+-- AddForeignKey
+ALTER TABLE `View` ADD CONSTRAINT `FK_View_User` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `View` ADD CONSTRAINT `FK_View_StatusViewer` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

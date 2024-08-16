@@ -112,5 +112,67 @@ router.post('/logout', UserController.logout);
 router.get('/profile', authMiddleware, UserController.getCurrentUserProfile);
 
 
+/**
+ * @swagger
+ * /api/users/buy-credits:
+ *   post:
+ *     summary: Buy credits for a user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Updated user with new credits
+ */
+router.post('/buy-credits', authMiddleware, UserController.buyCredits);
+
+/**
+ * @swagger
+ * /api/users/upgrade-to-premium:
+ *   post:
+ *     summary: Upgrade a user to premium
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Updated user with premium status
+ */
+router.post('/upgrade-to-premium', authMiddleware, UserController.upgradeToPremium);
+
+/**
+ * @swagger
+ * /api/users/premium-status:
+ *   get:
+ *     summary: Check and update premium status of a user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Updated user with the current premium status
+ */
+router.get('/premium-status',authMiddleware, UserController.checkAndUpdatePremiumStatus);
+
+
+
 
 export default router;

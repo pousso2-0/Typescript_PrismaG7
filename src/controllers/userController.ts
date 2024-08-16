@@ -42,6 +42,49 @@ class UserController {
     }
   }
 
+  static async buyCredits(req: Request, res: Response) {
+    try {
+      const userId = req.userId as number; 
+      const { amount } = req.body;
+      const user = await UserService.buyCredits(userId, amount);
+      res.status(200).json(user);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async upgradeToPremium(req: Request, res: Response) {
+    try {
+      const userId = req.userId as number; 
+      const user = await UserService.upgradeToPremium(userId);
+      res.status(200).json(user);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message }); 
+    }
+  }
+
+  static async checkAndUpdatePremiumStatus(req: Request, res: Response) {
+    try {
+      const userId = req.userId as number; 
+      const user = await UserService.checkAndUpdatePremiumStatus(userId);
+      res.status(200).json(user);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message }); 
+    }
+  }
+
+static async getUserProfileById(req: Request, res: Response) {
+    try {
+      const userId = req.userId as number;
+        const profile = await UserService.getUserById(userId);
+        if (profile.isPrivate) {
+            return res.status(403).json({ message: "Private profile" });
+        }
+        return res.json(profile);
+    } catch (error:any) {
+        return res.status(404).json({ message: error.message });
+    }
+}
 }
 
 export default UserController;

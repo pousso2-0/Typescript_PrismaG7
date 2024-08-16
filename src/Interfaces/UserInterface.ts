@@ -60,14 +60,10 @@ export interface UserProfile extends User {
   notifications: [];
   followers: [];
   following: [];
-  bookmarks: [];
   posts: [];
   comments: [];
 
 }
-
-
-
 export interface Register{
   name: string; // Assurez-vous que ces propriétés correspondent au modèle Prisma
   email: string;
