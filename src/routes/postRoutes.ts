@@ -1,6 +1,7 @@
 import express from 'express';
 import PostController from '../controllers/postController';
 import { authMiddleware } from '../middlewares/authMiddleware';
+import ShareFavController from '../controllers/ShareFavController';
 
 const router = express.Router();
 
@@ -192,5 +193,123 @@ router.post('/:id/share', PostController.incrementShareCount);
  *         description: Erreur lors de la récupération des posts
  */
 router.get('/', PostController.getAllPosts);
+
+
+/**
+ * @swagger
+ * /api/posts/retweet:
+ *   post:
+ *     summary: Partager un post
+ *     tags: [Retweets]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               postId:
+ *                 type: number
+ *                 description: ID du post à partager
+ *               content:
+ *                 type: string
+ *                 description: contenu a ajouer sur le post a partager
+ *     responses:
+ *       200:
+ *         description: Post partagé avec succès
+ *       400:
+ *         description: Données invalides
+ *       404:
+ *         description: Post non trouvé
+ */
+router.post('/retweet', authMiddleware, ShareFavController.retweetPost);
+
+/**
+ * @swagger
+ * /api/posts/favorites:
+ *   post:
+ *     summary: Ajouter un post aux favoris
+ *     tags: [Favoris]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               postId:
+ *                 type: number
+ *                 description: ID du post à ajouter aux favoris
+ *     responses:
+ *       200:
+ *         description: Post ajouté aux favoris avec succès
+ *       400:
+ *         description: Données invalides
+ *       404:
+ *         description: Post non trouvé
+ */
+router.post('/favorites', authMiddleware, ShareFavController.addToFavorites);
+
+/**
+ * @swagger
+ * /api/posts/retweets:
+ *   get:
+ *     summary: Obtenir les posts partagés par l'utilisateur
+ *     tags: [Retweets]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Liste des posts partagés par l'utilisateur
+ *       404:
+ *         description: Aucun post partagé trouvé
+ */
+router.get('/retweets', authMiddleware, ShareFavController.getUserRetweet);
+
+/**
+ * @swagger
+ * /api/posts/favorites/f:
+ *   get:
+ *     summary: Obtenir les posts favoris de l'utilisateur
+ *     tags: [Favoris]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Liste des posts favoris de l'utilisateur
+ *       404:
+ *         description: Aucun post favori trouvé
+ */
+router.get('/favorites/f', authMiddleware, ShareFavController.getUserFavorites);
+
+/**
+ * @swagger
+ * /api/posts/favorites/{postId}:
+ *   delete:
+ *     summary: Supprimer un post des favoris
+ *     tags: [Favoris]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: ID du post à supprimer des favoris
+ *     responses:
+ *       200:
+ *         description: Post supprimé des favoris avec succès
+ *       400:
+ *         description: Format ID de post invalide
+ *       404:
+ *         description: Post non trouvé dans les favoris
+ */
+router.delete('/favorites/:postId', authMiddleware, ShareFavController.deleteFromFavorites);
+
 
 export default router;

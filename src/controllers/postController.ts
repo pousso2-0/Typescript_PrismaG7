@@ -8,7 +8,7 @@ const postService = new PostServiceImpl();
 class PostController {
   static async createPost(req: Request, res: Response) {
     try {
-      const userId = req.userId as number; // Assuming userId is added to req by middleware
+      const userId = req.userId as number; 
       const postData: CreatePostInput = req.body;
       const newPost = await postService.createPost(userId, postData);
       return res.status(201).json(newPost);

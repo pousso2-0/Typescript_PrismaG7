@@ -1,14 +1,18 @@
-import {
-  Post,
-  CreatePostInput,
-  UpdatePostInput,
-  postIncludeConfig,
-  PostService,
-} from "../Interfaces/PostInterface";
-import { ValidationError, DatabaseError } from "../errors/customErrors";
-import { PrismaClient, User } from "@prisma/client";
+import { Post, CreatePostInput, UpdatePostInput , postIncludeConfig } from '../Interfaces/PostInterface';
+import { ValidationError, DatabaseError } from '../errors/customErrors';
+import { PrismaClient, User } from '@prisma/client';
 
 const prisma = new PrismaClient();
+
+export interface PostService {
+  createPost(userId: number, postData: CreatePostInput): Promise<Post>;
+  getPostById(postId: number): Promise<Post>;
+  updatePost(postId: number, userId: number, updateData: UpdatePostInput): Promise<Post>;
+  deletePost(postId: number, userId: number): Promise<Post>;
+  getUserPosts(userId: number, page?: number, limit?: number): Promise<Post[]>;
+  incrementShareCount(postId: number): Promise<Post>;
+  getAllPosts(page?: number, limit?: number): Promise<Post[]>;
+}
 
 export class PostServiceImpl implements PostService {
   private static readonly DEFAULT_PAGE_SIZE = 10;
@@ -22,30 +26,24 @@ export class PostServiceImpl implements PostService {
   }
 
   private async checkUserCredits(user: User) {
-    if (
-      user.type === "CLIENT" &&
-      user.credits < PostServiceImpl.POST_CREATION_COST
-    ) {
+    if (user.type === 'CLIENT' && user.credits < PostServiceImpl.POST_CREATION_COST) {
       throw new ValidationError("Not enough credits to create a post");
     }
   }
 
-  private async updateUserCreditsAndPostCount(
-    userId: number,
-    isCreating: boolean
-  ): Promise<void> {
+  private async updateUserCreditsAndPostCount(userId: number, isCreating: boolean): Promise<void> {
     if (isCreating) {
       await prisma.user.update({
         where: { id: userId },
         data: {
           credits: { decrement: PostServiceImpl.POST_CREATION_COST },
-          postsCount: { increment: 1 },
-        },
+          postsCount: { increment: 1 }
+        }
       });
     } else {
       await prisma.user.update({
         where: { id: userId },
-        data: { postsCount: { decrement: 1 } },
+        data: { postsCount: { decrement: 1 } }
       });
     }
   }
@@ -55,14 +53,8 @@ export class PostServiceImpl implements PostService {
       const user = await this.getUser(userId);
       this.checkUserCredits(user);
 
-      if (
-        user.type === "CLIENT" &&
-        postData.media &&
-        postData.media.length > PostServiceImpl.FREE_USER_MEDIA_LIMIT
-      ) {
-        throw new ValidationError(
-          `Free users can only post up to ${PostServiceImpl.FREE_USER_MEDIA_LIMIT} media items`
-        );
+      if (user.type === 'CLIENT' && postData.media && postData.media.length > PostServiceImpl.FREE_USER_MEDIA_LIMIT) {
+        throw new ValidationError(`Free users can only post up to ${PostServiceImpl.FREE_USER_MEDIA_LIMIT} media items`);
       }
 
       const newPost = await prisma.post.create({
@@ -71,12 +63,12 @@ export class PostServiceImpl implements PostService {
           content: postData.content,
           isPublic: postData.isPublic ?? true,
           commentsEnabled: postData.commentsEnabled ?? true,
-          media: { create: postData.media },
+          media: { create: postData.media }
         },
-        include: postIncludeConfig,
+        include: postIncludeConfig
       });
 
-      if (user.type === "CLIENT") {
+      if (user.type === 'CLIENT') {
         await this.updateUserCreditsAndPostCount(userId, true);
       }
 
@@ -90,7 +82,7 @@ export class PostServiceImpl implements PostService {
     try {
       const post = await prisma.post.findUnique({
         where: { id: postId },
-        include: postIncludeConfig,
+        include: postIncludeConfig
       });
 
       if (!post) throw new ValidationError("Post not found");
@@ -101,25 +93,16 @@ export class PostServiceImpl implements PostService {
     }
   }
 
-  async updatePost(
-    postId: number,
-    userId: number,
-    updateData: UpdatePostInput
-  ): Promise<Post> {
+  async updatePost(postId: number, userId: number, updateData: UpdatePostInput): Promise<Post> {
     try {
-      const post = await prisma.post.findFirst({
-        where: { id: postId, userId },
-      });
-      if (!post)
-        throw new ValidationError(
-          "Post not found or you're not authorized to update it"
-        );
+      const post = await prisma.post.findFirst({ where: { id: postId, userId } });
+      if (!post) throw new ValidationError("Post not found or you're not authorized to update it");
 
-      return (await prisma.post.update({
+      return await prisma.post.update({
         where: { id: postId },
         data: updateData,
-        include: postIncludeConfig,
-      })) as Post;
+        include: postIncludeConfig
+      }) as Post;
     } catch (error: any) {
       throw new DatabaseError(`Failed to update post: ${error.message}`);
     }
@@ -127,17 +110,12 @@ export class PostServiceImpl implements PostService {
 
   async deletePost(postId: number, userId: number): Promise<Post> {
     try {
-      const post = await prisma.post.findFirst({
-        where: { id: postId, userId },
-      });
-      if (!post)
-        throw new ValidationError(
-          "Post not found or you're not authorized to delete it"
-        );
+      const post = await prisma.post.findFirst({ where: { id: postId, userId } });
+      if (!post) throw new ValidationError("Post not found or you're not authorized to delete it");
 
       const deletedPost = await prisma.post.delete({
         where: { id: postId },
-        include: postIncludeConfig,
+        include: postIncludeConfig
       });
 
       await this.updateUserCreditsAndPostCount(userId, false);
@@ -148,20 +126,16 @@ export class PostServiceImpl implements PostService {
     }
   }
 
-  async getUserPosts(
-    userId: number,
-    page: number = 1,
-    limit: number = PostServiceImpl.DEFAULT_PAGE_SIZE
-  ): Promise<Post[]> {
+  async getUserPosts(userId: number, page: number = 1, limit: number = PostServiceImpl.DEFAULT_PAGE_SIZE): Promise<Post[]> {
     try {
       const skip = (page - 1) * limit;
-      return (await prisma.post.findMany({
+      return await prisma.post.findMany({
         where: { userId },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-        include: postIncludeConfig,
-      })) as Post[];
+        include: postIncludeConfig
+      }) as Post[];
     } catch (error: any) {
       throw new DatabaseError(`Failed to get user posts: ${error.message}`);
     }
@@ -172,31 +146,26 @@ export class PostServiceImpl implements PostService {
       const updatedPost = await prisma.post.update({
         where: { id: postId },
         data: { sharesCount: { increment: 1 } },
-        include: postIncludeConfig,
+        include: postIncludeConfig
       });
 
       if (!updatedPost) throw new ValidationError("Post not found");
 
       return updatedPost as Post;
     } catch (error: any) {
-      throw new DatabaseError(
-        `Failed to increment share count: ${error.message}`
-      );
+      throw new DatabaseError(`Failed to increment share count: ${error.message}`);
     }
   }
 
-  async getAllPosts(
-    page: number = 1,
-    limit: number = PostServiceImpl.DEFAULT_PAGE_SIZE
-  ): Promise<Post[]> {
+  async getAllPosts(page: number = 1, limit: number = PostServiceImpl.DEFAULT_PAGE_SIZE): Promise<Post[]> {
     try {
       const skip = (page - 1) * limit;
-      return (await prisma.post.findMany({
-        orderBy: { createdAt: "desc" },
+      return await prisma.post.findMany({
+        orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-        include: postIncludeConfig,
-      })) as Post[];
+        include: postIncludeConfig
+      }) as Post[];
     } catch (error: any) {
       throw new DatabaseError(`Failed to get all posts: ${error.message}`);
     }
