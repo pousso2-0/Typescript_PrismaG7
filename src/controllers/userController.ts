@@ -85,6 +85,23 @@ static async getUserProfileById(req: Request, res: Response) {
         return res.status(404).json({ message: error.message });
     }
 }
+
+static async searchUsers(req: Request, res: Response): Promise<void> {
+  try {
+    const { name } = req.query;
+
+    if (!name || typeof name !== 'string') {
+      res.status(400).json({ message: "Name parameter is required and must be a string" });
+      return;
+    }
+
+    const users = await UserService.searchUsersByName(name);
+    res.json(users);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+}
+
 }
 
 export default UserController;

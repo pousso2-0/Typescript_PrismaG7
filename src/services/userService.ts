@@ -4,7 +4,7 @@ import UserValidator from '../utils/Validators/userValidator';
 import {PREMIUM_COST , PREMIUM_DEFAULT_CREDITS} from '../config/env';
 import { generateToken } from '../utils/tokenUtils';
 import { ValidationError, DatabaseError } from '../errors/customErrors';
-import { UserProfile ,  Register, Login, UpdateUser} from '../Interfaces/UserInterface';
+import { UserProfile ,  Register, Login, UpdateUser, UserSearchResult} from '../Interfaces/UserInterface';
 
 const prisma = new PrismaClient();
 
@@ -55,6 +55,7 @@ class UserService {
     if (!user) throw new ValidationError('User not found');
     return user as UserProfile;
   }
+  
 
   static async updateCredits(userId: number, amount: number): Promise<UserProfile> {
     const user = await prisma.user.update({
@@ -130,7 +131,50 @@ class UserService {
       }
     });
   }
- 
-}
+  // static async getTopUsers(): Promise<User[]> {
+  //   return prisma.user.findMany({
+  //     orderBy: {
+  //       followersCount: {
+  //         desc: true
+  //       }
+  //     },
+  //     take: 10
+  //   });
+  // }
+  // static async getPopularTags(): Promise<string[]> {
+  //   const posts = await prisma.post.findMany({
+  //     include: {
+  //       tags: true,
+  //     },
+  //   });
+
+  //   const tags = new Set<string>();
+  //   posts.forEach((post) => post.tags.forEach((tag) => tags.add(tag.name)));
+
+  //   return Array.from(tags);
+  // }
+  
+  static async searchUsersByName(name: string): Promise<UserSearchResult[]> {
+    try {
+      const users = await prisma.user.findMany({
+        where: {
+          name: {
+            contains: name, // Recherche la sous-chaîne dans le nom
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          profilePicture: true,
+        },
+        take: 10 // Limiter le nombre de résultats à 10
+      });
+  
+      return users;
+    } catch (error: any) {
+      throw new DatabaseError(`Search failed: ${error.message}`);
+    }
+  }
+};
 
 export default UserService;
