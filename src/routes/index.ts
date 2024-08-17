@@ -1,6 +1,6 @@
 import { Express } from 'express';
 import userRoutes from './userRoutes';
-// import postRoutes from './postRoutes';
+import postRoutes from './postRoutes';
 // import commentRoutes from './commentRoutes';
 // import messageRoutes from './messageRoutes';
 // import feedRoutes from './feedRoutes';
@@ -9,7 +9,7 @@ import userRoutes from './userRoutes';
 
 export default function(app: Express) {
  app.use('/api/users', userRoutes);
-//   app.use('/api/posts', postRoutes);
+  app.use('/api/posts', postRoutes);
 //   app.use('/api/comments', commentRoutes);
 //   app.use('/api/messages', messageRoutes);
 //   app.use('/api/', feedRoutes);
