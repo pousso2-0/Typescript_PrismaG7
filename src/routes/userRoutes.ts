@@ -329,7 +329,7 @@ router.post('/vote', authMiddleware, VoteController.vote);
  *       200:
  *         description: Note moyenne récupérée
  */
-router.get('/:id/vote', VoteController.getTailorRating);
+router.get('/:id/vote', authMiddleware, VoteController.getTailorRating);
 
 /**
  * @swagger
