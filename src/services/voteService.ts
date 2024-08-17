@@ -1,11 +1,11 @@
 import { PrismaClient } from '@prisma/client';
-import { VoteResult, TailorRating } from '../Interfaces/UserInterface';
+import { Vote, TailorRating } from '../Interfaces/UserInterface';
 
 const prisma = new PrismaClient();
 
 
 class VoteService {
-    static async voteForTailor(userId: number, tailorId: number, rating: number): Promise<VoteResult> {
+    static async voteForTailor(userId: number, tailorId: number, rating: number): Promise<Vote> {
         if (rating < 1 || rating > 5) {
           throw new Error('Rating must be between 1 and 5');
         }

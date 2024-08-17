@@ -10,6 +10,10 @@ class ReportService {
   private static validReasons: string[] = ['spam', 'harassment', 'hate speech', 'fake profile', 'other'];
 
   static async reportUser(signalerId:number, {signaledId, reasons }: Report): Promise<Report> {
+    // Valider les raisons fournies
+    if (!this.isValidReasons(reasons)) {
+      throw new Error('Invalid reasons provided');
+    }
     // Vérifier si l'utilisateur a déjà été signalé par le même utilisateur
     const existingReport = await prisma.report.findFirst({
       where: { signalerId: signalerId, signaledId: signaledId },
@@ -18,12 +22,6 @@ class ReportService {
 
     if (existingReport) {
       throw new Error('User has already been reported by you');
-    }
-    
-
-    // Valider les raisons fournies
-    if (!this.isValidReasons(reasons)) {
-      throw new Error('Invalid reasons provided');
     }
 
     // Créer un rapport
@@ -41,8 +39,8 @@ class ReportService {
       data: { reportCount: { increment: 1 } },
     });
 
-    const blockThreshold = 2;
-    const notifyThreshold = 1;
+    const blockThreshold = 8;
+    const notifyThreshold = 5;
 
     // Bloquer l'utilisateur s'il dépasse le seuil
     if (user.reportCount >= blockThreshold) {

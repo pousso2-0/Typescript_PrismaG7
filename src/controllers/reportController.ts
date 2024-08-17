@@ -18,7 +18,7 @@ class ReportController {
       if (signalerId === signaledId) {
         throw new Error('You cannot report yourself');
       }
-      console.log("raison dans le controller", req.body.reason );
+      console.log("raison dans le controller", req.body.reasons );
       
 
       const report = await ReportService.reportUser(signalerId,  req.body);

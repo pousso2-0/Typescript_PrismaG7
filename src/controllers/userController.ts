@@ -35,7 +35,7 @@ class UserController {
   }
   static async getCurrentUserProfile(req: Request, res: Response) {
     try {
-      const profile = await UserService.getUserById(req.userId as number); // assuming userId is added to req by middleware
+      const profile = await UserService.getUserById(req.userId as number , true); // assuming userId is added to req by middleware
       res.json(profile);
     } catch (error: any) {
       res.status(404).json({ message: error.message });

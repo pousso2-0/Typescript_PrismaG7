@@ -1,12 +1,12 @@
 import { PrismaClient } from '@prisma/client';
-import { FollowResult , UserFollow} from '../Interfaces/UserInterface';
+import { Follow , UserFollow} from '../Interfaces/UserInterface';
 
 const prisma = new PrismaClient();
 
 
 
 class FollowService {
-  static async followUser(userId: number, followId: number): Promise<FollowResult> {
+  static async followUser(userId: number, followId: number): Promise<Follow> {
 
     // Vérifier si l'utilisateur est déjà suivi
     const isFollowing = await prisma.follow.findFirst({

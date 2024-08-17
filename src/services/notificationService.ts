@@ -1,5 +1,5 @@
 // src/services/NotificationService.ts
-import { Notification, NotificationResult  } from '../Interfaces/UserInterface';
+import { Notification  } from '../Interfaces/UserInterface';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -16,7 +16,7 @@ class NotificationService  {
     console.log(`Notification envoyée à l'utilisateur ${userId}: ${message}`);
   }
 
-  static async getNotifications(userId: number): Promise<NotificationResult[]> {
+  static async getNotifications(userId: number): Promise<Notification[]> {
     const notifications = await prisma.notification.findMany({
       where: { userId: userId },
       orderBy: { createdAt: 'desc' },
@@ -25,7 +25,7 @@ class NotificationService  {
     return notifications ;
   }
 
-  static async markAsRead(notificationId: number, userId: number): Promise<NotificationResult> {
+  static async markAsRead(notificationId: number, userId: number): Promise<Notification> {
 
     // verifié si l'utilisateur connecté est le proprietaire du notification
 
@@ -49,7 +49,7 @@ class NotificationService  {
       throw new Error('Notification not found');
     }
 
-    return notification as NotificationResult;
+    return notification as Notification;
   }
 }
 

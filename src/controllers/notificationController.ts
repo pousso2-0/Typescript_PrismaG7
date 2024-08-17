@@ -1,13 +1,13 @@
 // src/controllers/NotificationController.ts
 import { Request, Response } from 'express';
 import NotificationService from '../services/notificationService';
-import { NotificationResult } from '../Interfaces/UserInterface';
+import { Notification } from '../Interfaces/UserInterface';
 
 class NotificationController {
   static async getNotifications(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.userId as number; // Assurez-vous que userId est bien un nombre
-      const notifications: NotificationResult[] = await NotificationService.getNotifications(userId);
+      const notifications: Notification[] = await NotificationService.getNotifications(userId);
       res.status(200).json(notifications);
     } catch (error: any) {
       res.status(400).json({ message: `Failed to get notifications: ${error.message}` });

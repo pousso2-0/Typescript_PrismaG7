@@ -1,10 +1,10 @@
-import { PrismaClient,   User} from '@prisma/client';
+import { PrismaClient} from '@prisma/client';
 import bcrypt from 'bcrypt';
 import UserValidator from '../utils/Validators/userValidator';
 import {PREMIUM_COST , PREMIUM_DEFAULT_CREDITS} from '../config/env';
 import { generateToken } from '../utils/tokenUtils';
 import { ValidationError, DatabaseError } from '../errors/customErrors';
-import { UserProfile ,  Register, Login, UpdateUser, UserSearchResult} from '../Interfaces/UserInterface';
+import { User ,  Register, Login, UpdateUser, UserSearchResult , UserIncludeConfig} from '../Interfaces/UserInterface';
 
 const prisma = new PrismaClient();
 
@@ -50,14 +50,16 @@ class UserService {
     }
   }
 
-  static async getUserById(id: number): Promise<UserProfile> {
-    const user = await prisma.user.findUnique({ where: { id } });
-    if (!user) throw new ValidationError('User not found');
-    return user as UserProfile;
+  static async getUserById(id: number , includeRelations: boolean = false): Promise<User> {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: includeRelations ? UserIncludeConfig : {}
+    });    if (!user) throw new ValidationError('User not found');
+    return user as User;
   }
   
 
-  static async updateCredits(userId: number, amount: number): Promise<UserProfile> {
+  static async updateCredits(userId: number, amount: number): Promise<User> {
     const user = await prisma.user.update({
       where: { id: userId },
       data: { credits: { increment: amount } },
@@ -65,10 +67,10 @@ class UserService {
 
     if (!user) throw new ValidationError("User not found");
 
-    return user as UserProfile;
+    return user as User;
   }
 
-  static async upgradeToPremium(userId: number): Promise<UserProfile> {
+  static async upgradeToPremium(userId: number): Promise<User> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -91,10 +93,10 @@ class UserService {
       },
     });
 
-    return updatedUser as UserProfile;
+    return updatedUser as User;
   }
 
-  static async checkAndUpdatePremiumStatus(userId: number): Promise<UserProfile> {
+  static async checkAndUpdatePremiumStatus(userId: number): Promise<User> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -110,13 +112,13 @@ class UserService {
         },
       });
 
-      return updatedUser as UserProfile;
+      return updatedUser as User;
     }
 
-    return user as UserProfile;
+    return user as User;
   }
 
-  static async buyCredits(userId: number, amount: number): Promise<UserProfile> {
+  static async buyCredits(userId: number, amount: number): Promise<User> {
     const creditsToBuy = Math.floor(amount / 100);
     return this.updateCredits(userId, creditsToBuy);
   }
