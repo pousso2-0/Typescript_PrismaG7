@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 enum UserType {
   CLIENT
   TAILLEUR
@@ -80,7 +81,7 @@ model Post {
   views           View[]
   retweets        Retweet[]
   media           Media[]
-  shares          Share[]    // Nouveau champ
+  shares          Share[]    
 }
 
 model Media {
