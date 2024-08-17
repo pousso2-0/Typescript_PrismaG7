@@ -1,13 +1,13 @@
 // CommentInterface.ts
 
-import { User , Post , Reaction } from '@prisma/client';
+import { User, Post, Reaction } from '@prisma/client';
 
 export interface CommentService {
-  createComment(userId: number, postId: number, commentData: CreateCommentInput): Promise<Comment>;
+  createComment(userId: number, postId: number, content: string): Promise<Comment>;
   getCommentById(commentId: number): Promise<Comment>;
-  updateComment(commentId: number, userId: number, updateData: UpdateCommentInput): Promise<Comment>;
+  updateComment(commentId: number, userId: number, content: string): Promise<Comment>;
   deleteComment(commentId: number, userId: number): Promise<Comment>;
-  getPostComments(postId: number, page?: number, limit?: number): Promise<Comment[]>;
+  getCommentsByPostId(postId: number, page?: number, limit?: number): Promise<Comment[]>;
 }
 
 export interface Comment {
@@ -21,16 +21,6 @@ export interface Comment {
   post: Post;
   user: User;
   reactions: Reaction[];
-}
-
-export interface CreateCommentInput {
-  content: string;
-  reaction?: string;
-}
-
-export interface UpdateCommentInput {
-  content?: string;
-  reaction?: string;
 }
 
 // Configuration pour Prisma includes
