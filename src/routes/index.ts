@@ -4,7 +4,7 @@ import postRoutes from './postRoutes';
 import commentRoutes from './commentRoutes';
 // import messageRoutes from './messageRoutes';
 // import feedRoutes from './feedRoutes';
-// import reactionsRoutes from './reactionsRoutes';
+import reactionsRoutes from './reactionRoutes';
 // import statusRoutes from './statusRoutes';
 
 export default function(app: Express) {
@@ -14,7 +14,7 @@ export default function(app: Express) {
 //   app.use('/api/messages', messageRoutes);
 //   app.use('/api/', feedRoutes);
 //   app.use('/api/feed', feedRoutes);
-//   app.use('/api/reactions', reactionsRoutes);
+  app.use('/api/reactions', reactionsRoutes);
 //   app.use('/api/status', statusRoutes);
  }
 

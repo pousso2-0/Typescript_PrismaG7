@@ -112,7 +112,13 @@ export interface Media {
 
 // Configuration for Prisma includes
 export const postIncludeConfig = {
-  user: true,
+  user: {
+    select: {
+      id: true,
+      name: true,
+      profilePicture: true
+    }
+  },
   media: true,
   comments: true,
   reactions: true,
