@@ -94,12 +94,21 @@ export class CommentService {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-        include: { user: true, reactions: true }
+        include: {
+           user: {
+            select: {
+              id: true,
+              name: true,
+              profilePicture: true
+            }
+          },
+           reactions: true }
       });
     } catch (error: any) {
       throw new DatabaseError(`Failed to get comments: ${error.message}`);
     }
   }
+  
 
   
 }
