@@ -9,9 +9,9 @@ class ShareFavController {
 
       const share = await ShareFavService.retweetPost(userId, postId, content);
 
-      res.status(201).json({ message: 'Post shared successfully', share });
+      res.status(201).json({ message: 'Post retweet successfully', share });
     } catch (error: any) {
-      res.status(400).json({ message: `Failed to share post: ${error.message}` });
+      res.status(400).json({ message: `Failed to retweet post: ${error.message}` });
     }
   }
 
@@ -36,7 +36,7 @@ class ShareFavController {
 
       res.status(200).json(shares);
     } catch (error: any) {
-      res.status(400).json({ message: `Failed to get user shares: ${error.message}` });
+      res.status(400).json({ message: `Failed to get user retweet: ${error.message}` });
     }
   }
 

@@ -1,5 +1,6 @@
-import { PrismaClient, Comment } from "@prisma/client";
+import { PrismaClient,  } from "@prisma/client";
 import { ValidationError, DatabaseError } from "../errors/customErrors";
+import {  Comment, commentIncludeConfig , CommentWithLimitedUserInfo } from "../Interfaces/CommentInterface";
 
 const prisma = new PrismaClient();
 
@@ -21,7 +22,7 @@ export class CommentService {
           postId,
           content
         },
-        include: { user: true, post: true }
+        include: commentIncludeConfig
       });
 
       await prisma.post.update({
@@ -86,7 +87,7 @@ export class CommentService {
     }
   }
 
-  async getCommentsByPostId(postId: number, page: number = 1, limit: number = this.DEFAULT_PAGE_SIZE): Promise<Comment[]> {
+  async getCommentsByPostId(postId: number, page: number = 1, limit: number = this.DEFAULT_PAGE_SIZE): Promise<CommentWithLimitedUserInfo[]> {
     try {
       const skip = (page - 1) * limit;
       return await prisma.comment.findMany({

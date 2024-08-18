@@ -73,7 +73,7 @@ router.get('/conversations', authMiddleware, ConversationController.getUserConve
  *       404:
  *         description: Messages ou conversation non trouvé
  */
-router.get('/:conversationId', authMiddleware, ConversationController.getConversationMessages);
+router.get('/conversation/:conversationId', authMiddleware, ConversationController.getConversationMessages);
 
 /**
  * @swagger

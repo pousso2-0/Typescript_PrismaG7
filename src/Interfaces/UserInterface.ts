@@ -59,7 +59,7 @@ export interface Conversation {
   id: number;
   senderId: number;
   receiverId: number;
-  lastMessage: Message;  // Dernier message de la conversation
+  lastMessage: string | null;  // Dernier message de la conversation
   unreadCount: number;   // Nombre de messages non lus
   createdAt: Date;
   updatedAt: Date;

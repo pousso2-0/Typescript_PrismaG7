@@ -2,6 +2,8 @@ import express from 'express';
 import PostController from '../controllers/postController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import ShareFavController from '../controllers/ShareFavController';
+import ShareController from '../controllers/shareController';
+import ViewPostController from '../controllers/viewPostController';
 
 const router = express.Router();
 
@@ -64,7 +66,7 @@ router.post('/', authMiddleware, PostController.createPost);
  *       404:
  *         description: Post non trouvé
  */
-router.get('/:id', PostController.getPostById);
+router.get('/posts/:id', authMiddleware,  PostController.getPostById);
 
 /**
  * @swagger
@@ -310,6 +312,70 @@ router.get('/favorites/f', authMiddleware, ShareFavController.getUserFavorites);
  *         description: Post non trouvé dans les favoris
  */
 router.delete('/favorites/:postId', authMiddleware, ShareFavController.deleteFromFavorites);
+
+/**
+ * @swagger
+ * /api/posts/share:
+ *   post:
+ *     summary: Partager un post
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               postId:
+ *                 type: number
+ *                 description: ID du post à partager
+ *               recipients: 
+ *                 type: array
+ *                 items:
+ *                   type: number
+ *                 description: Array de personne a partager le post 
+ *     responses:
+ *       200:
+ *         description: Post partagé avec succès
+ *       400:
+ *         description: Données invalides
+ *       404:
+ *         description: Post non trouvé
+ */
+router.post('/share', authMiddleware, ShareController.sharePost);
+
+
+/**
+ * @swagger
+ * /api/posts/view:
+ *   post:
+ *     summary: Enregistrer la vue d'un post
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               postId:
+ *                 type: string
+ *                 description: ID du post dont enregistrer la vue
+ *     responses:
+ *       200:
+ *         description: Vue enregistrée avec succès
+ *       400:
+ *         description: Données invalides
+ *       404:
+ *         description: Post non trouvé
+ */
+router.post('/view', authMiddleware, ViewPostController.recordView);
+
+
 
 
 export default router;

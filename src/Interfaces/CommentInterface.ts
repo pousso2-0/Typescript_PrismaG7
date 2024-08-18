@@ -1,6 +1,7 @@
 // CommentInterface.ts
 
 import { Reaction } from '@prisma/client';
+import { UserSearchResult } from './UserInterface';
 
 export interface CommentService {
   createComment(userId: number, postId: number, content: string): Promise<Comment>;
@@ -19,7 +20,7 @@ export interface Comment {
   createdAt: Date;
   updatedAt: Date;
   post: Post;
-  user: User;
+  user: UserSearchResult;
   reactions: Reaction[];
 }
 
@@ -31,15 +32,11 @@ export interface CommentWithLimitedUserInfo {
   reaction: string | null;
   createdAt: Date;
   updatedAt: Date;
-  user: LimitedUserInfo;
+  user: UserSearchResult;
   reactions: Reaction[];
 }
 
-export interface LimitedUserInfo {
-  id: number;
-  name: string;
-  profilePicture: string | null;
-}
+
 
 export interface Post {
   id: number;

@@ -2,6 +2,7 @@
 import { Request, Response } from 'express';
 import { PostServiceImpl } from '../services/postService';
 import { CreatePostInput, UpdatePostInput } from '../Interfaces/PostInterface';
+import ViewPostService from '../services/viewPostService';
 
 const postService = new PostServiceImpl();
 
@@ -20,14 +21,28 @@ class PostController {
 
   static async getPostById(req: Request, res: Response) {
     try {
-      const postId = parseInt(req.params.id);
+      const postId = parseInt(req.params.id, 10);
+      const userId = req.userId as number; // Assurez-vous que userId est disponible
+
+      console.log(userId);
+      
+
+      // Enregistrez la vue pour le post
+      const { message, view, viewsCount } = await ViewPostService.recordView(userId, postId);
+
+      // Obtenez le post
       const post = await postService.getPostById(postId);
-      return res.json(post);
+
+      // Envoyez la réponse en incluant le message et les données du post
+      return res.json({
+        message,
+        post,
+        viewsCount: viewsCount ?? post.viewsCount,
+      });
     } catch (error: any) {
       return res.status(404).json({ message: error.message });
     }
   }
-
   static async updatePost(req: Request, res: Response) {
     try {
       const userId = req.userId as number;

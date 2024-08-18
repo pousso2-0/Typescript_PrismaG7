@@ -1,6 +1,8 @@
 // PostInterface.ts
 
-import { User } from '@prisma/client';
+
+
+
 
 export interface PostService {
     createPost(userId: number, postData: CreatePostInput): Promise<Post>;
@@ -11,6 +13,9 @@ export interface PostService {
     incrementShareCount(postId: number): Promise<Post>;
     getAllPosts(page?: number, limit?: number): Promise<Post[]>;
   }
+
+  import { UserSearchResult } from './UserInterface';
+
 
 export interface Post {
   id: number;
@@ -24,7 +29,7 @@ export interface Post {
   commentsEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;
-  user: User;
+  user: UserSearchResult;
   comments: Comment[];
   reactions: Reaction[];
   favorites: Favorite[];
@@ -33,6 +38,7 @@ export interface Post {
   media: Media[];
   shares: Share[];
 }
+
 
 export interface CreatePostInput {
   content: string;

@@ -92,7 +92,7 @@ class ConversationService {
     });
   }
  // Récupérer toutes les conversations pour un utilisateur
- static async getUserConversations(userId: number): Promise<any[]> {
+ static async getUserConversations(userId: number): Promise<Conversation[]> {
   const conversations = await prisma.conversation.findMany({
     where: {
       OR: [
@@ -121,14 +121,14 @@ class ConversationService {
   });
 
   return conversations.map(conversation => {
-    const lastMessage = conversation.messages[0] || null;
+    const lastMessage = conversation.messages[0]?.content || null;
     return {
       id: conversation.id,
       senderId: conversation.senderId,
       receiverId: conversation.receiverId,
       createdAt: conversation.createdAt,
       updatedAt: conversation.updatedAt,
-      lastMessage: lastMessage ? { content: lastMessage.content } : null,
+      lastMessage: lastMessage,
       unreadCount: conversation.messages.filter(message => message.receiverId === userId && !message.isRead).length
     };
   });
