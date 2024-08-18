@@ -55,17 +55,25 @@ export interface Follow {
   followee?: User;
 }
 
+export interface Conversation {
+  id: number;
+  senderId: number;
+  receiverId: number;
+  lastMessage: Message;  // Dernier message de la conversation
+  unreadCount: number;   // Nombre de messages non lus
+  createdAt: Date;
+  updatedAt: Date;
+}
 export interface Message {
   id: number;
   senderId: number;
   receiverId: number;
   content: string;
-  isRead: boolean;
-  conversationId: string;
+  isRead: boolean;  // Indique si le message a été lu
+  senderDeleted:    boolean | null; //
+  receiverDeleted: boolean |null; // Indique si le message a été 
+  conversationId: number;
   createdAt: Date;
-  updatedAt: Date;
-  sender?: User;
-  receiver?: User;
 }
 
 export interface Measurement {

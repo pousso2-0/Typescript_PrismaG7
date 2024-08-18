@@ -59,7 +59,8 @@ model User {
   retweets             Retweet[]
   reportedBy           Report[]       @relation("Signaled")
   shares               Share[]        // Nouveau champ
-
+  sentConversations    Conversation[] @relation("SentConversations")
+  receivedConversations Conversation[] @relation("ReceivedConversations")
 }
 
 model Post {
@@ -146,11 +147,25 @@ model Message {
   receiverId     Int
   content        String
   isRead         Boolean  @default(false)
-  conversationId String
+  conversationId Int
+  senderDeleted    Boolean  @default(false)
+  receiverDeleted  Boolean  @default(false)
   createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  conversation    Conversation @relation(fields: [conversationId], references: [id])
   sender         User     @relation("Sender", fields: [senderId], references: [id])
   receiver       User     @relation("Receiver", fields: [receiverId], references: [id])
+}
+
+model Conversation {
+  id          Int       @id @default(autoincrement())
+  senderId    Int
+  sender      User      @relation("SentConversations", fields: [senderId], references: [id])
+  receiverId  Int
+  receiver    User      @relation("ReceivedConversations", fields: [receiverId], references: [id])
+  messages    Message[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  @@unique([senderId, receiverId])
 }
 
 model Mesure {
