@@ -5,7 +5,7 @@ import commentRoutes from './commentRoutes';
 // import messageRoutes from './messageRoutes';
 // import feedRoutes from './feedRoutes';
 import reactionsRoutes from './reactionRoutes';
-// import statusRoutes from './statusRoutes';
+import statusRoutes from './statusRoutes';
 
 export default function(app: Express) {
  app.use('/api/users', userRoutes);
@@ -15,7 +15,7 @@ export default function(app: Express) {
 //   app.use('/api/', feedRoutes);
 //   app.use('/api/feed', feedRoutes);
   app.use('/api/reactions', reactionsRoutes);
-//   app.use('/api/status', statusRoutes);
+  app.use('/api/status', statusRoutes);
  }
 
 console.log("index dans routes executé")
