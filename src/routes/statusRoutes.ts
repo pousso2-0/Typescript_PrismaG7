@@ -1,6 +1,7 @@
 import express from 'express';
 import StatusController from '../controllers/statusController';
 import { authMiddleware } from '../middlewares/authMiddleware';
+import { roleMiddleware } from '../middlewares/roleMiddleware';
 
 const router = express.Router();
 
@@ -28,7 +29,7 @@ const router = express.Router();
  *       400:
  *         description: Données invalides
  */
-router.post('/', authMiddleware, StatusController.createStatus);
+router.post('/', authMiddleware, roleMiddleware(['TAILLEUR' , 'VENDEUR']), StatusController.createStatus);
 
 /**
  * @swagger

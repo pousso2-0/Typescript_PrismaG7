@@ -143,6 +143,20 @@ class StatusService {
     }
   }
 
+  static async deleteExpiredStatuses(): Promise<void> {
+    try {
+      await prisma.status.deleteMany({
+        where: {
+          expiresAt: {
+            lte: new Date()
+          }
+        }
+      });
+    } catch (error : any) {
+      throw new DatabaseError(`Failed to delete expired statuses: ${error.message}`);
+    }
+  }
+
 }
 
 export default StatusService;

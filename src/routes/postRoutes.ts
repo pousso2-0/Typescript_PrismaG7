@@ -1,6 +1,7 @@
 import express from 'express';
 import PostController from '../controllers/postController';
 import { authMiddleware } from '../middlewares/authMiddleware';
+import { roleMiddleware } from '../middlewares/roleMiddleware';
 import ShareFavController from '../controllers/ShareFavController';
 
 const router = express.Router();
@@ -44,7 +45,8 @@ const router = express.Router();
  *       400:
  *         description: Données invalides
  */
-router.post('/', authMiddleware, PostController.createPost);
+router.post('/', authMiddleware, roleMiddleware(['TAILLEUR', 'VENDEUR']), PostController.createPost);
+
 
 /**
  * @swagger
@@ -99,7 +101,7 @@ router.get('/:id', PostController.getPostById);
  *       400:
  *         description: Données invalides ou non autorisé
  */
-router.put('/:id', authMiddleware, PostController.updatePost);
+router.put('/:id', authMiddleware, roleMiddleware(['TAILLEUR' , 'VENDEUR']), PostController.updatePost);
 
 /**
  * @swagger
@@ -121,7 +123,7 @@ router.put('/:id', authMiddleware, PostController.updatePost);
  *       400:
  *         description: Non autorisé ou post non trouvé
  */
-router.delete('/:id', authMiddleware, PostController.deletePost);
+router.delete('/:id', authMiddleware, roleMiddleware(['TAILLEUR' , 'VENDEUR']), PostController.deletePost);
 
 /**
  * @swagger
