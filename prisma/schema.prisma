@@ -183,11 +183,13 @@ model Status {
   content    String?
   mediaType  String?
   mediaUrl   String?
+   media      String?  // Assurez-vous que 'media' est optionnel si vous ne le fournissez pas toujours
   viewsCount Int      @default(0)
   createdAt  DateTime @default(now())
-  expiresAt  DateTime
+  expiresAt  DateTime?
   user       User     @relation(fields: [userId], references: [id])
   viewedBy   View[]   @relation("StatusView")
+
 }
 
 model Vote {

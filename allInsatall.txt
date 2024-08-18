@@ -27,3 +27,4 @@ npx prisma migrate dev --name init
 
 // Si vous avez déjà une base de données et que vous voulez simplement la mettre à jour, utilisez :
 npx prisma migrate dev
+netstat -tulnet | grep 3000
