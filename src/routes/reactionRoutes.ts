@@ -1,6 +1,7 @@
 import express from 'express';
 import ReactionController from '../controllers/reactionController';
 import { authMiddleware } from '../middlewares/authMiddleware';
+import { postActionMiddleware } from '../middlewares/privatePostMiddleware';
 
 const router = express.Router();
 
@@ -35,7 +36,7 @@ const router = express.Router();
  *       401:
  *         description: Non autorisé
  */
-router.post('/', authMiddleware, ReactionController.toggleReaction);
+router.post('/', authMiddleware, postActionMiddleware , ReactionController.toggleReaction);
 
 /**
  * @swagger

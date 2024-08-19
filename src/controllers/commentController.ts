@@ -70,6 +70,24 @@ export class CommentController {
     }
   };
 
+
+  // getCommentReplies: RequestHandler = async (req: AuthenticatedRequest, res: Response) => {
+  //   try {
+  //     if (!req.userId) {
+  //       return res.status(401).json({ message: 'User not authenticated' });
+  //     }
+
+  //     const { commentId } = req.params;
+  //     const { content } = req.body;
+  //     const userId = req.userId;
+
+  //     const reply = await commentService.CommentReplies(Number(commentId), userId, content);
+  //     res.status(200).json(reply);
+  //   } catch (error: any) {
+  //     res.status(400).json({ message: error.message });
+  //   }
+  // };
+
   getCommentsByPost: RequestHandler = async (req: Request, res: Response) => {
     try {
       const { postId } = req.params;

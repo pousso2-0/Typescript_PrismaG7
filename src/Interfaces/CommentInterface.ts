@@ -19,7 +19,6 @@ export interface Comment {
   reaction: string | null;
   createdAt: Date;
   updatedAt: Date;
-  post: Post;
   user: UserSearchResult;
   reactions: Reaction[];
 }
