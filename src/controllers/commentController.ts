@@ -18,7 +18,7 @@ export class CommentController {
 
       const { postId } = req.params;
       const { content } = req.body;
-      const userId = req.userId; // Utiliser req.userId
+      const userId = req.userId; 
 
       const comment = await commentService.createComment(userId, Number(postId), content);
       res.status(201).json(comment);

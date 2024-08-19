@@ -94,24 +94,12 @@ model Media {
   post      Post     @relation(fields: [postId], references: [id])
 }
 
-// model Comment {
-//   id        Int        @id @default(autoincrement())
-//   postId    Int
-//   userId    Int
-//   content   String
-//   reaction  String?
-//   createdAt DateTime   @default(now())
-//   updatedAt DateTime   @updatedAt
-//   post      Post       @relation(fields: [postId], references: [id])
-//   user      User       @relation(fields: [userId], references: [id])
-//   reactions Reaction[]
-// }
 model Comment {
   id        Int      @id @default(autoincrement())
   userId    Int
   postId    Int
   content   String
-  parentId  Int?     // Ajoutez cette ligne si elle n'existe pas
+  parentId  Int? 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
