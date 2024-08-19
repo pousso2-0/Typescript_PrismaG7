@@ -114,7 +114,7 @@ router.delete('/del/:statusId', authMiddleware, StatusController.deleteStatus);
  *       404:
  *         description: Statut non trouvé
  */
-// router.post('/message', authMiddleware, StatusController.sendMessageToStatus);
+ router.post('/message', authMiddleware, StatusController.sendMessageToStatus);
 
 /**
  * @swagger
@@ -137,6 +137,7 @@ router.delete('/del/:statusId', authMiddleware, StatusController.deleteStatus);
  *       404:
  *         description: Statut non trouvé
  */
-router.get('/:statusId', authMiddleware, StatusController.viewStatus);
+router.get('/:statusId', authMiddleware, StatusController.getStatus);
+
 
 export default router;

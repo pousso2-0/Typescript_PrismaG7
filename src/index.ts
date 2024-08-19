@@ -4,6 +4,7 @@ import compression from 'compression';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 
+
 const prisma = new PrismaClient();
 
 
@@ -14,7 +15,7 @@ import Routes from './routes/index';
 import logger from './utils/logger';
 // import configureRoutes from './routes';
 import { swaggerUi, specs } from './config/swagger';
-
+import './utils/Tasks/ViewStatusCleanup';
 const app = express();
 
 // Middleware de base

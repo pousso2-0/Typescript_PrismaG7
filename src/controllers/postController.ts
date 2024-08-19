@@ -2,7 +2,7 @@
 import { Request, Response } from 'express';
 import { PostServiceImpl } from '../services/postService';
 import { CreatePostInput, UpdatePostInput } from '../Interfaces/PostInterface';
-import ViewPostService from '../services/viewPostService';
+import ViewService from '../services/viewService';
 
 const postService = new PostServiceImpl();
 
@@ -28,7 +28,7 @@ class PostController {
       
 
       // Enregistrez la vue pour le post
-      const { message, view, viewsCount } = await ViewPostService.recordView(userId, postId);
+      const { message, view, viewsCount } = await ViewService.recordView(userId, postId);
 
       // Obtenez le post
       const post = await postService.getPostById(postId);

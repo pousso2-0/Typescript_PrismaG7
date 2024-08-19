@@ -33,6 +33,9 @@ class ConversationService {
 
   // Envoi de message et gestion de la conversation
   static async sendMessage(senderId: number, receiverId: number, content: string): Promise<Message> {
+      console.log(senderId , receiverId , "cest ca le content", content);
+  
+
     let conversation = await prisma.conversation.findFirst({
       where: {
         OR: [

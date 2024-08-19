@@ -1,13 +1,14 @@
-import { PrismaClient, Status } from '@prisma/client';
-import { StatusCreate, StatusUpdate } from '../Interfaces/StatusInterface';
+import { PrismaClient } from '@prisma/client';
+import { StatusCreate, StatusUpdate , Status , StatusIncludeConfig} from '../Interfaces/StatusInterface';
 import { ValidationError, DatabaseError } from '../errors/customErrors';
+import ViewService from './viewService';
 
 const prisma = new PrismaClient();
 
 class StatusService {
     static async createStatus(userId: number, statusData: StatusCreate): Promise<Status> {
         try {
-          const expiresAt = new Date(Date.now() + 2 * 60 * 1000); // 5 minutes à partir de maintenant
+          const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 5 minutes à partir de maintenant
           const status = await prisma.status.create({
             data: {
               userId,
@@ -25,25 +26,54 @@ class StatusService {
     }
     
 
-    static async getStatusById(statusId: number): Promise<Status> {
-        try {
-          const status = await prisma.status.findUnique({
-            where: { 
-              id: statusId,
-              expiresAt: {
-                gt: new Date() 
-              }
+    static async getStatusById(statusId: number, userId: number): Promise<Status> {
+      try {
+        const status = await prisma.status.findUnique({
+          where: {
+            id: statusId,
+            expiresAt: {
+              gt: new Date(),
             },
-            include: { user: { select: { name: true, profilePicture: true } } },
-          });
-          if (!status) {
-            throw new ValidationError("Status not found or has expired");
-          }
-          return status;
-        } catch (error : any) {
-          throw new DatabaseError(`Failed to get status: ${error.message}`);
+          },
+          include: StatusIncludeConfig,
+        });
+  
+        if (!status) {
+          throw new ValidationError('Status not found or has expired');
         }
+  
+        // Enregistrer une vue pour le statut et incrémenter le compteur de vues
+        await ViewService.recordView(userId, undefined, statusId);
+  
+        return status;
+      } catch (error: any) {
+        throw new DatabaseError(`Failed to get status: ${error.message}`);
       }
+    }
+  
+    static async deleteExpiredStatusViews() {
+      try {
+        const expiredStatuses = await prisma.status.findMany({
+          where: {
+            expiresAt: {
+              lte: new Date(),
+            },
+          },
+        });
+  
+        const statusIds = expiredStatuses.map(status => status.id);
+  
+        await prisma.view.deleteMany({
+          where: {
+            statusId: {
+              in: statusIds,
+            },
+          },
+        });
+      } catch (error: any) {
+        throw new DatabaseError(`Failed to delete expired status views: ${error.message}`);
+      }
+    }
 
   static async viewStatus(statusId: number, userId: number): Promise<Status> {
     try {
@@ -87,7 +117,7 @@ class StatusService {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-        include: { user: { select: { name: true, profilePicture: true } } },
+        include: StatusIncludeConfig,
       });
       return statuses;
     } catch (error : any) {
@@ -135,7 +165,7 @@ class StatusService {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-        include: { user: { select: { name: true, profilePicture: true } } },
+        include: StatusIncludeConfig,
       });
       return statuses;
     } catch (error : any) {

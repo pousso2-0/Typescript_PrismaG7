@@ -1,4 +1,4 @@
-import { User } from './UserInterface';
+import { User , UserSearchResult } from './UserInterface';
 
 export interface Status {
   id: number;
@@ -9,7 +9,7 @@ export interface Status {
   viewsCount: number;
   createdAt: Date;
   expiresAt: Date;
-  user?: User;
+  user?: UserSearchResult;
 }
 
 export interface StatusCreate {
@@ -30,5 +30,11 @@ export interface StatusUpdate {
 export type StatusWithUser = Status & { user: User };
 
 export const StatusIncludeConfig = {
-  user: true
+  user: {
+    select: {
+      id: true,
+      name: true,
+      profilePicture: true
+    }
+  }
 };

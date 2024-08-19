@@ -2,13 +2,14 @@ import { Request, Response } from 'express';
 import StatusService from '../services/statusService';
 // import MessageService from '../services/messageService';
 import { StatusCreate } from '../Interfaces/StatusInterface';
+import ConversationService from '../services/messageService';
 
 class StatusController {
     static async createStatus(req: Request, res: Response): Promise<void> {
         try {
           const { content, mediaType, mediaUrl } = req.body;
           const userId = req.userId as number;
-          const expiresAt = new Date(Date.now() + 2 * 60 * 1000); 
+          const expiresAt = new Date(Date.now() + 10 * 60 * 1000); 
           const statusData: StatusCreate = { userId, content, mediaType, mediaUrl, expiresAt };
           const status = await StatusService.createStatus(userId, statusData);
           res.status(201).json(status);
@@ -21,7 +22,8 @@ class StatusController {
   static async getStatus(req: Request, res: Response): Promise<void> {
     try {
       const statusId = parseInt(req.params.statusId);
-      const status = await StatusService.getStatusById(statusId);
+      const userId = req.userId as number;
+      const status = await StatusService.getStatusById( statusId , userId );
       res.status(200).json(status);
     } catch (error : any) {
       res.status(400).json({ message: `Failed to get status: ${error.message}` });
@@ -79,22 +81,26 @@ class StatusController {
       const userId = req.userId as number;
       const { messageContent, statusId } = req.body;
 
-      const status = await StatusService.getStatusById(statusId);
+      const status = await StatusService.getStatusById(statusId , userId);
 
       if (!status) {
         res.status(404).json({ message: 'Status not found' });
         return;
       }
 
+
       const statusUri = `${req.protocol}://${req.get('host')}/api/status/${statusId}`;
       const content = `${messageContent}\n\nSee the status here: ${statusUri}`;
 
-    //   const newMessage = await MessageService.sendMessage(userId, status.userId, content);
+      console.log(status);
+           
+     const newMessage = await ConversationService.sendMessage(userId, status.userId, content);
 
-    //   res.status(200).json({ message: 'Message sent successfully', newMessage });
-    } catch (error : any) {
-      res.status(500).json({ message: `Failed to send message: ${error.message}` });
-    }
+     // Envoyer une réponse après l'envoi du message
+     res.status(200).json({ message: 'Message sent successfully', newMessage });
+   } catch (error: any) {
+     res.status(500).json({ message: `Failed to send message: ${error.message}` });
+   }
   }
 }
 

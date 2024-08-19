@@ -1,6 +1,6 @@
 // CommentInterface.ts
 
-import { Reaction } from '@prisma/client';
+import { Reaction } from './PostInterface';
 import { UserSearchResult } from './UserInterface';
 
 export interface CommentService {

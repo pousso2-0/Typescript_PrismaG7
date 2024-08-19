@@ -1,6 +1,6 @@
 // src/controllers/ViewPostController.ts
 import { Request, Response } from 'express';
-import ViewPostService from '../services/viewPostService';
+import ViewPostService from '../services/viewService';
 
 class ViewPostController {
   static async recordView(req: Request, res: Response) {
@@ -8,7 +8,7 @@ class ViewPostController {
       const postId = parseInt(req.body.postId, 10);
       const userId = req.userId as number;
 
-      const result = await ViewPostService.recordView(userId, postId);
+      const result = await ViewPostService.recordView(userId, postId );
 
       if (result.message === 'Post déjà vu') {
         return res.status(200).json(result);
