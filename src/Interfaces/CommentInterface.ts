@@ -1,5 +1,4 @@
 // CommentInterface.ts
-
 import { Reaction } from '@prisma/client';
 
 export interface CommentService {
@@ -22,6 +21,7 @@ export interface Comment {
   user: User;
   reactions: Reaction[];
 }
+
 
 export interface CommentWithLimitedUserInfo {
   id: number;

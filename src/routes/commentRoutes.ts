@@ -40,6 +40,40 @@ const router = express.Router();
  *         description: Non autorisé, authentification requise
  */
 router.post('/:postId', authMiddleware, checkCommentsEnabled, CommentController.createComment);
+/**
+ * @swagger
+ * /api/comments/{commentId}/replies:
+ *   post:
+ *     summary: Ajouter un commentaire en réponse à un commentaire existant
+ *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: commentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID du commentaire parent
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: Contenu du commentaire
+ *     responses:
+ *       201:
+ *         description: Commentaire créé avec succès
+ *       400:
+ *         description: Données invalides ou commentaires désactivés
+ *       401:
+ *         description: Non autorisé, authentification requise
+ */
+router.post('/:commentId/replies', authMiddleware, checkCommentsEnabled, CommentController.getCommentReplies);
 
 /**
  * @swagger

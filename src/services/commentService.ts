@@ -35,6 +35,29 @@ export class CommentService {
     }
   }
 
+  async CommentReplies(commentId: number, userID: number, content: string): Promise<Comment> {
+    try {
+      const user = await prisma.user.findUnique({ where: { id: userID } });
+      if (!user) throw new ValidationError("User not found");
+      const parentComment = await prisma.comment.findUnique({ where: { id: commentId } });
+      if (!parentComment) throw new ValidationError("Parent comment not found");
+
+      const newReply = await prisma.comment.create({
+        data: {
+          userId: userID,
+          postId: parentComment.postId,
+          content,
+          parentId: commentId || null 
+        },
+        include: { user: true, post: true, parent: true }
+      });
+      return newReply;
+    } catch (error: any) {
+      throw new DatabaseError(`Failed to create comment: ${error.message}`);
+    }
+  }
+
+
   async getCommentById(id: number): Promise<Comment> {
     try {
       const comment = await prisma.comment.findUnique({
