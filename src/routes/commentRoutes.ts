@@ -2,6 +2,8 @@ import express from 'express';
 import CommentController from '../controllers/commentController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { checkCommentsEnabled } from '../middlewares/commentMiddleware';
+import { postActionMiddleware } from '../middlewares/privatePostMiddleware';
+
 
 
 const router = express.Router();
@@ -39,7 +41,7 @@ const router = express.Router();
  *       401:
  *         description: Non autorisé, authentification requise
  */
-router.post('/:postId', authMiddleware, checkCommentsEnabled, CommentController.createComment);
+router.post('/:postId', authMiddleware, postActionMiddleware, checkCommentsEnabled, CommentController.createComment);
 
 /**
  * @swagger
@@ -124,6 +126,42 @@ router.put('/:id', authMiddleware, CommentController.updateComment);
  */
 router.delete('/:id', authMiddleware, CommentController.deleteComment);
 
+/**
+ * @swagger
+ * /api/comments/{commentId}/replies:
+ *   post:
+ *     summary: Ajouter un commentaire en réponse à un commentaire existant
+ *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: commentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID du commentaire parent
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: Contenu du commentaire
+ *     responses:
+ *       201:
+ *         description: Commentaire créé avec succès
+ *       400:
+ *         description: Données invalides ou commentaires désactivés
+ *       401:
+ *         description: Non autorisé, authentification requise
+ */
+// router.post('/:commentId/replies', authMiddleware, checkCommentsEnabled, CommentController.getCommentReplies);
+
+
 
 /**
  * @swagger
@@ -165,6 +203,8 @@ router.delete('/:id', authMiddleware, CommentController.deleteComment);
  *         description: Données invalides
  */
 router.get('/post/:postId', CommentController.getCommentsByPost);
+
+
 
 
 

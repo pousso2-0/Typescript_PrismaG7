@@ -59,8 +59,11 @@ model User {
   retweets             Retweet[]
   reportedBy           Report[]       @relation("Signaled")
   shares               Share[]        // Nouveau champ
-
+  store    Store?
+  ordersAsClient  Order[]    @relation("ClientOrders")
+  ordersAsVendor  Order[]    @relation("VendorOrders")
 }
+
 
 model Post {
   id              Int        @id @default(autoincrement())
@@ -252,4 +255,65 @@ model Share {
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id])
   post      Post     @relation(fields: [postId], references: [id])
+}
+
+
+
+model Store {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String?
+  userId      Int        @unique
+  user        User       @relation(fields: [userId], references: [id])
+  articles    Article[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  articles  Article[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Article {
+  id          Int            @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  stockCount  Int
+  storeId     Int
+  store       Store          @relation(fields: [storeId], references: [id])
+  categoryId  Int
+  category    Category       @relation(fields: [categoryId], references: [id])
+  orderDetails OrderDetail[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model Order {
+  id           Int           @id @default(autoincrement())
+  userId       Int
+  user         User          @relation("ClientOrders", fields: [userId], references: [id])
+  vendorId     Int
+  vendor       User          @relation("VendorOrders", fields: [vendorId], references: [id])
+  totalAmount  Float
+  status       String        @default("pending")
+  orderDetails OrderDetail[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model OrderDetail {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  articleId Int
+  article   Article @relation(fields: [articleId], references: [id])
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
