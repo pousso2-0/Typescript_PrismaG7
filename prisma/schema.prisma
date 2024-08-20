@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 enum UserType {
   CLIENT
   TAILLEUR
@@ -62,6 +61,8 @@ model User {
   store    Store?
   ordersAsClient  Order[]    @relation("ClientOrders")
   ordersAsVendor  Order[]    @relation("VendorOrders")
+  sentConversations    Conversation[] @relation("SentConversations")
+  receivedConversations Conversation[] @relation("ReceivedConversations")
 }
 
 
@@ -302,7 +303,7 @@ model Article {
   store       Store          @relation(fields: [storeId], references: [id])
   categoryId  Int
   category    Category       @relation(fields: [categoryId], references: [id])
-  orderDetails OrderDetail[]
+  // orderDetails OrderDetail[]
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 }
@@ -315,19 +316,19 @@ model Order {
   vendor       User          @relation("VendorOrders", fields: [vendorId], references: [id])
   totalAmount  Float
   status       String        @default("pending")
-  orderDetails OrderDetail[]
+  // orderDetails OrderDetail[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
 
-model OrderDetail {
-  id        Int     @id @default(autoincrement())
-  orderId   Int
-  order     Order   @relation(fields: [orderId], references: [id])
-  articleId Int
-  article   Article @relation(fields: [articleId], references: [id])
-  quantity  Int
-  price     Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+// model OrderDetail {
+//   id        Int     @id @default(autoincrement())
+//   orderId   Int
+//   order     Order   @relation(fields: [orderId], references: [id])
+//   articleId Int
+//   article   Article @relation(fields: [articleId], references: [id])
+//   quantity  Int
+//   price     Float
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
