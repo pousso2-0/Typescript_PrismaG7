@@ -1,9 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient} from '@prisma/client';
 import bcrypt from 'bcrypt';
 import UserValidator from '../utils/Validators/userValidator';
+import {PREMIUM_COST , PREMIUM_DEFAULT_CREDITS} from '../config/env';
 import { generateToken } from '../utils/tokenUtils';
 import { ValidationError, DatabaseError } from '../errors/customErrors';
-import { UserProfile ,  Register, Login, UpdateUser} from '../Interfaces/UserInterface';
+import { User ,  Register, Login, UpdateUser, UserSearchResult , UserIncludeConfig} from '../Interfaces/UserInterface';
 
 const prisma = new PrismaClient();
 
@@ -49,14 +50,111 @@ class UserService {
     }
   }
 
-  static async getUserById(id: number): Promise<UserProfile> {
-    const user = await prisma.user.findUnique({ where: { id } });
-    if (!user) throw new ValidationError('User not found');
-    return user as UserProfile;
+  static async getUserById(id: number , includeRelations: boolean = false): Promise<User> {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: includeRelations ? UserIncludeConfig : {}
+    });    if (!user) throw new ValidationError('User not found');
+    return user as User;
+  }
+  
+
+  static async updateCredits(userId: number, amount: number): Promise<User> {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { credits: { increment: amount } },
+    });
+
+    if (!user) throw new ValidationError("User not found");
+
+    return user as User;
   }
 
+  static async upgradeToPremium(userId: number): Promise<User> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
 
- 
-}
+    if (!user) throw new ValidationError("User not found");
+
+    if (user.credits < PREMIUM_COST) {
+      throw new ValidationError("Not enough credits to upgrade to premium");
+    }
+
+    const premiumExpiresAt = new Date();
+    premiumExpiresAt.setMonth(premiumExpiresAt.getMonth() + 1);
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        subscriptionType: 'premium',
+        premiumExpiresAt,
+        credits: user.credits - PREMIUM_COST + PREMIUM_DEFAULT_CREDITS,
+      },
+    });
+
+    return updatedUser as User;
+  }
+
+  static async checkAndUpdatePremiumStatus(userId: number): Promise<User> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) throw new ValidationError("User not found");
+
+    if (user.subscriptionType === 'premium' && user.premiumExpiresAt && user.premiumExpiresAt < new Date()) {
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          subscriptionType: 'free',
+          premiumExpiresAt: null,
+        },
+      });
+
+      return updatedUser as User;
+    }
+
+    return user as User;
+  }
+
+  static async buyCredits(userId: number, amount: number): Promise<User> {
+    const creditsToBuy = Math.floor(amount / 100);
+    return this.updateCredits(userId, creditsToBuy);
+  }
+
+  static async getPremiumUsers(): Promise<User[]> {
+    return prisma.user.findMany({
+      where: {
+        subscriptionType: 'premium',
+        premiumExpiresAt: {
+          gt: new Date()  // Filtrer les utilisateurs dont l'abonnement premium est encore valide
+        }
+      }
+    });
+  }
+  
+  static async searchUsersByName(name: string): Promise<UserSearchResult[]> {
+    try {
+      const users = await prisma.user.findMany({
+        where: {
+          name: {
+            contains: name, // Recherche la sous-chaîne dans le nom
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          profilePicture: true,
+        },
+        take: 10 // Limiter le nombre de résultats à 10
+      });
+  
+      return users;
+    } catch (error: any) {
+      throw new DatabaseError(`Search failed: ${error.message}`);
+    }
+  }
+};
 
 export default UserService;

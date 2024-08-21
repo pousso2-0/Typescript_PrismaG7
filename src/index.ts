@@ -2,6 +2,10 @@ import express from 'express';
 import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
+import { PrismaClient } from '@prisma/client';
+
+
+const prisma = new PrismaClient();
 
 
 
@@ -11,7 +15,7 @@ import Routes from './routes/index';
 import logger from './utils/logger';
 // import configureRoutes from './routes';
 import { swaggerUi, specs } from './config/swagger';
-
+import './utils/Tasks/ViewStatusCleanup';
 const app = express();
 
 // Middleware de base
@@ -43,18 +47,27 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Fonction de démarrage du serveur
 const startServer = async () => {
-    try {
-      logger.info('Attempting to connect to MongoDB...');
-      logger.info('Successfully connected to MongoDB');
-  
-      app.listen(PORT || 3000, () => {
-        logger.info(`Server is running on port ${PORT}`);
-        logger.info(`Swagger documentation available at http://localhost:${PORT}/api-docs`);
-      });
-    } catch (error) {
-      logger.error('Failed to start server:', error);
-      process.exit(1);
-    }
-  };
+  try {
+    logger.info('Attempting to connect to the database...');
+    
+    // Test de connexion Prisma
+    await prisma.$connect();
+    logger.info('Successfully connected to the database');
+
+    // Exécutez une requête simple pour vérifier la connexion
+    const userCount = await prisma.user.count();
+    logger.info(`Database connection test successful. User count: ${userCount}`);
+
+    app.listen(PORT || 3000, () => {
+      logger.info(`Server is running on port ${PORT}`);
+      logger.info(`Swagger documentation available at http://localhost:${PORT}/api-docs`);
+    });
+  } catch (error) {
+    logger.error('Failed to start server:', error);
+    process.exit(1);
+  } finally {
+    await prisma.$disconnect();
+  }
+};
 
 startServer();

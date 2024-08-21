@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 enum UserType {
   CLIENT
   TAILLEUR
@@ -34,6 +35,9 @@ model User {
   notificationsEnabled Boolean        @default(true)
   reportCount          Int            @default(0)
   isBlocked            Boolean        @default(false)
+  credits              Int            @default(30) // Nouveau champ pour les crédits
+  subscriptionType     String         @default("free") // Nouveau champ pour le type d'abonnement
+  premiumExpiresAt     DateTime?      // Nouveau champ pour la date d'expiration du premium
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
   posts                Post[]
@@ -55,7 +59,13 @@ model User {
   retweets             Retweet[]
   reportedBy           Report[]       @relation("Signaled")
   shares               Share[]        // Nouveau champ
+  store    Store?
+  ordersAsClient  Order[]    @relation("ClientOrders")
+  ordersAsVendor  Order[]    @relation("VendorOrders")
+  ConversationSend Conversation[] @relation("SentConversations")
+  Conversationreceve Conversation[] @relation("ReceivedConversations")
 }
+
 
 model Post {
   id              Int        @id @default(autoincrement())
@@ -76,7 +86,7 @@ model Post {
   views           View[]
   retweets        Retweet[]
   media           Media[]
-  shares          Share[]    // Nouveau champ
+  shares          Share[]    
 }
 
 model Media {
@@ -141,11 +151,25 @@ model Message {
   receiverId     Int
   content        String
   isRead         Boolean  @default(false)
-  conversationId String
+  conversationId Int
+  senderDeleted    Boolean  @default(false)
+  receiverDeleted  Boolean  @default(false)
   createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  conversation    Conversation @relation(fields: [conversationId], references: [id])
   sender         User     @relation("Sender", fields: [senderId], references: [id])
   receiver       User     @relation("Receiver", fields: [receiverId], references: [id])
+}
+
+model Conversation {
+  id          Int       @id @default(autoincrement())
+  senderId    Int
+  sender      User      @relation("SentConversations", fields: [senderId], references: [id])
+  receiverId  Int
+  receiver    User      @relation("ReceivedConversations", fields: [receiverId], references: [id])
+  messages    Message[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  @@unique([senderId, receiverId])
 }
 
 model Mesure {
@@ -247,4 +271,66 @@ model Share {
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id])
   post      Post     @relation(fields: [postId], references: [id])
+}
+
+
+
+model Store {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String?
+  userId      Int        @unique
+  user        User       @relation(fields: [userId], references: [id])
+  articles    Article[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  userId    Int          @unique
+  articles  Article[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Article {
+  id          Int            @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  stockCount  Int
+  storeId     Int
+  store       Store          @relation(fields: [storeId], references: [id])
+  categoryId  Int
+  category    Category       @relation(fields: [categoryId], references: [id])
+  orderDetails OrderDetail[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model Order {
+  id           Int           @id @default(autoincrement())
+  userId       Int
+  user         User          @relation("ClientOrders", fields: [userId], references: [id])
+  vendorId     Int
+  vendor       User          @relation("VendorOrders", fields: [vendorId], references: [id])
+  totalAmount  Float
+  status       String        @default("pending")
+  orderDetails OrderDetail[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model OrderDetail {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  articleId Int
+  article   Article @relation(fields: [articleId], references: [id])
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
