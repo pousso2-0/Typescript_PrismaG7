@@ -27,3 +27,31 @@ npx prisma migrate dev --name init
 
 // Si vous avez déjà une base de données et que vous voulez simplement la mettre à jour, utilisez :
 npx prisma migrate dev
+
+ 
+
+
+  
+{
+ "vendorId": 2,
+  "articleId":3 ,
+  "quantity": 10,
+  "paymentType": "CASH_ON_DELIVERY",
+  "deliveryMode": "DELIVERY",
+  "storeId": 1
+}
+
+  {
+  "name": "bouton chemise",
+  "price": 200,
+  "stockCount": 20,
+  "storeId":1,
+  "categoryId":1
+}
+
+
+
+{
+ "orderId": 1,
+ "IdpaymentType":1
+}

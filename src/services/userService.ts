@@ -11,23 +11,42 @@ const prisma = new PrismaClient();
 class UserService {
   static async register(userData: Register) {
     try {
+      // Validation des données
       const validatedData = UserValidator.validateRegister(userData);
       
+      // Vérifier si l'email est déjà utilisé
       const existingUser = await prisma.user.findUnique({ where: { email: validatedData.email } });
       if (existingUser) throw new ValidationError('Email already in use');
 
+      // Hachage du mot de passe
       const hashedPassword = await bcrypt.hash(validatedData.password, 10);
 
+      // Création de l'utilisateur
       const newUser = await prisma.user.create({
         data: {
-          ...validatedData,
+          name: validatedData.name,
+          email: validatedData.email,
           password: hashedPassword,
+          type: validatedData.type,
         },
       });
-
+      // Création du magasin si l'utilisateur est un vendeur
+      if (validatedData.type === 'VENDEUR') {
+        if (!validatedData.storeName) {
+          throw new ValidationError('Store name is required for vendors.');
+        }
+        await prisma.store.create({
+          data: {
+            name: validatedData.storeName,
+            description: validatedData.storeDescription,
+            userId: newUser.id,
+          },
+        });
+      }
+      // Génération du token d'authentification
       const token = generateToken({ userId: newUser.id, type: newUser.type });
       return { token };
-    } catch (error:any) {
+    } catch (error: any) {
       if (error instanceof ValidationError) throw error;
       throw new DatabaseError(`Registration failed: ${error.message}`);
     }
@@ -42,14 +61,20 @@ class UserService {
       const isMatch = await bcrypt.compare(validatedData.password, user.password);
       if (!isMatch) throw new ValidationError('Invalid credentials');
 
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          isOnline: true,
+          lastSeenAt: new Date(),
+        },
+      });
       const token = generateToken({ userId: user.id, type: user.type });
       return { token };
-    } catch (error:any) {
+    } catch (error: any) {
       if (error instanceof ValidationError) throw error;
       throw new DatabaseError(`Login failed: ${error.message}`);
     }
   }
-
   static async getUserById(id: number , includeRelations: boolean = false): Promise<User> {
     const user = await prisma.user.findUnique({
       where: { id },
@@ -168,6 +193,8 @@ class UserService {
           id: true,
           name: true,
           profilePicture: true,
+          isOnline: true,
+          lastSeenAt: true,
         },
         take: 10 // Limiter le nombre de résultats à 10
       });
@@ -176,6 +203,21 @@ class UserService {
     } catch (error: any) {
       throw new DatabaseError(`Search failed: ${error.message}`);
     }
+  }
+
+
+  static async getUserOnlineStatus(userId: number): Promise<{ isOnline: boolean; lastSeenAt: Date | null }> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { isOnline: true, lastSeenAt: true }
+    });
+  
+    if (!user) throw new ValidationError('User not found');
+  
+    return {
+      isOnline: user.isOnline,
+      lastSeenAt: user.lastSeenAt
+    };
   }
 };
 

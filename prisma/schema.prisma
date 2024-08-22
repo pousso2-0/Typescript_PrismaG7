@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 enum UserType {
   CLIENT
   TAILLEUR
@@ -40,6 +39,8 @@ model User {
   premiumExpiresAt     DateTime?      // Nouveau champ pour la date d'expiration du premium
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
+  isOnline             Boolean        @default(false)  
+  lastSeenAt           DateTime?
   posts                Post[]
   comments             Comment[]
   reactions            Reaction[]
@@ -59,11 +60,11 @@ model User {
   retweets             Retweet[]
   reportedBy           Report[]       @relation("Signaled")
   shares               Share[]        // Nouveau champ
-  store    Store?
-  ordersAsClient  Order[]    @relation("ClientOrders")
-  ordersAsVendor  Order[]    @relation("VendorOrders")
-  ConversationSend Conversation[] @relation("SentConversations")
-  Conversationreceve Conversation[] @relation("ReceivedConversations")
+  store                Store[]
+  ordersAsClient       Order[]    @relation("ClientOrders")
+  ordersAsVendor       Order[]    @relation("VendorOrders")
+  sentConversations    Conversation[] @relation("SentConversations")
+  receivedConversations Conversation[] @relation("ReceivedConversations")
 }
 
 
@@ -105,6 +106,9 @@ model Comment {
   userId    Int
   content   String
   reaction  String?
+  parentId  Int? 
+  parent    Comment? @relation("CommentToComment", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentToComment")
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   post      Post       @relation(fields: [postId], references: [id])
@@ -258,7 +262,6 @@ model Report {
   updatedAt  DateTime @updatedAt
   signaled   User     @relation("Signaled", fields: [signaledId], references: [id])
   signaler   User     @relation("Signaler", fields: [signalerId], references: [id])
-
   @@unique([signaledId, signalerId])
 }
 
@@ -281,14 +284,15 @@ model Store {
   description String?
   userId      Int        @unique
   user        User       @relation(fields: [userId], references: [id])
-  articles    Article[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+  Catalogue Catalogue[]
+  orders      Order[]
 }
 
 model Category {
   id        Int       @id @default(autoincrement())
-  name      String
+  name      String    @unique
   articles  Article[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -298,15 +302,11 @@ model Article {
   id          Int            @id @default(autoincrement())
   name        String
   description String?
-  price       Float
-  stockCount  Int
-  storeId     Int
-  store       Store          @relation(fields: [storeId], references: [id])
   categoryId  Int
   category    Category       @relation(fields: [categoryId], references: [id])
-  orderDetails OrderDetail[]
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+  Catalogue Catalogue[]
 }
 
 model Order {
@@ -315,21 +315,63 @@ model Order {
   user         User          @relation("ClientOrders", fields: [userId], references: [id])
   vendorId     Int
   vendor       User          @relation("VendorOrders", fields: [vendorId], references: [id])
-  totalAmount  Float
+  storeId      Int
+  store        Store         @relation(fields: [storeId], references: [id])
+  articleId    Int
+  quantity     Int
+  totalAmount  Float  
   status       String        @default("pending")
-  orderDetails OrderDetail[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  deliveryMode String        @default("DELIVERY")
+  payment      Payment?      @relation("OrderPayment")
 }
 
-model OrderDetail {
-  id        Int     @id @default(autoincrement())
-  orderId   Int
-  order     Order   @relation(fields: [orderId], references: [id])
-  articleId Int
-  article   Article @relation(fields: [articleId], references: [id])
-  quantity  Int
-  price     Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Payment {
+  id          Int       @id @default(autoincrement())
+  orderId     Int      @unique
+  amount      Float
+  status      String   @default("PENDING") 
+  paymentTypeId Int   
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  order       Order    @relation("OrderPayment", fields: [orderId], references: [id])
+  paymentType PaymentType @relation("PaymentTypePayments", fields: [paymentTypeId], references: [id])
 }
+
+model PaymentType {
+  id          Int      @id @default(autoincrement())
+  type        String   @unique 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  payments    Payment[] @relation("PaymentTypePayments")
+}
+
+
+
+// Modèle pour le catalogue d'un magasin spécifique
+model Catalogue {
+  id          Int       @id @default(autoincrement())
+  articleId   Int
+  article     Article   @relation(fields: [articleId], references: [id])
+  storeId     Int
+  store       Store     @relation(fields: [storeId], references: [id])
+  price       Float
+  stockCount  Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+    @@unique([storeId, articleId])
+
+}
+// model OrderDetail {
+//   id        Int     @id @default(autoincrement())
+//   orderId   Int
+//   order     Order   @relation(fields: [orderId], references: [id])
+//   articleId Int
+//   article   Article @relation(fields: [articleId], references: [id])
+//   quantity  Int
+//   price     Float
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }

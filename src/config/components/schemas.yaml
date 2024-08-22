@@ -1,0 +1,231 @@
+openapi: 3.0.0
+info:
+  title: Tailor API
+  version: 1.0.0
+  description: Documentation de notre API pour le réseau social des tailleurs
+servers:
+  - url: 'https://backendg7-jhgt.onrender.com/'
+    description: Serveur de développement
+  - url: 'http://localhost:3000/'
+    description: Serveur local
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    CreateOrderDto:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 1
+        vendorId:
+          type: integer
+          example: 1
+        totalAmount:
+          type: number
+          format: float
+          example: 100.00
+        status:
+          type: string
+          example: 'PENDING'
+        paymentType:
+          type: string
+          example: 'CASH_ON_DELIVERY'
+        deliveryMode:
+          type: string
+          example: 'DELIVERY'
+    UpdateOrderDto:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'COMPLETED'
+        paymentType:
+          type: string
+          example: 'WAVE'
+    PaymentDto:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          example: 1
+        amount:
+          type: number
+          format: float
+          example: 100.00
+        paymentType:
+          type: string
+          example: 'WAVE'
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+        vendorId:
+          type: integer
+          example: 1
+        totalAmount:
+          type: number
+          format: float
+          example: 100.00
+        status:
+          type: string
+          example: 'PENDING'
+        paymentType:
+          type: string
+          example: 'CASH_ON_DELIVERY'
+        deliveryMode:
+          type: string
+          example: 'DELIVERY'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2024-08-20T12:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2024-08-20T12:00:00Z'
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        orderId:
+          type: integer
+          example: 1
+        amount:
+          type: number
+          format: float
+          example: 100.00
+        status:
+          type: string
+          example: 'PENDING'
+        paymentType:
+          type: string
+          example: 'WAVE'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2024-08-20T12:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2024-08-20T12:00:00Z'
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: 'Electronics'
+    CreateCategoryDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'Books'
+    Article:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: 'Laptop'
+        description:
+          type: string
+          example: 'A high-end laptop'
+        price:
+          type: number
+          format: float
+          example: 999.99
+        stockCount:
+          type: integer
+          example: 10
+        store:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        category:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+    CreateArticleDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'Tablet'
+        description:
+          type: string
+          example: 'A new tablet'
+        price:
+          type: number
+          format: float
+          example: 299.99
+        stockCount:
+          type: integer
+          example: 50
+        storeId:
+          type: integer
+          example: 1
+        categoryId:
+          type: integer
+          example: 2
+    CatalogueResponse:
+      type: object
+      properties:
+        articleId:
+          type: integer
+        articleName:
+          type: string
+        price:
+          type: number
+          format: float
+        stockCount:
+          type: integer
+    CategoryWithArticlesResponse:
+      type: object
+      properties:
+        categoryId:
+          type: integer
+        categoryName:
+          type: string
+        articles:
+          type: array
+          items:
+            type: object
+            properties:
+              articleId:
+                type: integer
+              articleName:
+                type: string
+              stores:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    storeName:
+                      type: string
+                    price:
+                      type: number
+                      format: float
+                    stockCount:
+                      type: integer      

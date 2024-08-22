@@ -1,6 +1,6 @@
-import { PrismaClient,  } from "@prisma/client";
+import { PrismaClient, Comment } from "@prisma/client";
 import { ValidationError, DatabaseError } from "../errors/customErrors";
-import {  Comment, commentIncludeConfig , CommentWithLimitedUserInfo } from "../Interfaces/CommentInterface";
+import { commentIncludeConfig , CommentWithLimitedUserInfo } from "../Interfaces/CommentInterface";
 
 const prisma = new PrismaClient();
 
@@ -40,7 +40,7 @@ export class CommentService {
     try {
       const comment = await prisma.comment.findUnique({
         where: { id },
-        include: { user: true, post: true, reactions: true }
+        include: commentIncludeConfig
       });
       if (!comment) throw new ValidationError("Comment not found");
       return comment;
@@ -58,7 +58,7 @@ export class CommentService {
       return await prisma.comment.update({
         where: { id },
         data: { content },
-        include: { user: true, post: true, reactions: true }
+        include: commentIncludeConfig
       });
     } catch (error: any) {
       throw new DatabaseError(`Failed to update comment: ${error.message}`);
@@ -73,7 +73,7 @@ export class CommentService {
 
       const deletedComment = await prisma.comment.delete({
         where: { id },
-        include: { user: true, post: true, reactions: true }
+        include: commentIncludeConfig
       });
 
       await prisma.post.update({
@@ -87,27 +87,27 @@ export class CommentService {
     }
   }
 
-  // async CommentReplies(commentId: number, userID: number, content: string): Promise<Comment> {
-  //   try {
-  //     const user = await prisma.user.findUnique({ where: { id: userID } });
-  //     if (!user) throw new ValidationError("User not found");
-  //     const parentComment = await prisma.comment.findUnique({ where: { id: commentId } });
-  //     if (!parentComment) throw new ValidationError("Parent comment not found");
+  async CommentReplies(commentId: number, userID: number, content: string): Promise<Comment> {
+    try {
+      const user = await prisma.user.findUnique({ where: { id: userID } });
+      if (!user) throw new ValidationError("User not found");
+      const parentComment = await prisma.comment.findUnique({ where: { id: commentId } });
+      if (!parentComment) throw new ValidationError("Parent comment not found");
 
-  //     const newReply = await prisma.comment.create({
-  //       data: {
-  //         userId: userID,
-  //         postId: parentComment.postId,
-  //         content,
-  //         parentId: commentId || null 
-  //       },
-  //       include: { user: true, post: true, parent: true }
-  //     });
-  //     return newReply;
-  //   } catch (error: any) {
-  //     throw new DatabaseError(`Failed to create comment: ${error.message}`);
-  //   }
-  // }
+      const newReply = await prisma.comment.create({
+        data: {
+          userId: userID,
+          postId: parentComment.postId,
+          content,
+          parentId: commentId || null 
+        },
+        include: commentIncludeConfig
+      });
+      return newReply;
+    } catch (error: any) {
+      throw new DatabaseError(`Failed to create comment: ${error.message}`);
+    }
+  }
 
   async getCommentsByPostId(postId: number, page: number = 1, limit: number = this.DEFAULT_PAGE_SIZE): Promise<Comment[]> {
     try {
@@ -122,10 +122,15 @@ export class CommentService {
             select: {
               id: true,
               name: true,
-              profilePicture: true
+              profilePicture: true,
+              isOnline: true,
+              lastSeenAt: true,
+
             }
           },
-           reactions: true }
+           reactions: true,
+           replies: true,
+           }
       });
     } catch (error: any) {
       throw new DatabaseError(`Failed to get comments: ${error.message}`);

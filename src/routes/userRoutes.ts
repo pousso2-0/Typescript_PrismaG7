@@ -117,6 +117,27 @@ router.post('/logout', UserController.logout);
 router.get('/profile', authMiddleware, UserController.getCurrentUserProfile);
 
 
+
+/**
+ * @swagger
+ * /api/users/profile/{id}:
+ *   get:
+ *     summary: Récupérer le profil d'un utilisateur
+ *     tags: 
+ *       - Users
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Profil de l'utilisateur
+ */
+router.get('/profile/:id', authMiddleware, UserController.getUserProfileById);
+
 /**
  * @swagger
  * /api/users/buy-credits:
@@ -186,30 +207,6 @@ router.get('/premium-status',authMiddleware, UserController.checkAndUpdatePremiu
  */
 router.get('/search', authMiddleware, UserController.searchUsers);
 
-/**
-//  * @swagger
-//  * /api/users/report:
-//  *   post:
-//  *     summary: Signaler un utilisateur
-//  *     tags: [Reports]
-//  *     security:
-//  *       - bearerAuth: []
-//  *     requestBody:
-//  *       required: true
-//  *       content:
-//  *         application/json:
-//  *           schema:
-//  *             type: object
-//  *             properties:
-//  *               reportedId:
-//  *                 type: string
-//  *               reason:
-//  *                 type: string
-//  *     responses:
-//  *       200:
-//  *         description: Signalement créé
-//  */
-// router.post('/report', authMiddleware, reportController.reportUser);
 
 /**
  * @swagger
@@ -526,6 +523,40 @@ router.patch('/notifications/:id', authMiddleware, NotificationController.markAs
  *         description: Utilisateur ou notification non trouvé
  */
 router.post('/notifications', authMiddleware, NotificationController.sendNotification);
+
+
+/**
+ * @swagger
+ * /api/users/{id}/online-status:
+ *   get:
+ *     summary: Récupérer le statut en ligne d'un utilisateur
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Statut en ligne de l'utilisateur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isOnline:
+ *                   type: boolean
+ *                 lastSeenAt:
+ *                   type: string
+ *                   format: date-time
+ *       404:
+ *         description: Utilisateur non trouvé
+ */
+router.get('/:id/online-status', UserController.getUserOnlineStatus);
+
+
 
 
 export default router;

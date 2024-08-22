@@ -17,6 +17,7 @@ export interface Comment {
   userId: number;
   content: string;
   reaction: string | null;
+  parentId: number;
   createdAt: Date;
   updatedAt: Date;
   user: UserSearchResult;
@@ -53,8 +54,11 @@ export const commentIncludeConfig = {
     select: {
       id: true,
       name: true,
-      profilePicture: true
+      profilePicture: true,
+      isOnline: true,
+      lastSeenAt: true,
     }
   },
-  reactions: true
+  reactions: true,
+  replies:true
 };

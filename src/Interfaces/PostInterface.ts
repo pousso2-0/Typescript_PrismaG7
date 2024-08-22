@@ -122,7 +122,9 @@ export const postIncludeConfig = {
     select: {
       id: true,
       name: true,
-      profilePicture: true
+      profilePicture: true,
+      isOnline: true,
+      lastSeenAt: true,
     }
   },
   media: true,

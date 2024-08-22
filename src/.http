@@ -1,0 +1,26 @@
+POST http://localhost:5000/api/orders
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInR5cGUiOiJWRU5ERVVSIiwiaWF0IjoxNzI0MTE1NTU5LCJleHAiOjE3MjQyMDE5NTl9.H9gpkJW0VQvOtvdW7NpvbAxEjM1blpoGj1PYXUfwBwU
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "vendorId": 2,
+  "totalAmount": 100.50,
+  "status": "PENDING"
+}
+
+###
+
+POST http://localhost:5000/api/articles
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInR5cGUiOiJWRU5ERVVSIiwiaWF0IjoxNzI0MTE1NTU5LCJleHAiOjE3MjQyMDE5NTl9.H9gpkJW0VQvOtvdW7NpvbAxEjM1blpoGj1PYXUfwBwU
+Content-Type: application/json
+
+{
+  "name": "Chemise en lin",
+  "description": "Une chemise élégante en lin pour l'été",
+  "price": 59.99,
+  "stock": 50,
+  "categoryId": 1,
+  "vendorId": 2,
+  "imageUrl": "https://example.com/chemise-lin.jpg"
+}

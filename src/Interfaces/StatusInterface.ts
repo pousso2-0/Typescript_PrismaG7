@@ -34,7 +34,9 @@ export const StatusIncludeConfig = {
     select: {
       id: true,
       name: true,
-      profilePicture: true
+      profilePicture: true,
+      isOnline: true,
+      lastSeenAt: true,
     }
   }
 };

@@ -1,12 +1,17 @@
+/*
+  Warnings:
+
+  - A unique constraint covering the columns `[name]` on the table `Category` will be added. If there are existing duplicate values, this will fail.
+
+*/
 -- DropForeignKey
 ALTER TABLE `View` DROP FOREIGN KEY `FK_View_StatusViewer`;
 
 -- DropForeignKey
 ALTER TABLE `View` DROP FOREIGN KEY `FK_View_User`;
 
--- AlterTable
-ALTER TABLE `Message` ADD COLUMN `receiverDeleted` BOOLEAN NOT NULL DEFAULT false,
-    ADD COLUMN `senderDeleted` BOOLEAN NOT NULL DEFAULT false;
+-- CreateIndex
+CREATE UNIQUE INDEX `Category_name_key` ON `Category`(`name`);
 
 -- AddForeignKey
 ALTER TABLE `View` ADD CONSTRAINT `FK_View_User` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
