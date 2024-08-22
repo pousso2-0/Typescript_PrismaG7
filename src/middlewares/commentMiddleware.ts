@@ -5,9 +5,10 @@ const prisma = new PrismaClient();
 
 export const checkCommentsEnabled = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const postId = parseInt(req.params.postId);
+        const postId = parseInt(req.params.postId , 10);
+        
+        if (isNaN(+postId)) {
 
-        if (isNaN(postId)) {
             console.log("Invalid post ID");
             return res.status(400).json({ message: 'Invalid post ID' });
         }

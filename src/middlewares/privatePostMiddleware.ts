@@ -16,7 +16,7 @@ export const postActionMiddleware = async (req: Request, res: Response, next: Ne
     try {
         // Récupérer l'ID du post à partir des paramètres de l'URL
         if (req.params.id) {
-            postId = parseInt(req.params.id);
+            postId = parseInt(req.params.id , 10);
         }
 
         console.log('Extracted postId:', postId);

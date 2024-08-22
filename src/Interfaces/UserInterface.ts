@@ -24,6 +24,8 @@ export interface User {
   credits: number;
   subscriptionType: string ;
   premiumExpiresAt: Date | null;
+  isOnline: boolean;
+  lastSeenAt: Date | null;
   createdAt: Date;
   posts?: Post[];
   comments?: Comment[];
@@ -155,11 +157,13 @@ export type Gender = 'male' | 'female';
 export type MeasurementKey = keyof Measurement;
 
 
-export interface Register{
-  name: string; 
+export interface Register {
+  name: string;
   email: string;
   password: string;
   type: 'CLIENT' | 'TAILLEUR' | 'VENDEUR' | 'ADMIN';
+  storeName?: string; // Nom du magasin (optionnel)
+  storeDescription?: string; // Description du magasin (optionnel)
 }
 
   export interface Login{
@@ -182,6 +186,8 @@ export interface Register{
     id: number;
     name: string;
     profilePicture: string | null;
+    isOnline: boolean;
+    lastSeenAt: Date | null;
   }
   
 

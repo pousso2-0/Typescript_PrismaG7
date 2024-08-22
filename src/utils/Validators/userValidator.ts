@@ -7,6 +7,8 @@ class UserValidator {
         password: z.string().min(8, { message: "Password must be at least 8 characters long" }),
         type: z.enum(['CLIENT', 'TAILLEUR', 'VENDEUR', 'ADMIN']), // Ajouter `type`
         profilePicture: z.string().optional(), // Ajouter `profilePicture`
+        storeName: z.string().optional(), // Ajouter `storeName`
+        storeDescription: z.string().optional(), // Ajouter `storeDescription`
         bio: z.string().optional(), // Ajouter `bio`
         location: z.string().optional(), // Ajouter `location`
         dateOfBirth: z.date().optional(), // Ajouter `dateOfBirth`

@@ -27,7 +27,6 @@ class UserController {
       if (!token) {
         return res.status(400).json({ message: "No token provided" });
       }
-      // Implement logout logic if needed (e.g., invalidating tokens)
       res.status(200).json({ message: "Logout successful" });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -73,18 +72,39 @@ class UserController {
     }
   }
 
-static async getUserProfileById(req: Request, res: Response) {
+  static async getUserProfileById(req: Request, res: Response) {
     try {
-      const userId = req.userId as number;
-        const profile = await UserService.getUserById(userId);
+        const userId = req.userId as number;
+        const profile = await UserService.getUserById(userId , true);
+
+        // Vérifiez si le profil est privé
         if (profile.isPrivate) {
             return res.status(403).json({ message: "Private profile" });
         }
-        return res.json(profile);
-    } catch (error:any) {
+
+        // Tronquez les données du profil
+        const truncatedProfile = {
+            id: profile.id,
+            name: profile.name,
+            type: profile.type,
+            profilePicture: profile.profilePicture,
+            location: profile.location,
+            dateOfBirth: profile.dateOfBirth,
+            website: profile.website,
+            followersCount: profile.followersCount,
+            followingCount: profile.followingCount,
+            postsCount: profile.postsCount,
+            isOnline: profile.isOnline,
+            lastSeenAt: profile.lastSeenAt,
+            createdAt: profile.createdAt,
+        };
+
+        return res.json(truncatedProfile);
+    } catch (error: any) {
         return res.status(404).json({ message: error.message });
     }
 }
+
 
 static async searchUsers(req: Request, res: Response): Promise<void> {
   try {
@@ -99,6 +119,16 @@ static async searchUsers(req: Request, res: Response): Promise<void> {
     res.json(users);
   } catch (error: any) {
     res.status(400).json({ message: error.message });
+  }
+}
+
+static async getUserOnlineStatus(req: Request, res: Response) {
+  try {
+    const userId = parseInt(req.params.id);
+    const status = await UserService.getUserOnlineStatus(userId);
+    res.json(status);
+  } catch (error: any) {
+    res.status(404).json({ message: error.message });
   }
 }
 
