@@ -1,17 +1,16 @@
-import express from 'express';
-import OrderController from '../controllers/orderController';
-import PaymentController from '../controllers/paymentController';
-import { authMiddleware } from '../middlewares/authMiddleware';
-import { roleMiddleware } from '../middlewares/roleMiddleware';
+    import express from 'express';
+    import OrderController from '../controllers/orderController';
+    import PaymentController from '../controllers/paymentController';
+    import { authMiddleware } from '../middlewares/authMiddleware';
+    import { roleMiddleware } from '../middlewares/roleMiddleware';
 
-const router = express.Router();
+    const router = express.Router();
 
-/**
- * @swagger
- * tags:
- *   name: Orders
- *   description: Order management
- */
+    /**
+     * @swagger
+     * tags:
+     *   name: Orders
+     */
 
 /**
  * @swagger
@@ -24,18 +23,32 @@ const router = express.Router();
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/CreateOrderDto'
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *                 example: 1
+ *               vendorId:
+ *                 type: integer
+ *                 example: 1
+ *               totalAmount:
+ *                 type: number
+ *                 format: float
+ *                 example: 100.00
+ *               paymentType:
+ *                 type: string
+ *                 example: 'CASH_ON_DELIVERY'
+ *               deliveryMode:
+ *                 type: string
+ *                 example: 'DELIVERY'
  *     responses:
  *       201:
  *         description: Order created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Order'
+
  *       400:
  *         description: Bad request
  */
-router.post('/',roleMiddleware(['TAILLEUR']), authMiddleware, OrderController.createOrder);
+router.post('/', roleMiddleware(['TAILLEUR']), authMiddleware, OrderController.createOrder);
 
 /**
  * @swagger
@@ -46,12 +59,6 @@ router.post('/',roleMiddleware(['TAILLEUR']), authMiddleware, OrderController.cr
  *     responses:
  *       200:
  *         description: List of orders
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Order'
  *       400:
  *         description: Bad request
  */
@@ -75,19 +82,21 @@ router.get('/', roleMiddleware(['VENDEUR', 'TAILLEUR']), authMiddleware, OrderCo
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/UpdateOrderDto'
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 example: 'COMPLETED'
+ *               paymentType:
+ *                 type: string
+ *                 example: 'WAVE'
  *     responses:
  *       200:
  *         description: Order status updated
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Order'
  *       400:
  *         description: Bad request
  */
-router.put('/orders/:orderId',roleMiddleware(['TAILLEUR']), authMiddleware, OrderController.updateOrderStatus);
-
+router.put('/orders/:orderId', roleMiddleware(['TAILLEUR']), authMiddleware, OrderController.updateOrderStatus);
 
 /**
  * @swagger
@@ -100,14 +109,25 @@ router.put('/orders/:orderId',roleMiddleware(['TAILLEUR']), authMiddleware, Orde
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/PaymentDto'
+ *             type: object
+ *             properties:
+ *               orderId:
+ *                 type: integer
+ *                 example: 1
+ *               amount:
+ *                 type: number
+ *                 format: float
+ *                 example: 100.00
+ *               paymentType:
+ *                 type: string
+ *                 example: 'WAVE'
  *     responses:
  *       200:
  *         description: Payment processed successfully
  *       400:
  *         description: Bad request
  */
-router.post('/payments',roleMiddleware(['TAILLEUR']), PaymentController.processPayment);
+router.post('/payments', roleMiddleware(['TAILLEUR']), PaymentController.processPayment);
 
 /**
  * @swagger
@@ -125,16 +145,10 @@ router.post('/payments',roleMiddleware(['TAILLEUR']), PaymentController.processP
  *     responses:
  *       200:
  *         description: Order marked as completed
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Order'
  *       400:
  *         description: Bad request
  */
 router.patch('/:orderId/complete', roleMiddleware(['VENDEUR']), authMiddleware, OrderController.markOrderAsCompleted);
-
-
 
 
 export default router;

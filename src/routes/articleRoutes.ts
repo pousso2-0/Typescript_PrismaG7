@@ -9,7 +9,6 @@ const router = Router();
  * @swagger
  * tags:
  *   name: Articles
- *   description: Article management
  */
 /**
  * @swagger
@@ -27,12 +26,6 @@ const router = Router();
  *     responses:
  *       200:
  *         description: List of articles
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/CatalogueResponse'
  *       404:
  *         description: Not found
  */
@@ -47,12 +40,6 @@ router.get('/stores/:storeId/category/:categoryId', authMiddleware, ArticleContr
  *     responses:
  *       200:
  *         description: List of categories and articles
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/CategoryWithArticlesResponse'
  *       500:
  *         description: Internal server error
  */
@@ -76,14 +63,35 @@ router.get('/categories' , authMiddleware, ArticleController.listAllCategoriesAn
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ArticleData'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: 'Aguille de 10'
+ *               description:
+ *                 type: string
+ *                 example: 'Paquet aguille de 10'
+ *               price:
+ *                 type: number
+ *                 format: float
+ *                 example: 299.99
+ *               stockCount:
+ *                 type: integer
+ *                 example: 50
+ *               storeId:
+ *                 type: integer
+ *                 example: 1
+ *               categoryId:
+ *                 type: integer
+ *                 example: 2
  *     responses:
  *       201:
  *         description: Article added
  *       500:
  *         description: Internal server error
  */
-router.post('/store/:storeId' , roleMiddleware(['VENDEUR']), authMiddleware, ArticleController.addArticleToStore);
+router.post('/store/:storeId', roleMiddleware(['VENDEUR']), authMiddleware, ArticleController.addArticleToStore);
+
 /**
  * @swagger
  * /api/articles/store/{storeId}/category/{categoryId}:
@@ -113,7 +121,7 @@ router.delete('/store/:storeId/category/:categoryId',roleMiddleware(['VENDEUR'])
 
 /**
  * @swagger
- * /api/articles/store/{storeId}/category/{categoryId}:
+ * /api/articles/store/{storeId}/:
  *   delete:
  *     summary: Delete store
  *     tags: [Articles]
@@ -148,12 +156,6 @@ router.delete('/store/:storeId/' , roleMiddleware(['VENDEUR']), authMiddleware, 
  *     responses:
  *       200:
  *         description: List of categories and articles for a store
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/CategoryWithArticlesResponse'
  *       500:
  *         description: Internal server error
  */

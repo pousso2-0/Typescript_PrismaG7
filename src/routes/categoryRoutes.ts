@@ -14,12 +14,6 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: Liste de toutes les catégories
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Category'
  *       500:
  *         description: Erreur serveur
  */
@@ -38,14 +32,14 @@ router.get('/', CategoryController.getAllCategories);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/CreateCategoryDto'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: 'Tissu'
  *     responses:
  *       201:
  *         description: Catégorie créée avec succès
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Category'
  *       400:
  *         description: Erreur de requête
  *       401:
