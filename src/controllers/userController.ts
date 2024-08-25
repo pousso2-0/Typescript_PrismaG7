@@ -74,7 +74,7 @@ class UserController {
 
   static async getUserProfileById(req: Request, res: Response) {
     try {
-        const userId = req.userId as number;
+        const userId = parseInt(req.params.id, 10) ;
         const profile = await UserService.getUserById(userId , true);
 
         // Vérifiez si le profil est privé
