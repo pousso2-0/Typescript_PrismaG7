@@ -8,20 +8,25 @@ export const postActionMiddleware = async (req: Request, res: Response, next: Ne
     console.log('Request method:', req.method);
     console.log('Request path:', req.path);
     console.log('Request params:', req.params);
+    console.log('Request body:', req.body);
+
+    let postId: number | undefined;
 
     try {
-        // Vérification des paramètres disponibles
-        if (!req.params.postId) {
-            console.log('No postId in request params');
-            return res.status(400).json({ message: 'Invalid or missing post ID' });
+        // Priorité 1 : Vérifier si l'ID est dans les paramètres de l'URL
+        if (req.params.postId) {
+            postId = parseInt(req.params.postId, 10);
         }
 
-        // Conversion en nombre entier
-        const postId = parseInt(req.params.postId, 10);
+        // Priorité 2 : Si pas trouvé dans les paramètres, vérifier le corps de la requête
+        if (!postId && req.body.postId) {
+            postId = parseInt(req.body.postId, 10);
+        }
+
         console.log('Extracted postId:', postId);
 
-        if (isNaN(postId)) {
-            console.log('postId is not a valid number');
+        if (typeof postId !== 'number' || isNaN(postId)) {
+            console.log('Invalid or missing post ID');
             return res.status(400).json({ message: 'Invalid or missing post ID' });
         }
 
@@ -50,7 +55,7 @@ export const postActionMiddleware = async (req: Request, res: Response, next: Ne
             return res.status(403).json({ message: 'Comments are disabled for this post' });
         }
 
-        // Ajouter l'ID du post au request object
+        // Ajouter l'ID du post au request object pour une utilisation ultérieure
         (req as any).postId = postId;
 
         console.log('Post action allowed');

@@ -31,7 +31,7 @@ const router = express.Router();
  *             type: object
  *             properties:
  *               content:
- *                 type: number
+ *                 type: string
  *                 description: Contenu du commentaire
  *     responses:
  *       201:
@@ -41,7 +41,7 @@ const router = express.Router();
  *       401:
  *         description: Non autorisé, authentification requise
  */
-router.post('/:postId', authMiddleware,  checkCommentsEnabled, CommentController.createComment);
+router.post('/:postId', authMiddleware,  postActionMiddleware, CommentController.createComment);
 
 /**
  * @swagger

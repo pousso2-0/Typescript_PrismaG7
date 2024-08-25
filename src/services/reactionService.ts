@@ -6,45 +6,49 @@ import { ReactionToggle, ReactionResponse, Reaction, ReactionIncludeConfig } fro
 const prisma = new PrismaClient();
 
 class ReactionService {
-  static async toggleReaction(userId: number, { reactionType, postId, commentId }: ReactionToggle): Promise<ReactionResponse> {
-    if ((postId && commentId) || (!postId && !commentId)) {
-      throw new Error('You must provide either postId or commentId, but not both.');
-    }
+static async toggleReaction(userId: number, { reactionType, postId, commentId }: ReactionToggle): Promise<ReactionResponse> {
+  if ((postId && commentId) || (!postId && !commentId)) {
+    throw new Error('You must provide either postId or commentId, but not both.');
+  }
 
-    const existingReaction = await prisma.reaction.findFirst({
-      where: {
+  const existingReaction = await prisma.reaction.findFirst({
+    where: {
+      userId,
+      ...(postId ? { postId } : {}),
+      ...(commentId ? { commentId } : {}),
+    },
+  });
+
+  if (existingReaction) {
+    if (existingReaction.reactionType === reactionType) {
+      // Supprimer la réaction existante
+      await prisma.reaction.delete({ where: { id: existingReaction.id } });
+      await this.updateReactionCount(-1, postId, commentId);
+      return { removed: true, message: 'Reaction removed successfully.' };
+    } else {
+      // Mettre à jour la réaction existante
+      const updatedReaction = await prisma.reaction.update({
+        where: { id: existingReaction.id },
+        data: { reactionType },
+      });
+      await this.updateReactionCount(0, postId, commentId);
+      return { updated: true, reaction: updatedReaction };
+    }
+  } else {
+    // Créer une nouvelle réaction
+    const newReaction = await prisma.reaction.create({
+      data: {
         userId,
+        reactionType,
         ...(postId ? { postId } : {}),
         ...(commentId ? { commentId } : {}),
       },
     });
-
-    if (existingReaction) {
-      if (existingReaction.reactionType === reactionType) {
-        await prisma.reaction.delete({ where: { id: existingReaction.id } });
-        await this.updateReactionCount(-1, postId, commentId);
-        return { removed: true };
-      } else {
-        const updatedReaction = await prisma.reaction.update({
-          where: { id: existingReaction.id },
-          data: { reactionType },
-        });
-        await this.updateReactionCount(0, postId, commentId);
-        return { updated: true, reaction: updatedReaction };
-      }
-    } else {
-      const newReaction = await prisma.reaction.create({
-        data: {
-          userId,
-          reactionType,
-          ...(postId ? { postId } : {}),
-          ...(commentId ? { commentId } : {}),
-        },
-      });
-      await this.updateReactionCount(1, postId, commentId);
-      return { created: true, reaction: newReaction };
-    }
+    await this.updateReactionCount(1, postId, commentId);
+    return { created: true, reaction: newReaction };
   }
+}
+
 
   static async getReactionsForPost(postId: number): Promise<Reaction[]> {
     const reactions = await prisma.reaction.findMany({

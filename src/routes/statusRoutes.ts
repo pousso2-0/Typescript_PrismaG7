@@ -23,13 +23,19 @@ const router = express.Router();
  *               content:
  *                 type: string
  *                 description: Contenu du statut
+ *               mediaType: 
+ *                 type: string
+ *                 description: types de media
+ *               mediaUrl :
+ *                 type: string
+ *                 description: l'url du media 
  *     responses:
  *       201:
  *         description: Statut créé avec succès
  *       400:
  *         description: Données invalides
  */
-router.post('/', authMiddleware, roleMiddleware(['TAILLEUR' , 'VENDEUR']), StatusController.createStatus);
+router.post('/', authMiddleware, roleMiddleware(['TAILLEUR']), StatusController.createStatus);
 
 /**
  * @swagger

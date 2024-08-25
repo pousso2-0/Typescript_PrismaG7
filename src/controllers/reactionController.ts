@@ -7,27 +7,33 @@ interface AuthRequest extends Request {
 }
 
 class ReactionController {
-  static async toggleReaction(req: AuthRequest, res: Response): Promise<void> {
-    const { postId, commentId, reactionType } = req.body as ReactionToggle;
-    const userId = req.userId;
+ static async toggleReaction(req: AuthRequest, res: Response): Promise<void> {
+  const { postId, commentId, reactionType } = req.body as ReactionToggle;
+  const userId = req.userId;
 
-    if (!userId) {
-      res.status(401).json({ message: 'User not authenticated' });
+  if (!userId) {
+    res.status(401).json({ message: 'User not authenticated' });
+    return;
+  }
+
+  try {
+    if (!reactionType || (!postId && !commentId) || (postId && commentId)) {
+      res.status(400).json({ message: 'Invalid request' });
       return;
     }
 
-    try {
-      if (!reactionType || (!postId && !commentId) || (postId && commentId)) {
-        res.status(400).json({ message: 'Invalid request' });
-        return;
-      }
+    const result = await ReactionService.toggleReaction(userId, { reactionType, postId, commentId });
 
-      const result = await ReactionService.toggleReaction(userId, { reactionType, postId, commentId });
-      res.status(result.removed ? 204 : 200).json(result);
-    } catch (error) {
-      res.status(400).json({ message: `Failed to toggle reaction: ${(error as Error).message}` });
+    // Choisir le code de réponse et le message selon le résultat
+    if (result.removed) {
+      res.status(204).json({ message: result.message }); // No content
+    } else {
+      res.status(200).json(result);
     }
+  } catch (error) {
+    res.status(400).json({ message: `Failed to toggle reaction: ${(error as Error).message}` });
   }
+}
 
   static async getReactionsForPost(req: Request, res: Response): Promise<void> {
     const postId = parseInt(req.params.postId);
