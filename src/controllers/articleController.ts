@@ -6,6 +6,21 @@ import { CatalogueResponse, CategoryWithArticlesResponse } from '../Interfaces/A
 
 
 export class ArticleController {
+
+  // Contrôleur pour créer un magasin pour un utilisateur
+  static async createStore(req: Request, res: Response) {
+    try {
+      const userId = req.userId as number; // Supposant que l'userId est récupéré via un middleware d'authentification
+      const { name, description } = req.body;
+
+      // Appel du service pour créer un magasin
+      const newStore = await ArticleService.createStoreForUser(userId, { name, description });
+
+      return res.status(201).json(newStore);
+    } catch (error: any) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
   static async listArticlesByCategoryForStore(req: Request, res: Response) {
     try {
       const { storeId, categoryId } = req.params;
@@ -20,6 +35,20 @@ export class ArticleController {
       return res.json(articles);
     } catch (error: any) {
       return res.status(404).json({ message: error.message });
+    }
+  }
+
+  static async deleteArticleFromStore(req: Request, res: Response) {
+    try {
+      const storeId = parseInt(req.params.storeId, 10); // Convertir storeId en entier
+      const articleId = parseInt(req.params.articleId, 10); // Convertir articleId en entier
+
+      // Appel du service pour supprimer l'article
+      await ArticleService.deleteArticleFromStore(storeId, articleId);
+
+      return res.status(204).json(); // Succès sans contenu
+    } catch (error: any) {
+      return res.status(500).json({ message: error.message }); // Retourne une erreur en cas de problème
     }
   }
   

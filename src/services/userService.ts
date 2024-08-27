@@ -79,7 +79,8 @@ class UserService {
     const user = await prisma.user.findUnique({
       where: { id },
       include: includeRelations ? UserIncludeConfig : {}
-    });    if (!user) throw new ValidationError('User not found');
+    });   
+   if (!user) throw new ValidationError('User not found');
     return user as User;
   }
   
