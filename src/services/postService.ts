@@ -68,8 +68,8 @@ export class PostServiceImpl implements PostService {
         include: postIncludeConfig
       });
 
-      if (user.type === 'CLIENT') {
-        await this.updateUserCreditsAndPostCount(userId, true);
+      if (user.type === 'TAILLEUR') {
+        await this.updateUserCreditsAndPostCount(userId, true); 
       }
 
       return newPost as Post;

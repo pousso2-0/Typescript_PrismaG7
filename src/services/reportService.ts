@@ -39,18 +39,18 @@ class ReportService {
       data: { reportCount: { increment: 1 } },
     });
 
-    const blockThreshold = 8;
-    const notifyThreshold = 5;
+    const blockshold = 8;
+    const notifyshold = 5;
 
     // Bloquer l'utilisateur s'il dépasse le seuil
-    if (user.reportCount >= blockThreshold) {
+    if (user.reportCount >= blockshold) {
       await prisma.user.update({
         where: { id: signaledId },
         data: { isBlocked: true },
       });
     } 
     // Envoyer une notification si le seuil est atteint
-    else if (user.reportCount >= notifyThreshold) {
+    else if (user.reportCount >= notifyshold) {
       const message = `Your account has been temporarily blocked due to multiple reports. Please review your account and report any issues you may have encountered.`;
       await NotificationService.sendNotification(signaledId, message);
     }

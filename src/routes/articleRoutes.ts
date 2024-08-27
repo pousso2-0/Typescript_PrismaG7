@@ -92,6 +92,64 @@ router.get('/categories' , authMiddleware, ArticleController.listAllCategoriesAn
  */
 router.post('/store/:storeId', roleMiddleware(['VENDEUR']), authMiddleware, ArticleController.addArticleToStore);
 
+
+/**
+ * @swagger
+ * /api/stores:
+ *   post:
+ *     summary: Create a new store for a user
+ *     tags: [Stores]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Store created successfully
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/stores', roleMiddleware(['VENDEUR']), authMiddleware, ArticleController.createStore);
+
+/**
+ * @swagger
+ * /api/stores/{storeId}/articles/{articleId}:
+ *   delete:
+ *     summary: Delete an article from a store
+ *     tags: [Articles]
+ *     parameters:
+ *       - name: storeId
+ *         in: path
+ *         required: true
+ *         description: Store ID
+ *         schema:
+ *           type: integer
+ *       - name: articleId
+ *         in: path
+ *         required: true
+ *         description: Article ID
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: Article deleted
+ *       500:
+ *         description: Server error
+ */
+router.delete('/stores/:storeId/articles/:articleId', authMiddleware, roleMiddleware, ArticleController.deleteArticleFromStore);
+
+
 /**
  * @swagger
  * /api/articles/store/{storeId}/category/{categoryId}:

@@ -1545,3 +1545,206 @@
 {"level":"info","message":"Database connection test successful. User count: 3","service":"user-service"}
 {"level":"info","message":"Server is running on port 5000","service":"user-service"}
 {"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 4","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"code":"EIO","errno":-5,"level":"error","message":"Uncaught Exception: write EIO","service":"user-service","stack":"Error: write EIO\n    at afterWriteDispatched (node:internal/stream_base_commons:161:15)\n    at writeGeneric (node:internal/stream_base_commons:152:3)\n    at WriteStream.Socket._writeGeneric (node:net:953:11)\n    at WriteStream.Socket._write (node:net:965:8)\n    at writeOrBuffer (node:internal/streams/writable:564:12)\n    at _write (node:internal/streams/writable:493:10)\n    at WriteStream.Writable.write (node:internal/streams/writable:502:10)\n    at console.value (node:internal/console/constructor:311:16)\n    at console.log (node:internal/console/constructor:386:26)\n    at /home/gueye/Documents/TYPESCRIPT/Typescript_PrismaG7/src/utils/Tasks/ViewStatusCleanup.ts:11:13","syscall":"write"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}

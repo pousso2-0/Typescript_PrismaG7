@@ -68,6 +68,7 @@ class UserService {
           lastSeenAt: new Date(),
         },
       });
+      const { id }= user;
       const token = generateToken({ userId: user.id, type: user.type });
       return { token };
     } catch (error: any) {
@@ -181,7 +182,7 @@ class UserService {
   //   return Array.from(tags);
   // }
   
-  static async searchUsersByName(name: string): Promise<UserSearchResult[]> {
+  static async searchUsersByName(name: string, limit: number = 10): Promise<UserSearchResult[]> {
     try {
       const users = await prisma.user.findMany({
         where: {
@@ -196,7 +197,7 @@ class UserService {
           isOnline: true,
           lastSeenAt: true,
         },
-        take: 10 // Limiter le nombre de résultats à 10
+        take: limit // Limiter le nombre de résultats à 10
       });
   
       return users;
