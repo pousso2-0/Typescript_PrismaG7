@@ -1,4 +1,4 @@
-import { Post, CreatePostInput, UpdatePostInput , postIncludeConfig } from '../Interfaces/PostInterface';
+import { Post, CreatePostInput, UpdatePostInput, postIncludeConfig } from '../Interfaces/PostInterface';
 import { ValidationError, DatabaseError } from '../errors/customErrors';
 import { PrismaClient, User } from '@prisma/client';
 
