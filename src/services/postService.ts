@@ -26,7 +26,7 @@ export class PostServiceImpl implements PostService {
   }
 
   private async checkUserCredits(user: User) {
-    if (user.type === 'CLIENT' && user.credits < PostServiceImpl.POST_CREATION_COST) {
+    if (user.type === 'TAILLEUR' && user.credits < PostServiceImpl.POST_CREATION_COST) {
       throw new ValidationError("Not enough credits to create a post");
     }
   }
@@ -53,7 +53,7 @@ export class PostServiceImpl implements PostService {
       const user = await this.getUser(userId);
       this.checkUserCredits(user);
 
-      if (user.type === 'CLIENT' && postData.media && postData.media.length > PostServiceImpl.FREE_USER_MEDIA_LIMIT) {
+      if (user.type === 'TAILLEUR' && postData.media && postData.media.length > PostServiceImpl.FREE_USER_MEDIA_LIMIT) {
         throw new ValidationError(`Free users can only post up to ${PostServiceImpl.FREE_USER_MEDIA_LIMIT} media items`);
       }
 
@@ -68,7 +68,7 @@ export class PostServiceImpl implements PostService {
         include: postIncludeConfig
       });
 
-      if (user.type === 'CLIENT') {
+      if (user.type === 'TAILLEUR') {
         await this.updateUserCreditsAndPostCount(userId, true);
       }
 
