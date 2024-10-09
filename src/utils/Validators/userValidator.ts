@@ -18,32 +18,28 @@ class UserValidator {
     });
 
     static updateSchema = z.object({
-        name: z.string().min(1, { message: "Name is required" }).optional(),
-        email: z.string().email({ message: "Invalid email address" }).optional(),
-        password: z.string().min(8, { message: "Password must be at least 8 characters long" }).optional(),
-        type: z.enum(['CLIENT', 'TAILLEUR', 'VENDEUR', 'ADMIN']).optional(),
+        name: z.string().min(1, { message: "Name is required" }).optional(), // Si fourni, il doit être non vide
+        email: z.string().email({ message: "Invalid email address" }).optional(), // Si fourni, il doit être un email valide
+        password: z.string().min(8, { message: "Password must be at least 8 characters long" }).optional(), // Si fourni, il doit être d'au moins 8 caractères
+        type: z.enum(['CLIENT', 'TAILLEUR', 'VENDEUR', 'ADMIN'], { message: "Invalid user type" }).optional(), // Si fourni, doit correspondre à l'une des valeurs
         website: z.array(
             z.object({
-                url: z.string().url({ message: "Invalid URL" }),
-                siteType: z.string().min(1, { message: "Site type is required" })
+                url: z.string().url({ message: "Invalid URL" }), // Si fourni, il doit être une URL valide
+                siteType: z.string().min(1, { message: "Site type is required" }) // Si fourni, le type du site doit être non vide
             })
         ).optional(),
-        profilePicture: z.string().optional(), // Ajouter `profilePicture`
-        storeName: z.string().optional(), // Ajouter `storeName`
-        storeDescription: z.string().optional(), // Ajouter `storeDescription`
-        bio: z.string().optional(), // Ajouter `bio`
-        location: z.string().optional(), // Ajouter `location`
-        dateOfBirth: z.date().optional(), // Ajouter `dateOfBirth`
-        gender: z.string().optional(), // Ajouter `gender`j
-        phone: z.string().optional(), // Ajouter `phone`
-        followersCount: z.number().optional(), // Ajouter `followersCount`
-        followingCount: z.number().optional(), // Ajouter `followingCount`
-        postsCount: z.number().optional(), // Ajouter `postsCount`
-        isPrivate: z.boolean().optional(), // Ajouter `isPrivate`
-        notificationsEnabled: z.boolean().optional(), // Ajouter `notificationsEnabled`
-        reportCount: z.number().optional(), // Ajouter `reportCount`
-        isBlocked: z.boolean().optional(), // Ajouter `isBlocked`
+        profilePicture: z.string().optional(), // Si fourni, accepter une chaîne
+        storeName: z.string().optional(), // Si fourni, accepter une chaîne
+        storeDescription: z.string().optional(), // Si fourni, accepter une chaîne
+        bio: z.string().optional(), // Si fourni, accepter une chaîne
+        location: z.string().optional(), // Si fourni, accepter une chaîne
+        dateOfBirth: z.date().optional(), // Si fourni, accepter une date
+        gender: z.string().optional(), // Si fourni, accepter une chaîne
+        phone: z.string().optional(), // Si fourni, accepter une chaîne
+        isPrivate: z.boolean().optional(), // Si fourni, accepter un booléen
+        notificationsEnabled: z.boolean().optional(), // Si fourni, accepter un booléen
     });
+
 
     static validateRegister(data: any) {
         return this.registerSchema.parse(data);

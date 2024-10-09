@@ -72,7 +72,6 @@ export interface UpdateUser {
   gender?: string;
   phone?: string;
   website?: Website[];
-  skills?: [];
 }
 export interface Site {
   url: string;

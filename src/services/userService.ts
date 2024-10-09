@@ -1,5 +1,6 @@
 import {Prisma, PrismaClient} from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { z } from 'zod'; // Import de zod
 import UserValidator from '../utils/Validators/userValidator';
 import {PREMIUM_COST , PREMIUM_DEFAULT_CREDITS} from '../config/env';
 import { generateToken } from '../utils/tokenUtils';
@@ -77,6 +78,14 @@ class UserService {
 
   static async updateUser(userId: number, updatedData: UpdateUser) {
     try {
+      // Filtrer les champs vides ou indéfinis avant validation
+      const sanitizedData = Object.fromEntries(
+          Object.entries(updatedData).filter(([_, value]) => value !== undefined && value !== "")
+      );
+
+      // Validation des données
+      const validatedData = UserValidator.validateUpdate(sanitizedData);
+
       // Vérifier que userId est défini
       if (!userId) {
         throw new ValidationError('User ID is required');
@@ -87,31 +96,34 @@ class UserService {
       if (!user) throw new ValidationError('User not found');
 
       // Check if user has enough credits to change their type
-      if (updatedData.type && user.credits < 100) {
+      if (validatedData.type && user.credits < 100) {
         throw new ValidationError('Not enough credits to change user type');
       }
 
-      // Update user data
+      // Cast des données validées vers Prisma.UserUpdateInput
+      const prismaData: Prisma.UserUpdateInput = validatedData as Prisma.UserUpdateInput;
+
+      // Update user data avec les types corrects
       const updatedUser = await prisma.user.update({
         where: { id: userId },
-        data: updatedData as Prisma.UserUpdateInput, // Cast to Prisma's expected update input type
+        data: prismaData,
       });
 
-      // If user is upgraded to 'VENDEUR', create a store if it's not already present
-      if (updatedData.type === 'VENDEUR') {
-        if (!updatedData.storeName) {
+      // Si l'utilisateur est passé à 'VENDEUR', créer un magasin
+      if (validatedData.type === 'VENDEUR') {
+        if (!validatedData.storeName) {
           throw new ValidationError('Store name is required for vendors.');
         }
 
-        // Check if the store already exists, to avoid creating it multiple times
+        // Vérifier si le magasin existe déjà
         const existingStore = await prisma.store.findUnique({
           where: { userId: userId },
         });
         if (!existingStore) {
           await prisma.store.create({
             data: {
-              name: updatedData.storeName,
-              description: updatedData.storeDescription,
+              name: validatedData.storeName,
+              description: validatedData.storeDescription,
               userId: updatedUser.id,
             },
           });
@@ -120,6 +132,9 @@ class UserService {
 
       return updatedUser;
     } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        throw new ValidationError(error.errors.map(e => e.message).join(", "));
+      }
       if (error instanceof ValidationError) throw error;
       throw new DatabaseError(`User update failed: ${error.message}`);
     }
