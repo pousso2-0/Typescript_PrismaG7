@@ -8,7 +8,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 
-
+import './config/cloudinary';
 import { PORT } from './config/env';
 import errorHandler from './middlewares/errorHandler';
 import Routes from './routes/index';

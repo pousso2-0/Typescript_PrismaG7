@@ -5,23 +5,7 @@ class UserValidator {
         name: z.string().min(1, { message: "Name is required" }), // Ajouter `name`
         email: z.string().email({ message: "Invalid email address" }),
         password: z.string().min(8, { message: "Password must be at least 8 characters long" }),
-        type: z.enum(['CLIENT', 'TAILLEUR', 'VENDEUR', 'ADMIN']), // Ajouter `type`
         profilePicture: z.string().optional(), // Ajouter `profilePicture`
-        storeName: z.string().optional(), // Ajouter `storeName`
-        storeDescription: z.string().optional(), // Ajouter `storeDescription`
-        bio: z.string().optional(), // Ajouter `bio`
-        location: z.string().optional(), // Ajouter `location`
-        dateOfBirth: z.date().optional(), // Ajouter `dateOfBirth`
-        gender: z.string().optional(), // Ajouter `gender`j
-        phone: z.string().optional(), // Ajouter `phone`
-        website: z.string().url().optional(), // Ajouter `website`
-        followersCount: z.number().optional(), // Ajouter `followersCount`
-        followingCount: z.number().optional(), // Ajouter `followingCount`
-        postsCount: z.number().optional(), // Ajouter `postsCount`
-        isPrivate: z.boolean().optional(), // Ajouter `isPrivate`
-        notificationsEnabled: z.boolean().optional(), // Ajouter `notificationsEnabled`
-        reportCount: z.number().optional(), // Ajouter `reportCount`
-        isBlocked: z.boolean().optional(), // Ajouter `isBlocked`
     });
 
     static loginSchema = z.object({
@@ -34,17 +18,24 @@ class UserValidator {
     });
 
     static updateSchema = z.object({
-        name: z.string().min(1, { message: "Name is required" }).optional(), // Ajouter `name`
+        name: z.string().min(1, { message: "Name is required" }).optional(),
         email: z.string().email({ message: "Invalid email address" }).optional(),
         password: z.string().min(8, { message: "Password must be at least 8 characters long" }).optional(),
-        type: z.enum(['CLIENT', 'TAILLEUR', 'VENDEUR', 'ADMIN']).optional(), // Ajouter `type`
-        profilePicture: z.string().url().optional(), // Ajouter `profilePicture`
+        type: z.enum(['CLIENT', 'TAILLEUR', 'VENDEUR', 'ADMIN']).optional(),
+        website: z.array(
+            z.object({
+                url: z.string().url({ message: "Invalid URL" }),
+                siteType: z.string().min(1, { message: "Site type is required" })
+            })
+        ).optional(),
+        profilePicture: z.string().optional(), // Ajouter `profilePicture`
+        storeName: z.string().optional(), // Ajouter `storeName`
+        storeDescription: z.string().optional(), // Ajouter `storeDescription`
         bio: z.string().optional(), // Ajouter `bio`
         location: z.string().optional(), // Ajouter `location`
         dateOfBirth: z.date().optional(), // Ajouter `dateOfBirth`
-        gender: z.string().optional(), // Ajouter `gender`
+        gender: z.string().optional(), // Ajouter `gender`j
         phone: z.string().optional(), // Ajouter `phone`
-        website: z.string().url().optional(), // Ajouter `website`
         followersCount: z.number().optional(), // Ajouter `followersCount`
         followingCount: z.number().optional(), // Ajouter `followingCount`
         postsCount: z.number().optional(), // Ajouter `postsCount`

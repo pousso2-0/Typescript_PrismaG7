@@ -48,6 +48,7 @@ export class PostServiceImpl implements PostService {
     }
   }
 
+  // Méthode pour créer un post avec plusieurs médias
   async createPost(userId: number, postData: CreatePostInput): Promise<Post> {
     try {
       const user = await this.getUser(userId);
@@ -57,16 +58,27 @@ export class PostServiceImpl implements PostService {
         throw new ValidationError(`Free users can only post up to ${PostServiceImpl.FREE_USER_MEDIA_LIMIT} media items`);
       }
 
+      // Créer le post sans les médias d'abord
       const newPost = await prisma.post.create({
         data: {
           userId,
           content: postData.content,
           isPublic: postData.isPublic ?? true,
           commentsEnabled: postData.commentsEnabled ?? true,
-          media: { create: postData.media }
         },
         include: postIncludeConfig
       });
+
+      // Associer les fichiers médias au post
+      if (postData.media && postData.media.length > 0) {
+        const mediaData = postData.media.map(media => ({
+          postId: newPost.id,
+          url: media.url,
+          type: media.type
+        }));
+
+        await prisma.media.createMany({ data: mediaData });
+      }
 
       if (user.type === 'TAILLEUR') {
         await this.updateUserCreditsAndPostCount(userId, true);

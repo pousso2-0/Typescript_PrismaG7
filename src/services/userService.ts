@@ -1,4 +1,4 @@
-import { PrismaClient} from '@prisma/client';
+import {Prisma, PrismaClient} from '@prisma/client';
 import bcrypt from 'bcrypt';
 import UserValidator from '../utils/Validators/userValidator';
 import {PREMIUM_COST , PREMIUM_DEFAULT_CREDITS} from '../config/env';
@@ -11,9 +11,11 @@ const prisma = new PrismaClient();
 class UserService {
   static async register(userData: Register) {
     try {
+      console.log("Received data:", userData);
+
       // Validation des données
       const validatedData = UserValidator.validateRegister(userData);
-      
+
       // Vérifier si l'email est déjà utilisé
       const existingUser = await prisma.user.findUnique({ where: { email: validatedData.email } });
       if (existingUser) throw new ValidationError('Email already in use');
@@ -21,28 +23,16 @@ class UserService {
       // Hachage du mot de passe
       const hashedPassword = await bcrypt.hash(validatedData.password, 10);
 
-      // Création de l'utilisateur
+      // Création de l'utilisateur avec type CLIENT par défaut
       const newUser = await prisma.user.create({
         data: {
           name: validatedData.name,
           email: validatedData.email,
           password: hashedPassword,
-          type: validatedData.type,
+          type: 'CLIENT', // Default type
         },
       });
-      // Création du magasin si l'utilisateur est un vendeur
-      if (validatedData.type === 'VENDEUR') {
-        if (!validatedData.storeName) {
-          throw new ValidationError('Store name is required for vendors.');
-        }
-        await prisma.store.create({
-          data: {
-            name: validatedData.storeName,
-            description: validatedData.storeDescription,
-            userId: newUser.id,
-          },
-        });
-      }
+
       // Génération du token d'authentification
       const token = generateToken({ userId: newUser.id, type: newUser.type });
       return { token };
@@ -75,15 +65,68 @@ class UserService {
       throw new DatabaseError(`Login failed: ${error.message}`);
     }
   }
+
   static async getUserById(id: number , includeRelations: boolean = false): Promise<User> {
     const user = await prisma.user.findUnique({
       where: { id },
       include: includeRelations ? UserIncludeConfig : {}
-    });   
+    });
    if (!user) throw new ValidationError('User not found');
     return user as User;
   }
-  
+
+  static async updateUser(userId: number, updatedData: UpdateUser) {
+    try {
+      // Vérifier que userId est défini
+      if (!userId) {
+        throw new ValidationError('User ID is required');
+      }
+
+      // Fetch the current user
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (!user) throw new ValidationError('User not found');
+
+      // Check if user has enough credits to change their type
+      if (updatedData.type && user.credits < 100) {
+        throw new ValidationError('Not enough credits to change user type');
+      }
+
+      // Update user data
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: updatedData as Prisma.UserUpdateInput, // Cast to Prisma's expected update input type
+      });
+
+      // If user is upgraded to 'VENDEUR', create a store if it's not already present
+      if (updatedData.type === 'VENDEUR') {
+        if (!updatedData.storeName) {
+          throw new ValidationError('Store name is required for vendors.');
+        }
+
+        // Check if the store already exists, to avoid creating it multiple times
+        const existingStore = await prisma.store.findUnique({
+          where: { userId: userId },
+        });
+        if (!existingStore) {
+          await prisma.store.create({
+            data: {
+              name: updatedData.storeName,
+              description: updatedData.storeDescription,
+              userId: updatedUser.id,
+            },
+          });
+        }
+      }
+
+      return updatedUser;
+    } catch (error: any) {
+      if (error instanceof ValidationError) throw error;
+      throw new DatabaseError(`User update failed: ${error.message}`);
+    }
+  }
+
+
+
 
   static async updateCredits(userId: number, amount: number): Promise<User> {
     const user = await prisma.user.update({

@@ -6,9 +6,9 @@ import {authMiddleware} from '../middlewares/authMiddleware';
 import MesureController from '../controllers/mesureController';
 import ReportController from '../controllers/reportController';
 import NotificationController from '../controllers/notificationController';
+import {uploadMiddleware} from "../middlewares/uploadMiddleware";
 
 const router = express.Router();
-
 /**
  * @swagger
  * /api/users/register:
@@ -18,7 +18,7 @@ const router = express.Router();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -31,14 +31,53 @@ const router = express.Router();
  *                 description: Adresse email de l'utilisateur
  *               password:
  *                 type: string
+ *                 format: password
+ *                 description: Mot de passe de l'utilisateur
+ *               profilePicture:
+ *                 type: string
+ *                 format: binary
+ *                 description: Fichier image de la photo de profil de l'utilisateur (optionnel)
+
+ *     responses:
+ *       200:
+ *         description: Utilisateur créé avec succès
+ *       400:
+ *         description: Données invalides
+ */
+router.post('/register', uploadMiddleware, UserController.register);
+
+
+/**
+ * @swagger
+ * /api/users/update:
+ *   put:
+ *     summary: Modifier son compte
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Nom complet de l'utilisateur
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Adresse email de l'utilisateur
+ *               password:
+ *                 type: string
+ *                 format: password
  *                 description: Mot de passe de l'utilisateur
  *               type:
  *                 type: string
- *                 description: Type d'utilisateur 
+ *                 description: Type d'utilisateur
  *               profilePicture:
  *                 type: string
- *                 format: uri
- *                 description: URL de la photo de profil de l'utilisateur (optionnel)
+ *                 format: binary
+ *                 description: Fichier image de la photo de profil de l'utilisateur (optionnel)
  *               bio:
  *                 type: string
  *                 description: Biographie ou description de l'utilisateur (optionnel)
@@ -56,16 +95,23 @@ const router = express.Router();
  *                 items:
  *                   type: string
  *                 description: Liste des compétences de l'utilisateur (optionnel)
+ *               storeName:
+ *                 type: string
+ *                 description: Nom du magasin (optionnel)
+ *               storeDescription:
+ *                 type: string
+ *                 description: Description du magasin (optionnel)
  *     responses:
  *       200:
- *         description: Utilisateur créé avec succès
+ *         description: Utilisateur modifier avec succès
  *       400:
  *         description: Données invalides
  */
-router.post('/register', UserController.register);
+router.put('/update',authMiddleware, uploadMiddleware, UserController.updateUser);
 
 
-/**
+
+/**eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInR5cGUiOiJDTElFTlQiLCJpYXQiOjE3Mjg0ODc3MDYsImV4cCI6MTcyODU3NDEwNn0.L6pRLOjKIslrYRcd20flOhmpuP04tvRJjD2QVWagsJw
  * @swagger
  * /api/users/login:
  *   post:

@@ -10,6 +10,7 @@ export enum UserType {
   export interface Article {
     id: number;
     name: string;
+    image: string | null;
     description?: string | null; 
     price: number;
     stockCount: number;
@@ -57,6 +58,7 @@ export enum UserType {
 export interface Category {
   id: number;
   name: string;
+  image: string | null;
   articles?: Article[];
  
 }
@@ -76,12 +78,14 @@ export interface Category {
   // DTOs (Data Transfer Objects) pour la création
   export interface CreateCategoryDto {
     id: number;
+    image?: string
     name: string;
   }
   
   export interface CreateArticleDto {
     name: string;
     description?: string;
+    image?:string
     price: number;
     stockCount: number;
     storeId: number;
@@ -103,10 +107,12 @@ export interface CreateOrderDto {
   // DTOs pour la mise à jour
   export interface UpdateCategoryDto {
     name?: string;
+    image?: string;
   }
   
   export interface UpdateArticleDto {
     name?: string;
+    image?: string;
     description?: string;
     price?: number;
     stockCount?: number;
@@ -129,6 +135,7 @@ export interface CreateOrderDto {
   export interface ArticleData {
     name: string;
     description?: string;
+    image?: string;
     price: number;
     categoryId: number;
     stockCount: number;
@@ -146,6 +153,7 @@ export interface CategoryWithArticlesResponse {
   categoryName: string;
   articles: {
     articleId: number;
+    articleImage?: string;
     articleName: string;
     price?: number; // Peut être undefined si non applicable
     stockCount?: number; // Peut être undefined si non applicable

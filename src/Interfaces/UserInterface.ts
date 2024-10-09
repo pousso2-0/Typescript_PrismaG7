@@ -12,8 +12,8 @@ export interface User {
   location: string | null;
   dateOfBirth: Date | null;
   gender: string | null;
-  phone: string  | null; 
-  website: string | null;
+  phone: string  | null;
+  website?: Website[];
   followersCount: number ;
   followingCount:  number ;
   postsCount: number ;
@@ -46,6 +46,45 @@ export interface User {
   retweets?: Retweet[];
   reportedBy?: Report[];
   shares?: Share[];
+}
+
+export interface Website {
+  id:      number;
+  userId:   number;
+  type:     string;// Type of link (e.g., "Facebook", "YouTube", "Portfolio")
+  url:      string // The actual link
+}
+
+
+export interface UpdateUser {
+  name?: string;
+  email?: string;
+  password?: string;
+  dateOfBirth?: string;
+  profilePicture?: string;
+  isPrivate?: boolean ;
+  notificationsEnabled?: boolean;
+  storeName?: string;
+  storeDescription?: string;
+  type?: UserType;
+  bio?: string;
+  location?: string;
+  gender?: string;
+  phone?: string;
+  website?: Website[];
+  skills?: [];
+}
+export interface Site {
+  url: string;
+  type: string;
+}
+
+
+export enum UserType {
+  VENDEUR = 'VENDEUR',
+  CLIENT = 'CLIENT',
+  ADMIN = 'ADMIN',
+  TAILLEUR = 'TAILLEUR'
 }
 
 
@@ -161,27 +200,13 @@ export interface Register {
   name: string;
   email: string;
   password: string;
-  type: 'CLIENT' | 'TAILLEUR' | 'VENDEUR' | 'ADMIN';
-  storeName?: string; // Nom du magasin (optionnel)
-  storeDescription?: string; // Description du magasin (optionnel)
+  profilePicture?: string | null;
 }
-
   export interface Login{
     email: string;
     password: string;
   }
-  
-  export interface UpdateUser {
-    name?: string;
-    email?: string;
-    profilePicture?: string;
-    bio?: string;
-    location?: string;
-    gender?: string;
-    phone?: string;
-    skills?: [];
-  }
-  
+
   export interface UserSearchResult {
     id: number;
     name: string;
@@ -201,5 +226,6 @@ export const UserIncludeConfig = {
   followedBy:true,
   mesure: true,
   posts: true,
-  following: true
+  following: true,
+  website: true,
 };

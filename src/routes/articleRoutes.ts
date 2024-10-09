@@ -2,6 +2,7 @@ import { Router } from 'express';
 import ArticleController from '../controllers/articleController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { roleMiddleware } from '../middlewares/roleMiddleware';
+import {uploadMiddleware} from "../middlewares/uploadMiddleware";
 
 const router = Router();
 
@@ -90,7 +91,7 @@ router.get('/categories' , authMiddleware, ArticleController.listAllCategoriesAn
  *       500:
  *         description: Internal server error
  */
-router.post('/store/:storeId', roleMiddleware(['VENDEUR']), authMiddleware, ArticleController.addArticleToStore);
+router.post('/store/:storeId', roleMiddleware(['VENDEUR']), authMiddleware, uploadMiddleware, ArticleController.addArticleToStore);
 
 
 /**

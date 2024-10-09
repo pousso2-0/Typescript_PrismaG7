@@ -1,18 +1,55 @@
 // src/controllers/UserController.ts
 import { Request, Response } from 'express';
 import UserService from '../services/userService';
+import {Register} from "../Interfaces/UserInterface";
+import { handleMediaFiles } from '../utils/mediaUtils'; // Assurez-vous que handleMediaFiles est disponible et fonctionne correctement
 
 class UserController {
-  static async register(req: Request, res: Response) {
-    try {
-      const authToken = await UserService.register(req.body);
-      return res.status(201).json(authToken);
-    } catch (error: any) {
-      console.log(`Error: ${error.message}`);
-      return res.status(400).json({ message: error.message });
+    static async register(req: Request, res: Response) {
+        try {
+            const userData: Register = req.body;
+            console.log(userData);
+
+            const authToken = await UserService.register(userData);
+            return res.status(201).json(authToken);
+        } catch (error: any) {
+            console.log(`Error: ${error.message}`);
+            return res.status(400).json({ message: error.message });
+        }
     }
-  }
-  static async login(req: Request, res: Response) {
+    static async updateUser(req: Request, res: Response) {
+        try {
+            const userId = req.userId as number ;  // Assuming the user ID comes from the authentication middleware
+            const updatedData = req.body;
+
+            // Vérifier si req.files existe et est un tableau
+            const files = req.files as Express.Multer.File[];
+
+            if (files && files.length > 0) {
+                // Utiliser handleMediaFiles pour traiter les fichiers envoyés, ici pour le champ 'profilePicture'
+                const profilePictures = await handleMediaFiles(files, 'profilePicture');
+
+                // Si un fichier est trouvé et traité, attacher l'URL à updatedData
+                if (profilePictures.length > 0) {
+                    updatedData.profilePicture = profilePictures[0]; // Prendre le premier fichier, ou plus si nécessaire
+                }
+            }
+            console.log('le user qui sest connecter', userId)
+
+            // Appeler la méthode de service pour mettre à jour les informations de l'utilisateur
+            const updatedUser = await UserService.updateUser(userId, updatedData);
+
+            // Réponse de succès
+            return res.status(200).json(updatedUser);
+        } catch (error: any) {
+            // Gestion des erreurs
+            return res.status(500).json({ message: error.message });
+        }
+    }
+
+
+
+    static async login(req: Request, res: Response) {
     try {
       const authToken = await UserService.login(req.body);
       res.json(authToken);
