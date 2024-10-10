@@ -38,6 +38,17 @@ class UserService {
       const token = generateToken({ userId: newUser.id, type: newUser.type });
       return { token };
     } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        // Construire un objet avec chaque champ et son message d'erreur correspondant
+        const errors = error.errors.reduce((acc: Record<string, string>, curr) => {
+          acc[curr.path.join('.')] = curr.message;
+          return acc;
+        }, {});
+
+        // Renvoyer les erreurs sous forme d'objet
+        throw new ValidationError(JSON.stringify(errors));
+      }
+
       if (error instanceof ValidationError) throw error;
       throw new DatabaseError(`Registration failed: ${error.message}`);
     }
@@ -62,7 +73,19 @@ class UserService {
       const token = generateToken({ userId: user.id, type: user.type });
       return { token };
     } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        // Construire un objet avec chaque champ et son message d'erreur correspondant
+        const errors = error.errors.reduce((acc: Record<string, string>, curr) => {
+          acc[curr.path.join('.')] = curr.message;
+          return acc;
+        }, {});
+
+        // Renvoyer les erreurs sous forme d'objet
+        throw new ValidationError(JSON.stringify(errors));
+      }
+
       if (error instanceof ValidationError) throw error;
+
       throw new DatabaseError(`Login failed: ${error.message}`);
     }
   }
@@ -133,15 +156,21 @@ class UserService {
       return updatedUser;
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        throw new ValidationError(error.errors.map(e => e.message).join(", "));
+        // Construire un objet avec chaque champ et son message d'erreur correspondant
+        const errors = error.errors.reduce((acc: Record<string, string>, curr) => {
+          acc[curr.path.join('.')] = curr.message;
+          return acc;
+        }, {});
+
+        // Renvoyer les erreurs sous forme d'objet
+        throw new ValidationError(JSON.stringify(errors));
       }
+
       if (error instanceof ValidationError) throw error;
+
       throw new DatabaseError(`User update failed: ${error.message}`);
     }
   }
-
-
-
 
   static async updateCredits(userId: number, amount: number): Promise<User> {
     const user = await prisma.user.update({

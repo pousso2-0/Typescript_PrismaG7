@@ -19,22 +19,40 @@ class UserController {
     }
     static async updateUser(req: Request, res: Response) {
         try {
-            const userId = req.userId as number ;  // Assuming the user ID comes from the authentication middleware
+            const userId = req.userId as number;  // User ID venant du middleware d'authentification
             const updatedData = req.body;
+            const { website } = req.body;
 
-            // Vérifier si req.files existe et est un tableau
-            const files = req.files as Express.Multer.File[];
+            // Parser manuellement le champ `website` s'il est reçu sous forme de string
+            let parsedWebsite;
+            if (website) {
+                try {
+                    parsedWebsite = JSON.parse(website);
+                    console.log("Données de 'website' parsées avec succès", parsedWebsite);
+                    updatedData.website = parsedWebsite;  // Inclure les données parsées
+                } catch (error) {
+                    return res.status(400).json({ message: "Invalid website format" });
+                }
+            }
+            // Vérifier si req.files existe et est un tableau ou un fichier unique
+            let files: Express.Multer.File[] = [];
+            if (Array.isArray(req.files)) {
+                files = req.files;
+            } else if (req.file) {
+                files.push(req.file);
+            }
 
-            if (files && files.length > 0) {
-                // Utiliser handleMediaFiles pour traiter les fichiers envoyés, ici pour le champ 'profilePicture'
+            if (files.length > 0) {
+                // Utiliser handleMediaFiles pour traiter les fichiers envoyés
                 const profilePictures = await handleMediaFiles(files, 'profilePicture');
 
                 // Si un fichier est trouvé et traité, attacher l'URL à updatedData
                 if (profilePictures.length > 0) {
-                    updatedData.profilePicture = profilePictures[0]; // Prendre le premier fichier, ou plus si nécessaire
+                    updatedData.profilePicture = profilePictures[0];  // Prendre le premier fichier
                 }
             }
-            console.log('le user qui sest connecter', userId)
+
+            console.log('Utilisateur connecté', userId);
 
             // Appeler la méthode de service pour mettre à jour les informations de l'utilisateur
             const updatedUser = await UserService.updateUser(userId, updatedData);
@@ -69,6 +87,7 @@ class UserController {
       res.status(400).json({ message: error.message });
     }
   }
+
   static async getCurrentUserProfile(req: Request, res: Response) {
     try {
       const profile = await UserService.getUserById(req.userId as number , true); // assuming userId is added to req by middleware

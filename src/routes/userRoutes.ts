@@ -101,17 +101,27 @@ router.post('/register', uploadMiddleware, UserController.register);
  *               storeDescription:
  *                 type: string
  *                 description: Description du magasin (optionnel)
+ *               website:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     url:
+ *                       type: string
+ *                       format: uri
+ *                       description: "URL of the website"
+ *                     type:
+ *                       type: string
+ *                       description: "Type of the website (e.g., Facebook, YouTube, etc.)"
  *     responses:
  *       200:
- *         description: Utilisateur modifier avec succès
+ *         description: Utilisateur modifié avec succès
  *       400:
  *         description: Données invalides
  */
-router.put('/update',authMiddleware, uploadMiddleware, UserController.updateUser);
+router.put('/update', authMiddleware, uploadMiddleware, UserController.updateUser);
 
-
-
-/**eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInR5cGUiOiJDTElFTlQiLCJpYXQiOjE3Mjg0ODc3MDYsImV4cCI6MTcyODU3NDEwNn0.L6pRLOjKIslrYRcd20flOhmpuP04tvRJjD2QVWagsJw
+/**
  * @swagger
  * /api/users/login:
  *   post:
