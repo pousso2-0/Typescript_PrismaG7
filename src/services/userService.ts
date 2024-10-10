@@ -101,47 +101,66 @@ class UserService {
 
   static async updateUser(userId: number, updatedData: UpdateUser) {
     try {
-      // Filtrer les champs vides ou indéfinis avant validation
       const sanitizedData = Object.fromEntries(
           Object.entries(updatedData).filter(([_, value]) => value !== undefined && value !== "")
       );
 
-      // Validation des données
       const validatedData = UserValidator.validateUpdate(sanitizedData);
 
-      // Vérifier que userId est défini
-      if (!userId) {
-        throw new ValidationError('User ID is required');
-      }
+      if (!userId) throw new ValidationError('User ID is required');
 
-      // Fetch the current user
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) throw new ValidationError('User not found');
 
-      // Check if user has enough credits to change their type
       if (validatedData.type && user.credits < 100) {
         throw new ValidationError('Not enough credits to change user type');
       }
 
-      // Cast des données validées vers Prisma.UserUpdateInput
       const prismaData: Prisma.UserUpdateInput = validatedData as Prisma.UserUpdateInput;
 
-      // Update user data avec les types corrects
+      // Exclude the website field from prismaData because websites are handled separately
+      delete prismaData.website;
+
+      // If the user is updating websites, handle it separately
+      if (validatedData.website && Array.isArray(validatedData.website)) {
+        const websiteUpdates = validatedData.website.map(async (site) => {
+          const existingWebsite = await prisma.website.findFirst({
+            where: { userId, type: site.type },
+          });
+
+          if (existingWebsite) {
+            // Update existing website
+            return prisma.website.update({
+              where: { id: existingWebsite.id },
+              data: { url: site.url },
+            });
+          } else {
+            // Create new website
+            return prisma.website.create({
+              data: {
+                userId,
+                type: site.type,
+                url: site.url,
+              },
+            });
+          }
+        });
+
+        await Promise.all(websiteUpdates); // Wait for all updates to complete
+      }
+
       const updatedUser = await prisma.user.update({
         where: { id: userId },
-        data: prismaData,
+        data: prismaData, // Pass only the non-relation data (without website)
       });
 
-      // Si l'utilisateur est passé à 'VENDEUR', créer un magasin
       if (validatedData.type === 'VENDEUR') {
-        if (!validatedData.storeName) {
-          throw new ValidationError('Store name is required for vendors.');
-        }
+        if (!validatedData.storeName) throw new ValidationError('Store name is required for vendors.');
 
-        // Vérifier si le magasin existe déjà
         const existingStore = await prisma.store.findUnique({
-          where: { userId: userId },
+          where: { userId },
         });
+
         if (!existingStore) {
           await prisma.store.create({
             data: {
@@ -156,18 +175,14 @@ class UserService {
       return updatedUser;
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        // Construire un objet avec chaque champ et son message d'erreur correspondant
         const errors = error.errors.reduce((acc: Record<string, string>, curr) => {
           acc[curr.path.join('.')] = curr.message;
           return acc;
         }, {});
-
-        // Renvoyer les erreurs sous forme d'objet
         throw new ValidationError(JSON.stringify(errors));
       }
 
       if (error instanceof ValidationError) throw error;
-
       throw new DatabaseError(`User update failed: ${error.message}`);
     }
   }

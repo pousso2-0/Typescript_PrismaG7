@@ -25,7 +25,7 @@ class UserValidator {
         website: z.array(
             z.object({
                 url: z.string().url({ message: "Invalid URL" }), // Si fourni, il doit être une URL valide
-                siteType: z.string().min(1, { message: "Site type is required" }) // Si fourni, le type du site doit être non vide
+                type: z.string().min(1, { message: "Site type is required" }) // Si fourni, le type du site doit être non vide
             })
         ).optional(),
         profilePicture: z.string().optional(), // Si fourni, accepter une chaîne

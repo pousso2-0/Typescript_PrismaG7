@@ -21,34 +21,18 @@ class UserController {
         try {
             const userId = req.userId as number;  // User ID venant du middleware d'authentification
             const updatedData = req.body;
-            const { website } = req.body;
+            console.log("les donnee upload", updatedData)
 
-            // Parser manuellement le champ `website` s'il est reçu sous forme de string
-            let parsedWebsite;
-            if (website) {
-                try {
-                    parsedWebsite = JSON.parse(website);
-                    console.log("Données de 'website' parsées avec succès", parsedWebsite);
-                    updatedData.website = parsedWebsite;  // Inclure les données parsées
-                } catch (error) {
-                    return res.status(400).json({ message: "Invalid website format" });
-                }
-            }
-            // Vérifier si req.files existe et est un tableau ou un fichier unique
-            let files: Express.Multer.File[] = [];
-            if (Array.isArray(req.files)) {
-                files = req.files;
-            } else if (req.file) {
-                files.push(req.file);
-            }
+            // Check if files are provided
+            const files = req.files as Express.Multer.File[];
 
-            if (files.length > 0) {
-                // Utiliser handleMediaFiles pour traiter les fichiers envoyés
-                const profilePictures = await handleMediaFiles(files, 'profilePicture');
+            if (files && files.length > 0) {
+                // Use handleMediaFiles to process the uploaded files
+                const profilePicture = await handleMediaFiles(files, 'profilePicture');
 
-                // Si un fichier est trouvé et traité, attacher l'URL à updatedData
-                if (profilePictures.length > 0) {
-                    updatedData.profilePicture = profilePictures[0];  // Prendre le premier fichier
+                // If image is found and processed, attach the URL to articleData
+                if (profilePicture.length > 0) {
+                    updatedData.profilePicture = profilePicture[0];
                 }
             }
 
