@@ -53,9 +53,9 @@ class UserValidator {
         return this.buyCreditsSchema.parse(data);
     }
 
-    // static validateUpdate(data: any) {
-    //     return this.updateSchema.parse(data);
-    // }
+    static validateUpdate(data: any) {
+        return this.updateSchema.parse(data);
+    }
 }
 
 export default UserValidator;

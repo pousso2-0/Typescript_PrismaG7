@@ -19,5 +19,5 @@ export async function handleMediaFiles(files: Express.Multer.File[], fieldnamePa
         }
     }
 
-    return []; // Aucun fichier trouvé pour ce pattern
+    return []; 
 }
