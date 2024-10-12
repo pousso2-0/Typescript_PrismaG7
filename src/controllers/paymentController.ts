@@ -1,10 +1,6 @@
 import { Request, Response } from 'express';
 import PaymentService from '../services/paymentService';
 
-
-
-
-
 class PaymentController {
   static async processPayment(req: Request, res: Response) {
     try {

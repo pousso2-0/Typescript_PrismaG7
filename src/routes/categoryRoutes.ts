@@ -2,32 +2,26 @@ import express from 'express';
 import CategoryController from '../controllers/categoryController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { roleMiddleware } from '../middlewares/roleMiddleware';
+import {uploadMiddleware} from "../middlewares/uploadMiddleware";
 
 const router = express.Router();
 
 /**
  * @swagger
- * /categories:
+ * /api/categories:
  *   get:
  *     summary: Obtenir toutes les catégories
  *     tags: [Categories]
  *     responses:
  *       200:
  *         description: Liste de toutes les catégories
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Category'
  *       500:
  *         description: Erreur serveur
  */
 router.get('/', CategoryController.getAllCategories);
-
 /**
  * @swagger
- * /categories:
+ * /api/categories:
  *   post:
  *     summary: Créer une nouvelle catégorie
  *     tags: [Categories]
@@ -36,16 +30,20 @@ router.get('/', CategoryController.getAllCategories);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/CreateCategoryDto'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: 'Tissu'
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image de la catégorie (optionnel)
  *     responses:
  *       201:
  *         description: Catégorie créée avec succès
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Category'
  *       400:
  *         description: Erreur de requête
  *       401:
@@ -53,6 +51,7 @@ router.get('/', CategoryController.getAllCategories);
  *       403:
  *         description: Accès refusé
  */
-router.post('/', authMiddleware, roleMiddleware(['VENDEUR']), CategoryController.createCategory);
+router.post('/', authMiddleware, roleMiddleware(['VENDEUR']), uploadMiddleware, CategoryController.createCategory);
+
 
 export default router;

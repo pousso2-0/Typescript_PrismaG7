@@ -1,7 +1,7 @@
 import express from 'express';
 import ReactionController from '../controllers/reactionController';
 import { authMiddleware } from '../middlewares/authMiddleware';
-import { postActionMiddleware } from '../middlewares/privatePostMiddleware';
+import { postActionMiddleware } from '../middlewares/postActionMiddleware';
 
 const router = express.Router();
 

@@ -44,7 +44,12 @@ export interface CreatePostInput {
   content: string;
   isPublic?: boolean;
   commentsEnabled?: boolean;
-  media?: Media[];
+  media?: CreateMediaInput[];
+}
+export interface CreateMediaInput{
+  url: string;
+  type: string;
+
 }
 
 export interface UpdatePostInput {
@@ -122,7 +127,9 @@ export const postIncludeConfig = {
     select: {
       id: true,
       name: true,
-      profilePicture: true
+      profilePicture: true,
+      isOnline: true,
+      lastSeenAt: true,
     }
   },
   media: true,

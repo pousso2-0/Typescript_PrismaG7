@@ -1,39 +1,35 @@
-import { PrismaClient } from '@prisma/client';
-import {PostServiceImpl} from './postService';
-import ConversationService from './messageService';
+import { PrismaClient } from '@prisma/client'; 
+import { PostServiceImpl } from './postService';
+import ConversationService from './messageService'; 
 
-
-const postService = new PostServiceImpl();
-
-const prisma = new PrismaClient();
+const postService = new PostServiceImpl(); 
+const prisma = new PrismaClient(); 
 
 class ShareService {
+  // Méthode statique pour partager un post avec plusieurs destinataires
   static async sharePost(senderId: number, postId: number, recipients: number[]): Promise<any> {
-    // Vérifiez si le post existe
-    const post = await postService.getPostById(postId);
-    if (!post) {
-      throw new Error("Post not found");
+    const post = await postService.getPostById(postId); // Récupérer le post à partager
+    if (!post) { // Vérifier si le post existe
+      throw new Error("Post not found"); // une erreur si le post n'existe pas
     }
 
-    // Générez l'URL complète
-    const fullUrl = `${process.env.BASE_URL}/api/posts/${postId}`;
-    const content = `Shared post: ${fullUrl}`;
+    const fullUrl = `${process.env.BASE_URL}/api/posts/${postId}`; // Générer l'URL complète du post
+    const content = `Shared post: ${fullUrl}`; // Contenu du message de partage
 
     // Envoyer les messages aux destinataires
     const sharePromises = recipients.map((recipientId) => 
-        ConversationService.sendMessage(senderId, recipientId, content)
+        ConversationService.sendMessage(senderId, recipientId, content) // Appel du service pour envoyer un message
     );
 
-    const sharedMessages = await Promise.all(sharePromises);
+    const sharedMessages = await Promise.all(sharePromises); // Attendre que tous les messages soient envoyés
 
-    // Incrémenter le compteur de partages du post
-    await postService.incrementShareCount(postId);
+    await postService.incrementShareCount(postId); // Incrémenter le compteur de partages du post
 
     return {
-      sharedMessages,
-      fullUrl,
+      sharedMessages, // Retourner les messages partagés
+      fullUrl, // Retourner l'URL du post
     };
   }
 }
 
-export default ShareService;
+export default ShareService; // Exporter la classe ShareService

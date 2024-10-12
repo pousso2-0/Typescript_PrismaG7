@@ -5,8 +5,11 @@ import { roleMiddleware } from '../middlewares/roleMiddleware';
 import ShareFavController from '../controllers/ShareFavController';
 import ShareController from '../controllers/shareController';
 import ViewPostController from '../controllers/viewPostController';
+import { postActionMiddleware } from '../middlewares/postActionMiddleware';
+import {uploadMiddleware} from "../middlewares/uploadMiddleware";
 
 const router = express.Router();
+
 
 /**
  * @swagger
@@ -47,7 +50,7 @@ const router = express.Router();
  *       400:
  *         description: Données invalides
  */
-router.post('/', authMiddleware, roleMiddleware(['TAILLEUR', 'VENDEUR']), PostController.createPost);
+router.post('/', authMiddleware, roleMiddleware(['TAILLEUR']), uploadMiddleware, PostController.createPost);
 
 
 /**
@@ -103,7 +106,7 @@ router.get('/posts/:id', authMiddleware,  PostController.getPostById);
  *       400:
  *         description: Données invalides ou non autorisé
  */
-router.put('/:id', authMiddleware, roleMiddleware(['TAILLEUR' , 'VENDEUR']), PostController.updatePost);
+router.put('/:id', authMiddleware, roleMiddleware(['TAILLEUR']), PostController.updatePost);
 
 /**
  * @swagger
@@ -125,7 +128,7 @@ router.put('/:id', authMiddleware, roleMiddleware(['TAILLEUR' , 'VENDEUR']), Pos
  *       400:
  *         description: Non autorisé ou post non trouvé
  */
-router.delete('/:id', authMiddleware, roleMiddleware(['TAILLEUR' , 'VENDEUR']), PostController.deletePost);
+router.delete('/:id', authMiddleware, roleMiddleware(['TAILLEUR']), PostController.deletePost);
 
 /**
  * @swagger
@@ -173,7 +176,7 @@ router.get('/user/:userId', PostController.getUserPosts);
  *       400:
  *         description: Erreur lors de l'incrémentation du compteur
  */
-router.post('/:id/share', PostController.incrementShareCount);
+router.post('/:id/share', postActionMiddleware, PostController.incrementShareCount);
 
 /**
  * @swagger
@@ -228,7 +231,7 @@ router.get('/', PostController.getAllPosts);
  *       404:
  *         description: Post non trouvé
  */
-router.post('/retweet', authMiddleware, ShareFavController.retweetPost);
+router.post('/retweet', authMiddleware,postActionMiddleware, ShareFavController.retweetPost);
 
 /**
  * @swagger
@@ -256,7 +259,7 @@ router.post('/retweet', authMiddleware, ShareFavController.retweetPost);
  *       404:
  *         description: Post non trouvé
  */
-router.post('/favorites', authMiddleware, ShareFavController.addToFavorites);
+router.post('/favorites', authMiddleware,postActionMiddleware, ShareFavController.addToFavorites);
 
 /**
  * @swagger
@@ -346,7 +349,7 @@ router.delete('/favorites/:postId', authMiddleware, ShareFavController.deleteFro
  *       404:
  *         description: Post non trouvé
  */
-router.post('/share', authMiddleware, ShareController.sharePost);
+router.post('/share', authMiddleware, postActionMiddleware, ShareController.sharePost);
 
 
 /**
@@ -375,7 +378,7 @@ router.post('/share', authMiddleware, ShareController.sharePost);
  *       404:
  *         description: Post non trouvé
  */
-router.post('/view', authMiddleware, ViewPostController.recordView);
+router.post('/view', authMiddleware, postActionMiddleware, ViewPostController.recordView);
 
 
 

@@ -6,9 +6,9 @@ import {authMiddleware} from '../middlewares/authMiddleware';
 import MesureController from '../controllers/mesureController';
 import ReportController from '../controllers/reportController';
 import NotificationController from '../controllers/notificationController';
+import {uploadMiddleware} from "../middlewares/uploadMiddleware";
 
 const router = express.Router();
-
 /**
  * @swagger
  * /api/users/register:
@@ -18,7 +18,7 @@ const router = express.Router();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -31,14 +31,53 @@ const router = express.Router();
  *                 description: Adresse email de l'utilisateur
  *               password:
  *                 type: string
+ *                 format: password
+ *                 description: Mot de passe de l'utilisateur
+ *               profilePicture:
+ *                 type: string
+ *                 format: binary
+ *                 description: Fichier image de la photo de profil de l'utilisateur (optionnel)
+
+ *     responses:
+ *       200:
+ *         description: Utilisateur créé avec succès
+ *       400:
+ *         description: Données invalides
+ */
+router.post('/register', uploadMiddleware, UserController.register);
+
+
+/**
+ * @swagger
+ * /api/users/update:
+ *   put:
+ *     summary: Modifier son compte
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Nom complet de l'utilisateur
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Adresse email de l'utilisateur
+ *               password:
+ *                 type: string
+ *                 format: password
  *                 description: Mot de passe de l'utilisateur
  *               type:
  *                 type: string
- *                 description: Type d'utilisateur 
+ *                 description: Type d'utilisateur
  *               profilePicture:
  *                 type: string
- *                 format: uri
- *                 description: URL de la photo de profil de l'utilisateur (optionnel)
+ *                 format: binary
+ *                 description: Fichier image de la photo de profil de l'utilisateur (optionnel)
  *               bio:
  *                 type: string
  *                 description: Biographie ou description de l'utilisateur (optionnel)
@@ -56,14 +95,31 @@ const router = express.Router();
  *                 items:
  *                   type: string
  *                 description: Liste des compétences de l'utilisateur (optionnel)
+ *               storeName:
+ *                 type: string
+ *                 description: Nom du magasin (optionnel)
+ *               storeDescription:
+ *                 type: string
+ *                 description: Description du magasin (optionnel)
+ *               website:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     url:
+ *                       type: string
+ *                       format: uri
+ *                       description: "URL of the website"
+ *                     type:
+ *                       type: string
+ *                       description: "Type of the website (e.g., Facebook, YouTube, etc.)"
  *     responses:
  *       200:
- *         description: Utilisateur créé avec succès
+ *         description: Utilisateur modifié avec succès
  *       400:
  *         description: Données invalides
  */
-router.post('/register', UserController.register);
-
+router.put('/update', authMiddleware, uploadMiddleware, UserController.updateUser);
 
 /**
  * @swagger
@@ -116,6 +172,27 @@ router.post('/logout', UserController.logout);
  */
 router.get('/profile', authMiddleware, UserController.getCurrentUserProfile);
 
+
+
+/**
+ * @swagger
+ * /api/users/profile/{id}:
+ *   get:
+ *     summary: Récupérer le profil d'un utilisateur
+ *     tags: 
+ *       - Users
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Profil de l'utilisateur
+ */
+router.get('/profile/:id', authMiddleware, UserController.getUserProfileById);
 
 /**
  * @swagger
@@ -186,30 +263,6 @@ router.get('/premium-status',authMiddleware, UserController.checkAndUpdatePremiu
  */
 router.get('/search', authMiddleware, UserController.searchUsers);
 
-/**
-//  * @swagger
-//  * /api/users/report:
-//  *   post:
-//  *     summary: Signaler un utilisateur
-//  *     tags: [Reports]
-//  *     security:
-//  *       - bearerAuth: []
-//  *     requestBody:
-//  *       required: true
-//  *       content:
-//  *         application/json:
-//  *           schema:
-//  *             type: object
-//  *             properties:
-//  *               reportedId:
-//  *                 type: string
-//  *               reason:
-//  *                 type: string
-//  *     responses:
-//  *       200:
-//  *         description: Signalement créé
-//  */
-// router.post('/report', authMiddleware, reportController.reportUser);
 
 /**
  * @swagger
@@ -526,6 +579,40 @@ router.patch('/notifications/:id', authMiddleware, NotificationController.markAs
  *         description: Utilisateur ou notification non trouvé
  */
 router.post('/notifications', authMiddleware, NotificationController.sendNotification);
+
+
+/**
+ * @swagger
+ * /api/users/{id}/online-status:
+ *   get:
+ *     summary: Récupérer le statut en ligne d'un utilisateur
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Statut en ligne de l'utilisateur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isOnline:
+ *                   type: boolean
+ *                 lastSeenAt:
+ *                   type: string
+ *                   format: date-time
+ *       404:
+ *         description: Utilisateur non trouvé
+ */
+router.get('/:id/online-status', UserController.getUserOnlineStatus);
+
+
 
 
 export default router;

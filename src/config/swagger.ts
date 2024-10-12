@@ -1,5 +1,6 @@
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import { PORT } from './env';
 
 const options = {
   definition: {
@@ -11,11 +12,11 @@ const options = {
     },
     servers: [
       {
-        url: `https://backendg7-jhgt.onrender.com/`,
+        url: `https://tcouture.onrender.com/`,
         description: 'Serveur de développement',
       },
       {
-        url: `http://localhost:5000/`,
+        url: `http://localhost:${PORT}/`,
         description: 'Serveur local',
       },
       

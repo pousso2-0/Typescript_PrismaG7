@@ -34,6 +34,7 @@ export interface ReactionToggle {
 
 export interface ReactionResponse {
   removed?: boolean;
+  message?: string;
   updated?: boolean;
   created?: boolean;
   reaction?: Reaction;

@@ -41,7 +41,7 @@ const router = express.Router();
  *       401:
  *         description: Non autorisé, authentification requise
  */
-router.post('/:postId', authMiddleware, postActionMiddleware, checkCommentsEnabled, CommentController.createComment);
+router.post('/:postId', authMiddleware,  postActionMiddleware, CommentController.createComment);
 
 /**
  * @swagger
@@ -159,7 +159,7 @@ router.delete('/:id', authMiddleware, CommentController.deleteComment);
  *       401:
  *         description: Non autorisé, authentification requise
  */
-// router.post('/:commentId/replies', authMiddleware, checkCommentsEnabled, CommentController.getCommentReplies);
+router.post('/:commentId/replies', authMiddleware, CommentController.getCommentReplies);
 
 
 

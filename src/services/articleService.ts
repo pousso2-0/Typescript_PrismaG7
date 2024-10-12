@@ -51,6 +51,7 @@ export class ArticleService {
           where: {
             article: {
               categoryId: categoryId,
+
             },
           },
           include: {
@@ -68,6 +69,7 @@ export class ArticleService {
     return store.Catalogue.map((catalogue) => ({
       articleId: catalogue.article.id,
       articleName: catalogue.article.name,
+      articleImage: catalogue.article.image,
       price: catalogue.price,
       stockCount: catalogue.stockCount,
     }));
@@ -93,6 +95,7 @@ export class ArticleService {
     return categories.map((category) => ({
       categoryId: category.id,
       categoryName: category.name,
+
       articles: category.articles.flatMap((article) => {
         // Filtre les catalogues par magasin si storeId est fourni.
         const storeCatalogues = storeId ? article.Catalogue.filter(catalogue => catalogue.storeId === storeId) : article.Catalogue;
@@ -101,6 +104,7 @@ export class ArticleService {
         return storeCatalogues.map((catalogue) => ({
           articleId: article.id,
           articleName: article.name,
+          articleImage: article.image ?? "", // Remplacer null par une chaîne vide (ou undefined si vous préférez)
           price: catalogue.price,
           stockCount: catalogue.stockCount,
           storeName: catalogue.store.name,
@@ -136,6 +140,7 @@ export class ArticleService {
           data: {
             storeId,
             articleId: existingArticle.id,
+
             stockCount: articleData.stockCount,
             price: articleData.price,
           },
@@ -146,6 +151,7 @@ export class ArticleService {
       const newArticle = await prisma.article.create({
         data: {
           name: articleData.name,
+          image: articleData.image,
           description: articleData.description,
           categoryId: articleData.categoryId,
         },

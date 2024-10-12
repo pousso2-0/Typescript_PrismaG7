@@ -1,16 +1,11 @@
 import { Request, Response, RequestHandler } from 'express';
 import { CommentService } from '../services/commentService';
 
-// Définir une interface pour les requêtes authentifiées
-interface AuthenticatedRequest extends Request {
-  userId?: number;
-  userType?: string;
-}
 
 const commentService = new CommentService();
 
 export class CommentController {
-  createComment: RequestHandler = async (req: AuthenticatedRequest, res: Response) => {
+  createComment: RequestHandler = async (req: Request, res: Response) => {
     try {
       if (!req.userId) {
         return res.status(401).json({ message: 'User not authenticated' });
@@ -37,7 +32,7 @@ export class CommentController {
     }
   };
 
-  updateComment: RequestHandler = async (req: AuthenticatedRequest, res: Response) => {
+  updateComment: RequestHandler = async (req: Request, res: Response) => {
     try {
       if (!req.userId) {
         return res.status(401).json({ message: 'User not authenticated' });
@@ -54,7 +49,7 @@ export class CommentController {
     }
   };
 
-  deleteComment: RequestHandler = async (req: AuthenticatedRequest, res: Response) => {
+  deleteComment: RequestHandler = async (req: Request, res: Response) => {
     try {
       if (!req.userId) {
         return res.status(401).json({ message: 'User not authenticated' });
@@ -71,22 +66,22 @@ export class CommentController {
   };
 
 
-  // getCommentReplies: RequestHandler = async (req: AuthenticatedRequest, res: Response) => {
-  //   try {
-  //     if (!req.userId) {
-  //       return res.status(401).json({ message: 'User not authenticated' });
-  //     }
+  getCommentReplies: RequestHandler = async (req: Request, res: Response) => {
+    try {
+      if (!req.userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
 
-  //     const { commentId } = req.params;
-  //     const { content } = req.body;
-  //     const userId = req.userId;
+      const { commentId } = req.params;
+      const { content } = req.body;
+      const userId = req.userId;
 
-  //     const reply = await commentService.CommentReplies(Number(commentId), userId, content);
-  //     res.status(200).json(reply);
-  //   } catch (error: any) {
-  //     res.status(400).json({ message: error.message });
-  //   }
-  // };
+      const reply = await commentService.CommentReplies(Number(commentId), userId, content);
+      res.status(200).json(reply);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  };
 
   getCommentsByPost: RequestHandler = async (req: Request, res: Response) => {
     try {
