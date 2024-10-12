@@ -2,6 +2,7 @@ import express from 'express';
 import StatusController from '../controllers/statusController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { roleMiddleware } from '../middlewares/roleMiddleware';
+import {uploadMiddleware} from "../middlewares/uploadMiddleware";
 
 const router = express.Router();
 
@@ -16,26 +17,27 @@ const router = express.Router();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               content:
  *                 type: string
  *                 description: Contenu du statut
- *               mediaType: 
+ *               duration:
  *                 type: string
- *                 description: types de media
- *               mediaUrl :
+ *                 description: "Durée du statut (ex: '5m', '2h', '3d')"
+ *               mediaUrl:
  *                 type: string
- *                 description: l'url du media 
+ *                 format: binary
+ *                 description: Fichier de média (image, vidéo, etc.)
  *     responses:
  *       201:
  *         description: Statut créé avec succès
  *       400:
  *         description: Données invalides
  */
-router.post('/', authMiddleware, roleMiddleware(['TAILLEUR']), StatusController.createStatus);
+router.post('/', authMiddleware, roleMiddleware(['TAILLEUR']),uploadMiddleware, StatusController.createStatus);
 
 /**
  * @swagger

@@ -3,21 +3,43 @@ import StatusService from '../services/statusService';
 // import MessageService from '../services/messageService';
 import { StatusCreate } from '../Interfaces/StatusInterface';
 import ConversationService from '../services/messageService';
+import {parseDuration} from "../utils/parseDuration";
+import {handleMediaFiles} from "../utils/mediaUtils";
 
 class StatusController {
-    static async createStatus(req: Request, res: Response): Promise<void> {
-        try {
-          const { content, mediaType, mediaUrl } = req.body;
-          const userId = req.userId as number;
-          const expiresAt = new Date(Date.now() + 10 * 60 * 1000); 
-          const statusData: StatusCreate = { userId, content, mediaType, mediaUrl, expiresAt };
-          const status = await StatusService.createStatus(userId, statusData);
-          res.status(201).json(status);
-        } catch (error : any) {
-          res.status(400).json({ message: `Failed to create status: ${error.message}` });
+  static async createStatus(req: Request, res: Response): Promise<void> {
+    try {
+      const { content, duration } = req.body; // Acceptez la durée
+      const userId = req.userId as number;
+
+      // Validez et convertissez la durée
+      const durationInMs = parseDuration(duration);
+      if (durationInMs === null) {
+        throw new Error('Invalid duration format. Use formats like "5m", "2h", "3d", or combinations.');
+      }
+      // Calculez la date d'expiration
+      const expiresAt = new Date(Date.now() + durationInMs);
+
+      const statusData: StatusCreate = { userId, content, expiresAt };
+      // Check if files are provided
+      const files = req.files as Express.Multer.File[];
+
+      if (files && files.length > 0) {
+        // Use handleMediaFiles to process the uploaded files
+        const mediaUrl = await handleMediaFiles(files, 'mediaUrl');
+
+        // If image is found and processed, attach the URL to articleData
+        if (mediaUrl.length > 0) {
+          statusData.mediaUrl = mediaUrl[0];
+          statusData.mediaType = files[0].mimetype; // Prendre le type du premier fichier, ou plus si nécessaire
         }
+      }
+      const status = await StatusService.createStatus(userId, statusData);
+      res.status(201).json(status);
+    } catch (error: any) {
+      res.status(400).json({ message: `Failed to create status: ${error.message}` });
     }
-    
+  }
     
   static async getStatus(req: Request, res: Response): Promise<void> {
     try {

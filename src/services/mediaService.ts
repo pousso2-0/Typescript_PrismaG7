@@ -18,6 +18,25 @@ class MediaService {
             throw new Error(`Failed to upload media: ${errorMessage}`);
         }
     }
+    static async deleteMedia(mediaUrl: string): Promise<void> {
+        try {
+            if (!mediaUrl) {
+                throw new Error('mediaUrl is required to delete media.');
+            }
+
+            const publicId = mediaUrl.split('/').pop()?.split('.')[0]; // Extraire l'ID public
+
+            if (!publicId) {
+                throw new Error('Failed to extract public ID from mediaUrl.');
+            }
+
+            await cloudinary.uploader.destroy(publicId); // Supprimer l'image du cloud
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+            throw new Error(`Failed to delete media: ${errorMessage}`);
+        }
+    }
+
 }
 
 export default MediaService;

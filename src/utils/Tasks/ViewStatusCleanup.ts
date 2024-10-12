@@ -7,7 +7,7 @@ cron.schedule('0 * * * *', async () => {
 
   try {
     console.log('Exécution de la tâche pour supprimer les vues des statuts expirés...');
-    await StatusService.deleteExpiredStatusViews();
+    await StatusService.deleteExpiredStatuses();
     console.log('Suppression des vues terminée.');
   } catch (error) {
     console.error('Erreur lors de la suppression des vues des statuts expirés :', error);

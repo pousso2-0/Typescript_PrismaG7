@@ -2,28 +2,28 @@ import { PrismaClient } from '@prisma/client';
 import { StatusCreate, StatusUpdate , Status , StatusIncludeConfig} from '../Interfaces/StatusInterface';
 import { ValidationError, DatabaseError } from '../errors/customErrors';
 import ViewService from './viewService';
+import MediaService from "./mediaService";
 
 const prisma = new PrismaClient();
 
 class StatusService {
-    static async createStatus(userId: number, statusData: StatusCreate): Promise<Status> {
-        try {
-          const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 5 minutes à partir de maintenant
-          const status = await prisma.status.create({
-            data: {
-              userId,
-              content: statusData.content,
-              mediaType: statusData.mediaType,
-              mediaUrl: statusData.mediaUrl,
-              expiresAt, // Fixe l'expiration à 5 minutes après la création
-              viewsCount: 0,
-            },
-          });
-          return status;
-        } catch (error : any) {
-          throw new DatabaseError(`Failed to create status: ${error.message}`);
-        }
+  static async createStatus(userId: number, statusData: StatusCreate): Promise<Status> {
+    try {
+      const status = await prisma.status.create({
+        data: {
+          userId,
+          content: statusData.content,
+          mediaType: statusData.mediaType,
+          mediaUrl: statusData.mediaUrl,
+          expiresAt: statusData.expiresAt, // Utilisez la date d'expiration calculée
+          viewsCount: 0,
+        },
+      });
+      return status;
+    } catch (error: any) {
+      throw new DatabaseError(`Failed to create status: ${error.message}`);
     }
+  }
     
 
     static async getStatusById(statusId: number, userId: number): Promise<Status> {
@@ -48,30 +48,6 @@ class StatusService {
         return status;
       } catch (error: any) {
         throw new DatabaseError(`Failed to get status: ${error.message}`);
-      }
-    }
-  
-    static async deleteExpiredStatusViews() {
-      try {
-        const expiredStatuses = await prisma.status.findMany({
-          where: {
-            expiresAt: {
-              lte: new Date(),
-            },
-          },
-        });
-  
-        const statusIds = expiredStatuses.map(status => status.id);
-  
-        await prisma.view.deleteMany({
-          where: {
-            statusId: {
-              in: statusIds,
-            },
-          },
-        });
-      } catch (error: any) {
-        throw new DatabaseError(`Failed to delete expired status views: ${error.message}`);
       }
     }
 
@@ -173,16 +149,35 @@ class StatusService {
     }
   }
 
-  static async deleteExpiredStatuses(): Promise<void> {
+  static async deleteExpiredStatuses() {
     try {
-      await prisma.status.deleteMany({
+      const expiredStatuses = await prisma.status.findMany({
         where: {
           expiresAt: {
-            lte: new Date()
-          }
-        }
+            lte: new Date(),
+          },
+        },
       });
-    } catch (error : any) {
+
+      for (const status of expiredStatuses) {
+        // Supprimer l'image du cloud si l'URL est présente
+        if (status.mediaUrl) {
+          await MediaService.deleteMedia(status.mediaUrl);
+        }
+      }
+
+      const statusIds = expiredStatuses.map(status => status.id);
+
+      // Supprimer les statuts expirés
+      await prisma.status.deleteMany({
+        where: {
+          id: {
+            in: statusIds,
+          },
+        },
+      });
+
+    } catch (error: any) {
       throw new DatabaseError(`Failed to delete expired statuses: ${error.message}`);
     }
   }
