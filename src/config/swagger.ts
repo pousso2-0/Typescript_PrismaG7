@@ -12,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: `https://rscouture.onrender.com/api-docs/`,
+        url: `https://rscouture.onrender.com`,
         description: 'Serveur de développement',
       },
       {
