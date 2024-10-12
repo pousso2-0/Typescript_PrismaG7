@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -26,7 +26,6 @@ model User {
   dateOfBirth          DateTime?
   gender               String?
   phone                String?        @unique
-  website              String?
   followersCount       Int            @default(0)
   followingCount       Int            @default(0)
   postsCount           Int            @default(0)
@@ -41,6 +40,7 @@ model User {
   updatedAt            DateTime       @updatedAt
   isOnline             Boolean        @default(false)  
   lastSeenAt           DateTime?
+  website              Website[] // Relation to WebsiteLink model (multiple links)
   posts                Post[]
   comments             Comment[]
   reactions            Reaction[]
@@ -65,6 +65,14 @@ model User {
   ordersAsVendor       Order[]    @relation("VendorOrders")
   sentConversations    Conversation[] @relation("SentConversations")
   receivedConversations Conversation[] @relation("ReceivedConversations")
+}
+
+model Website {
+  id       Int    @id @default(autoincrement())
+  user     User   @relation(fields: [userId], references: [id])
+  userId   Int
+  type     String // Type of link (e.g., "Facebook", "YouTube", "Portfolio")
+  url      String // The actual link
 }
 
 
@@ -295,6 +303,7 @@ model Store {
 model Category {
   id        Int       @id @default(autoincrement())
   name      String    @unique
+  image       String?
   articles  Article[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -303,6 +312,7 @@ model Category {
 model Article {
   id          Int            @id @default(autoincrement())
   name        String
+  image       String?
   description String?
   categoryId  Int
   category    Category       @relation(fields: [categoryId], references: [id])

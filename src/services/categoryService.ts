@@ -10,8 +10,9 @@ class CategoryService {
     return prisma.category.findMany({
       // Spécifier les champs à inclure dans le résultat
       select: {
-        id: true, // Inclure l'ID de la catégorie
-        name: true // Inclure le nom de la catégorie
+        id: true,
+        name: true,
+        image: true,
       },
     });
   }

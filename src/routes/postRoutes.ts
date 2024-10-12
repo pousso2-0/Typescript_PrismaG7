@@ -6,8 +6,10 @@ import ShareFavController from '../controllers/ShareFavController';
 import ShareController from '../controllers/shareController';
 import ViewPostController from '../controllers/viewPostController';
 import { postActionMiddleware } from '../middlewares/postActionMiddleware';
+import {uploadMiddleware} from "../middlewares/uploadMiddleware";
 
 const router = express.Router();
+
 
 /**
  * @swagger
@@ -48,7 +50,7 @@ const router = express.Router();
  *       400:
  *         description: Données invalides
  */
-router.post('/', authMiddleware, roleMiddleware(['TAILLEUR']), PostController.createPost);
+router.post('/', authMiddleware, roleMiddleware(['TAILLEUR']), uploadMiddleware, PostController.createPost);
 
 
 /**

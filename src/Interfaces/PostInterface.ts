@@ -44,7 +44,12 @@ export interface CreatePostInput {
   content: string;
   isPublic?: boolean;
   commentsEnabled?: boolean;
-  media?: Media[];
+  media?: CreateMediaInput[];
+}
+export interface CreateMediaInput{
+  url: string;
+  type: string;
+
 }
 
 export interface UpdatePostInput {

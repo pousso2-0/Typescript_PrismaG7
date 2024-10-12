@@ -2,6 +2,7 @@ import express from 'express';
 import CategoryController from '../controllers/categoryController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { roleMiddleware } from '../middlewares/roleMiddleware';
+import {uploadMiddleware} from "../middlewares/uploadMiddleware";
 
 const router = express.Router();
 
@@ -18,7 +19,6 @@ const router = express.Router();
  *         description: Erreur serveur
  */
 router.get('/', CategoryController.getAllCategories);
-
 /**
  * @swagger
  * /api/categories:
@@ -30,13 +30,17 @@ router.get('/', CategoryController.getAllCategories);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               name:
  *                 type: string
  *                 example: 'Tissu'
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image de la catégorie (optionnel)
  *     responses:
  *       201:
  *         description: Catégorie créée avec succès
@@ -47,6 +51,7 @@ router.get('/', CategoryController.getAllCategories);
  *       403:
  *         description: Accès refusé
  */
-router.post('/', authMiddleware, roleMiddleware(['VENDEUR']), CategoryController.createCategory);
+router.post('/', authMiddleware, roleMiddleware(['VENDEUR']), uploadMiddleware, CategoryController.createCategory);
+
 
 export default router;

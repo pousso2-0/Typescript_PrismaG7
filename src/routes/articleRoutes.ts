@@ -2,6 +2,7 @@ import { Router } from 'express';
 import ArticleController from '../controllers/articleController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { roleMiddleware } from '../middlewares/roleMiddleware';
+import {uploadMiddleware} from "../middlewares/uploadMiddleware";
 
 const router = Router();
 
@@ -90,7 +91,65 @@ router.get('/categories' , authMiddleware, ArticleController.listAllCategoriesAn
  *       500:
  *         description: Internal server error
  */
-router.post('/store/:storeId', roleMiddleware(['VENDEUR']), authMiddleware, ArticleController.addArticleToStore);
+router.post('/store/:storeId', roleMiddleware(['VENDEUR']), authMiddleware, uploadMiddleware, ArticleController.addArticleToStore);
+
+
+/**
+ * @swagger
+ * /api/stores:
+ *   post:
+ *     summary: Create a new store for a user
+ *     tags: [Stores]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Store created successfully
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/stores', roleMiddleware(['VENDEUR']), authMiddleware, ArticleController.createStore);
+
+/**
+ * @swagger
+ * /api/stores/{storeId}/articles/{articleId}:
+ *   delete:
+ *     summary: Delete an article from a store
+ *     tags: [Articles]
+ *     parameters:
+ *       - name: storeId
+ *         in: path
+ *         required: true
+ *         description: Store ID
+ *         schema:
+ *           type: integer
+ *       - name: articleId
+ *         in: path
+ *         required: true
+ *         description: Article ID
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: Article deleted
+ *       500:
+ *         description: Server error
+ */
+router.delete('/stores/:storeId/articles/:articleId', authMiddleware, roleMiddleware, ArticleController.deleteArticleFromStore);
+
 
 
 /**

@@ -3,18 +3,45 @@ import { Request, Response } from 'express';
 import { PostServiceImpl } from '../services/postService';
 import { CreatePostInput, UpdatePostInput } from '../Interfaces/PostInterface';
 import ViewService from '../services/viewService';
+import {handleMediaFiles} from "../utils/mediaUtils";
 
 const postService = new PostServiceImpl();
+
+
 
 class PostController {
   static async createPost(req: Request, res: Response) {
     try {
-      const userId = req.userId as number; 
+      const userId = req.userId as number;
+      console.log('les donné du request', req.body)
+
+      // Journaliser le corps de la requête
+      console.log('Corps de la requête:', req.body);
+
       const postData: CreatePostInput = req.body;
+
+      // Vérifiez si postData est correctement peuplé
+      console.log('Données du post avant traitement:', req.files);
+
+
+      const files = req.files as Express.Multer.File[];
+
+      // Traiter les fichiers multimédia
+      if (files && files.length > 0) {
+        const mediaUrls: string[] = await handleMediaFiles(files, 'media'); // Supposons que le champ "media" contienne les fichiers
+
+        // Ajouter les URLs des médias traités au postData
+        postData.media = mediaUrls.map((url, index) => ({
+          url,
+          type: files[index].mimetype,
+        }));
+      }
+      console.log('Données du post après traitement:', postData);
+
       const newPost = await postService.createPost(userId, postData);
       return res.status(201).json(newPost);
     } catch (error: any) {
-      console.log(`Error: ${error.message}`);
+      console.error(`Error: ${error.message}`);
       return res.status(400).json({ message: error.message });
     }
   }

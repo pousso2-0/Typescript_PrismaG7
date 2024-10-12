@@ -5,12 +5,7 @@ const prisma = new PrismaClient();
 
 class FeedService {
   // Récupère le fil d'actualité de l'utilisateur avec des options de filtrage
-  static async getUserFeed(
-    userId: number,
-    page: number,
-    limit: number,
-    followingOnly: boolean = false
-  ): Promise<(Post | Retweet)[]> {
+  static async getUserFeed(userId: number, page: number,  limit: number,followingOnly: boolean = false ): Promise<(Post | Retweet)[]> {
     const skip = (page - 1) * limit;
 
     // Récupération des utilisateurs suivis si nécessaire
