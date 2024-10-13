@@ -553,6 +553,56 @@ router.patch('/notifications/:id', authMiddleware, NotificationController.markAs
 
 /**
  * @swagger
+ * /api/users/notifications/{id}:
+ *   delete:
+ *     summary: Supprimer une notification
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de la notification à supprimer
+ *     responses:
+ *       200:
+ *         description: Notification supprimée avec succès
+ *       404:
+ *         description: Notification non trouvée
+ *       403:
+ *         description: Non autorisé à supprimer cette notification
+ */
+router.delete('/notifications/:id', authMiddleware, NotificationController.deleteNotification);
+
+/**
+ * @swagger
+ * /api/users/notifications/{id}/unread:
+ *   patch:
+ *     summary: Marquer une notification comme non lue
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de la notification à marquer comme non lue
+ *     responses:
+ *       200:
+ *         description: Notification marquée comme non lue
+ *       404:
+ *         description: Notification non trouvée
+ *       403:
+ *         description: Non autorisé à marquer cette notification
+ */
+router.patch('/notifications/:id/unread', authMiddleware, NotificationController.markAsUnread);
+
+/**
+ * @swagger
  * /api/users/notifications:
  *   post:
  *     summary: Envoyer une notification

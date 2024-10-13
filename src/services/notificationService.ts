@@ -51,6 +51,44 @@ class NotificationService  {
 
     return notification as Notification;
   }
+  static async deleteNotification(notificationId: number, userId: number): Promise<void> {
+    const notification = await prisma.notification.findUnique({
+      where: { id: notificationId },
+    });
+
+    if (!notification) {
+      throw new Error('Notification not found');
+    }
+
+    if (notification.userId !== userId) {
+      throw new Error('Unauthorized');
+    }
+
+    await prisma.notification.delete({
+      where: { id: notificationId },
+    });
+  }
+
+  static async markAsUnread(notificationId: number, userId: number): Promise<Notification> {
+    const notification = await prisma.notification.findUnique({
+      where: { id: notificationId },
+    });
+
+    if (!notification) {
+      throw new Error('Notification not found');
+    }
+
+    if (notification.userId !== userId) {
+      throw new Error('Unauthorized');
+    }
+
+    const updatedNotification = await prisma.notification.update({
+      where: { id: notificationId },
+      data: { read: false },
+    });
+
+    return updatedNotification as Notification;
+  }
 }
 
 export default NotificationService;
