@@ -1,6 +1,6 @@
 // src/services/ConversationService.ts
 import { PrismaClient } from '@prisma/client';
-import { Conversation , Message } from '../Interfaces/UserInterface';
+import {Conversation, ExtendConversation, Message} from '../Interfaces/UserInterface';
 
 const prisma = new PrismaClient();
 
@@ -78,64 +78,111 @@ class ConversationService {
     // Marquer les messages comme lus pour l'utilisateur connecté
     await this.markMessagesAsRead(conversationId, userId);
 
-    return prisma.message.findMany({
+    return await prisma.message.findMany({
       where: {
         conversationId,
         AND: [
           {
             OR: [
-              // Inclure les messages envoyés par l'utilisateur ou reçus et non supprimés
               { senderId: userId, senderDeleted: false },
               { receiverId: userId, receiverDeleted: false }
             ]
           }
         ]
       },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            profilePicture: true,
+            isOnline: true,
+            lastSeenAt: true
+          }
+        },
+        receiver: {
+          select: {
+            id: true,
+            name: true,
+            profilePicture: true,
+            isOnline: true,
+            lastSeenAt: true
+          }
+        }
+      },
       orderBy: { createdAt: 'asc' }
     });
   }
- // Récupérer toutes les conversations pour un utilisateur
- static async getUserConversations(userId: number): Promise<Conversation[]> {
-  const conversations = await prisma.conversation.findMany({
-    where: {
-      OR: [
-        { senderId: userId },
-        { receiverId: userId }
-      ]
-    },
-    include: {
-      messages: {
-        where: {
-          AND: [
-            {
-              OR: [
-                // Inclure les messages envoyés par l'utilisateur ou reçus et non supprimés
-                { senderId: userId, senderDeleted: false },
-                { receiverId: userId, receiverDeleted: false }
-              ]
-            }
-          ]
+  static async getUserConversations(userId: number): Promise<ExtendConversation[]> {
+    const conversations = await prisma.conversation.findMany({
+      where: {
+        OR: [
+          { senderId: userId },
+          { receiverId: userId }
+        ]
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            profilePicture: true,
+            isOnline: true,
+            lastSeenAt: true
+          }
         },
-        orderBy: { createdAt: 'desc' },
-        take: 1
-      }
-    },
-    orderBy: { updatedAt: 'desc' }
-  });
+        receiver: {
+          select: {
+            id: true,
+            name: true,
+            profilePicture: true,
+            isOnline: true,
+            lastSeenAt: true
+          }
+        },
+        messages: {
+          where: {
+            AND: [
+              {
+                OR: [
+                  { senderId: userId, senderDeleted: false },
+                  { receiverId: userId, receiverDeleted: false }
+                ]
+              }
+            ]
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 1
+        }
+      },
+      orderBy: { updatedAt: 'desc' }
+    });
 
-  return conversations.map(conversation => {
-    const lastMessage = conversation.messages[0]?.content || null;
-    return {
-      id: conversation.id,
-      senderId: conversation.senderId,
-      receiverId: conversation.receiverId,
-      createdAt: conversation.createdAt,
-      updatedAt: conversation.updatedAt,
-      lastMessage: lastMessage,
-      unreadCount: conversation.messages.filter(message => message.receiverId === userId && !message.isRead).length
-    };
-  });
-}
+    return conversations.map(conversation => {
+      const lastMessage = conversation.messages[0]?.content || null;
+      return {
+        id: conversation.id,
+        createdAt: conversation.createdAt,
+        updatedAt: conversation.updatedAt,
+        lastMessage: lastMessage,
+        unreadCount: conversation.messages.filter(message => message.receiverId === userId && !message.isRead).length,
+        sender: {
+          id: conversation.sender.id,
+          name: conversation.sender.name,
+          profilePicture: conversation.sender.profilePicture,
+          isOnline: conversation.sender.isOnline,
+          lastSeenAt: conversation.sender.lastSeenAt
+        },
+        receiver: {
+          id: conversation.receiver.id,
+          name: conversation.receiver.name,
+          profilePicture: conversation.receiver.profilePicture,
+          isOnline: conversation.receiver.isOnline,
+          lastSeenAt: conversation.receiver.lastSeenAt
+        }
+      };
+    });
+  }
 
 // Supprimer un message
 static async deleteMessage(id: number, userId: number): Promise<void> {

@@ -2,35 +2,30 @@ import { PrismaClient } from '@prisma/client';
 import { StatusCreate, StatusUpdate, Status, StatusIncludeConfig } from '../Interfaces/StatusInterface';
 import { ValidationError, DatabaseError } from '../errors/customErrors';
 import ViewService from './viewService';
+import MediaService from "./mediaService";
 
 const prisma = new PrismaClient();
 
 class StatusService {
-    // Méthode statique pour créer un nouveau statut
-    static async createStatus(userId: number, statusData: StatusCreate): Promise<Status> {
-        try {
-          // Définir la date d'expiration du statut à 5 minutes après la création
-          const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes à partir de maintenant
-          // Créer le nouveau statut dans la base de données
-          const status = await prisma.status.create({
-            data: {
-              userId,
-              content: statusData.content,
-              mediaType: statusData.mediaType,
-              mediaUrl: statusData.mediaUrl,
-              expiresAt, // Fixer l'expiration à 10 minutes après la création
-              viewsCount: 0, // Initialiser le compteur de vues à 0
-            },
-          });
-          // Retourner le nouveau statut créé
-          return status;
-        } catch (error: any) {
-          // Gérer les erreurs liées à la base de données en lançant une erreur personnalisée
-          throw new DatabaseError(`Failed to create status: ${error.message}`);
-        }
+  static async createStatus(userId: number, statusData: StatusCreate): Promise<Status> {
+    try {
+      const status = await prisma.status.create({
+        data: {
+          userId,
+          content: statusData.content,
+          mediaType: statusData.mediaType,
+          mediaUrl: statusData.mediaUrl,
+          expiresAt: statusData.expiresAt, // Utilisez la date d'expiration calculée
+          viewsCount: 0,
+        },
+      });
+      return status;
+    } catch (error: any) {
+      throw new DatabaseError(`Failed to create status: ${error.message}`);
     }
+  }
+    
 
-    // Méthode statique pour récupérer un statut par son ID
     static async getStatusById(statusId: number, userId: number): Promise<Status> {
       try {
         // Rechercher le statut par ID et vérifier s'il n'est pas expiré
@@ -57,35 +52,6 @@ class StatusService {
       } catch (error: any) {
         // Gérer les erreurs liées à la base de données en lançant une erreur personnalisée
         throw new DatabaseError(`Failed to get status: ${error.message}`);
-      }
-    }
-
-    // Méthode statique pour supprimer les vues des statuts expirés
-    static async deleteExpiredStatusViews() {
-      try {
-        // Rechercher tous les statuts expirés
-        const expiredStatuses = await prisma.status.findMany({
-          where: {
-            expiresAt: {
-              lte: new Date(), // Trouver les statuts expirés
-            },
-          },
-        });
-  
-        // Extraire les IDs des statuts expirés
-        const statusIds = expiredStatuses.map(status => status.id);
-  
-        // Supprimer toutes les vues associées aux statuts expirés
-        await prisma.view.deleteMany({
-          where: {
-            statusId: {
-              in: statusIds,
-            },
-          },
-        });
-      } catch (error: any) {
-        // Gérer les erreurs liées à la base de données en lançant une erreur personnalisée
-        throw new DatabaseError(`Failed to delete expired status views: ${error.message}`);
       }
     }
 
@@ -205,22 +171,38 @@ class StatusService {
       }
     }
 
-    // Méthode statique pour supprimer tous les statuts expirés
-    static async deleteExpiredStatuses(): Promise<void> {
-      try {
-        // Supprimer tous les statuts dont la date d'expiration est passée
-        await prisma.status.deleteMany({
-          where: {
-            expiresAt: {
-              lte: new Date() // Trouver les statuts expirés
-            }
-          }
-        });
-      } catch (error: any) {
-        // Gérer les erreurs liées à la base de données en lançant une erreur personnalisée
-        throw new DatabaseError(`Failed to delete expired statuses: ${error.message}`);
+  static async deleteExpiredStatuses() {
+    try {
+      const expiredStatuses = await prisma.status.findMany({
+        where: {
+          expiresAt: {
+            lte: new Date(),
+          },
+        },
+      });
+
+      for (const status of expiredStatuses) {
+        // Supprimer l'image du cloud si l'URL est présente
+        if (status.mediaUrl) {
+          await MediaService.deleteMedia(status.mediaUrl);
+        }
       }
+
+      const statusIds = expiredStatuses.map(status => status.id);
+
+      // Supprimer les statuts expirés
+      await prisma.status.deleteMany({
+        where: {
+          id: {
+            in: statusIds,
+          },
+        },
+      });
+
+    } catch (error: any) {
+      throw new DatabaseError(`Failed to delete expired statuses: ${error.message}`);
     }
+  }
 
 }
 

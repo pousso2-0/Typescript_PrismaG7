@@ -14,7 +14,6 @@ CREATE TABLE "User" (
     "dateOfBirth" TIMESTAMP(3),
     "gender" TEXT,
     "phone" TEXT,
-    "website" TEXT,
     "followersCount" INTEGER NOT NULL DEFAULT 0,
     "followingCount" INTEGER NOT NULL DEFAULT 0,
     "postsCount" INTEGER NOT NULL DEFAULT 0,
@@ -31,6 +30,16 @@ CREATE TABLE "User" (
     "lastSeenAt" TIMESTAMP(3),
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Website" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "type" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+
+    CONSTRAINT "Website_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -69,7 +78,6 @@ CREATE TABLE "Comment" (
     "userId" INTEGER NOT NULL,
     "content" TEXT NOT NULL,
     "reaction" TEXT,
-    "reactionCount" INTEGER NOT NULL DEFAULT 0,
     "parentId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -258,6 +266,7 @@ CREATE TABLE "Store" (
 CREATE TABLE "Category" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "image" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -268,6 +277,7 @@ CREATE TABLE "Category" (
 CREATE TABLE "Article" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "image" TEXT,
     "description" TEXT,
     "categoryId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -361,6 +371,9 @@ CREATE UNIQUE INDEX "PaymentType_type_key" ON "PaymentType"("type");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Catalogue_storeId_articleId_key" ON "Catalogue"("storeId", "articleId");
+
+-- AddForeignKey
+ALTER TABLE "Website" ADD CONSTRAINT "Website_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Post" ADD CONSTRAINT "Post_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
