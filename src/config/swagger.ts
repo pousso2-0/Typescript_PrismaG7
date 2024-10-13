@@ -12,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: `https://rscouture.onrender.com`,
+        url: `https://tailor-0722.onrender.com`,
         description: 'Serveur de développement',
       },
       {
