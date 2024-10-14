@@ -112,9 +112,9 @@ class UserService {
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) throw new ValidationError('User not found');
 
-      // Conversion de la date de naissance en format ISO si elle est présente
+      // Assurez-vous que validatedData.dateOfBirth est bien un objet Date
       if (validatedData.dateOfBirth) {
-        validatedData.dateOfBirth = new Date(validatedData.dateOfBirth).toISOString(); // Format ISO
+        validatedData.dateOfBirth = new Date(validatedData.dateOfBirth); // Conversion en objet Date
       }
 
       if (validatedData.type && user.credits < 100) {
