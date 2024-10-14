@@ -117,6 +117,7 @@ class UserService {
         validatedData.dateOfBirth = new Date(validatedData.dateOfBirth); // Conversion en objet Date
       }
 
+
       if (validatedData.type && user.credits < 100) {
         throw new ValidationError('Not enough credits to change user type');
       }

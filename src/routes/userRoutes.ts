@@ -74,6 +74,10 @@ router.post('/register', uploadMiddleware, UserController.register);
  *               type:
  *                 type: string
  *                 description: Type d'utilisateur
+ *               dateOfBirth:
+ *                 type: string
+ *                 format: date
+ *                 description: "Date de naissance de l'utilisateur (format: YYYY-MM-DD)"
  *               profilePicture:
  *                 type: string
  *                 format: binary
