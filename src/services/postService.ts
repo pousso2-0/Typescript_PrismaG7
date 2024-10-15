@@ -1,5 +1,6 @@
 import { Post, CreatePostInput, UpdatePostInput, postIncludeConfig } from '../Interfaces/PostInterface';
 import { ValidationError, DatabaseError } from '../errors/customErrors';
+import NotificationService from './notificationService';
 import { PrismaClient, User } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -51,44 +52,55 @@ export class PostServiceImpl implements PostService {
   // Méthode pour créer un post avec plusieurs médias
   async createPost(userId: number, postData: CreatePostInput): Promise<Post> {
     try {
-      const user = await this.getUser(userId);
-      this.checkUserCredits(user);
+        const user = await this.getUser(userId); // Récupérer l'utilisateur
+        this.checkUserCredits(user);
 
-      if (user.type === 'TAILLEUR' && postData.media && postData.media.length > PostServiceImpl.FREE_USER_MEDIA_LIMIT) {
-        throw new ValidationError(`Free users can only post up to ${PostServiceImpl.FREE_USER_MEDIA_LIMIT} media items`);
-      }
+        if (user.type === 'TAILLEUR' && postData.media && postData.media.length > PostServiceImpl.FREE_USER_MEDIA_LIMIT) {
+            throw new ValidationError(`Free users can only post up to ${PostServiceImpl.FREE_USER_MEDIA_LIMIT} media items`);
+        }
 
-      // Créer le post sans les médias d'abord
-      const newPost = await prisma.post.create({
-        data: {
-          userId,
-          content: postData.content,
-          isPublic: postData.isPublic ?? true,
-          commentsEnabled: postData.commentsEnabled ?? true,
-        },
-        include: postIncludeConfig
-      });
+        // Créer le post sans les médias d'abord
+        const newPost = await prisma.post.create({
+            data: {
+                userId,
+                content: postData.content,
+                isPublic: postData.isPublic ?? true,
+                commentsEnabled: postData.commentsEnabled ?? true,
+            },
+            include: postIncludeConfig
+        });
 
-      // Associer les fichiers médias au post
-      if (postData.media && postData.media.length > 0) {
-        const mediaData = postData.media.map(media => ({
-          postId: newPost.id,
-          url: media.url,
-          type: media.type
-        }));
+        // Récupérer les followers
+        const followers = await prisma.follow.findMany({
+            where: { followeeId: userId },
+            select: { followerId: true },
+        });
 
-        await prisma.media.createMany({ data: mediaData });
-      }
+        // Envoyer des notifications aux followers
+        for (const follower of followers) {
+            await NotificationService.sendNotification(follower.followerId, `${user.name} a publié un nouveau post.`); // Utiliser le nom de l'utilisateur
+        }
 
-      if (user.type === 'TAILLEUR') {
-        await this.updateUserCreditsAndPostCount(userId, true);
-      }
+        // Associer les fichiers médias au post
+        if (postData.media && postData.media.length > 0) {
+            const mediaData = postData.media.map(media => ({
+                postId: newPost.id,
+                url: media.url,
+                type: media.type
+            }));
+            await prisma.media.createMany({ data: mediaData });
+        }
 
-      return newPost as Post;
+        if (user.type === 'TAILLEUR') {
+            await this.updateUserCreditsAndPostCount(userId, true);
+        }
+
+        return newPost as Post;
     } catch (error: any) {
-      throw new DatabaseError(`Failed to create post: ${error.message}`);
+        throw new DatabaseError(`Failed to create post: ${error.message}`);
     }
-  }
+}
+
 
   async getPostById(postId: number): Promise<Post> {
     try {

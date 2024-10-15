@@ -1,38 +1,31 @@
 import { PrismaClient } from '@prisma/client';
 import { Follow, UserFollow } from '../Interfaces/UserInterface';
+import NotificationService from './notificationService';
 
 const prisma = new PrismaClient();
 
 class FollowService {
-  // Méthode pour suivre un utilisateur
   static async followUser(userId: number, followId: number): Promise<Follow> {
-
-    // Vérifier si l'utilisateur suit déjà l'utilisateur cible
     const isFollowing = await prisma.follow.findFirst({
       where: { followerId: userId, followeeId: followId },
     });
 
-    // Si l'utilisateur suit déjà, lancer une erreur
     if (isFollowing) {
       throw new Error('L\'utilisateur est déjà suivi');
     }
 
-    // Vérifier si l'utilisateur cible existe
     const followee = await prisma.user.findUnique({
       where: { id: followId },
     });
 
-    // Si l'utilisateur cible n'existe pas, lancer une erreur
     if (!followee) {
       throw new Error('L\'utilisateur à suivre n\'existe pas');
     }
 
-    // Vérifier si l'utilisateur cible est un tailleur
-    if (followee.type !== 'TAILLEUR') {  // Correction de la vérification du type
+    if (followee.type !== 'TAILLEUR') {
       throw new Error('L\'utilisateur à suivre n\'est pas un tailleur');
     }
 
-    // Créer la relation de suivi dans la base de données
     const follow = await prisma.follow.create({
       data: {
         followerId: userId,
@@ -40,19 +33,35 @@ class FollowService {
       },
     });
 
-    // Mettre à jour le compteur de suivis de l'utilisateur
     await prisma.user.update({
       where: { id: userId },
       data: { followingCount: { increment: 1 } },
     });
 
-    // Mettre à jour le compteur de followers de l'utilisateur suivi
     await prisma.user.update({
       where: { id: followId },
       data: { followersCount: { increment: 1 } },
     });
 
-    // Retourner la relation de suivi créée
+    // Récupérer les informations de l'utilisateur qui suit
+    const follower = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        name: true,
+        profilePicture: true,
+      },
+    });
+
+    if (!follower) {
+      throw new Error('L\'utilisateur qui suit n\'existe pas');
+    }
+
+    // Créer le message de notification
+    const message = `L'utilisateur ${follower.name} ${follower.profilePicture}  a commencé à vous suivre.`;
+
+    // Envoyer une notification à l'utilisateur suivi
+    await NotificationService.sendNotification(followId, message);
+
     return follow;
   }
 
