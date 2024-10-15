@@ -45,7 +45,6 @@ router.get('/stores/:storeId/category/:categoryId', authMiddleware, ArticleContr
  *         description: Internal server error
  */
 router.get('/categories' , authMiddleware, ArticleController.listAllCategoriesAndArticles);
-
 /**
  * @swagger
  * /api/articles/store/{storeId}:
@@ -62,7 +61,7 @@ router.get('/categories' , authMiddleware, ArticleController.listAllCategoriesAn
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -79,12 +78,12 @@ router.get('/categories' , authMiddleware, ArticleController.listAllCategoriesAn
  *               stockCount:
  *                 type: integer
  *                 example: 50
- *               storeId:
- *                 type: integer
- *                 example: 1
  *               categoryId:
  *                 type: integer
  *                 example: 2
+ *               image:  # Champ pour le fichier
+ *                 type: string
+ *                 format: binary  # Indique que c'est un fichier binaire
  *     responses:
  *       201:
  *         description: Article added
