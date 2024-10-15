@@ -1,5 +1,8 @@
 
-import { Share , Retweet , View , Favorite ,Reaction , Post , Comment} from './PostInterface';
+import {Share, Retweet, View, Favorite, Reaction, Post, postIncludeConfig, userSelectConfig} from './PostInterface';
+import { Comment } from './CommentInterface';
+
+import { UserType } from '@prisma/client'; // ou de votre fichier types.ts
 
 export interface User {
   id: number;
@@ -60,6 +63,9 @@ export interface UpdateUser {
   name?: string;
   email?: string;
   password?: string;
+  currentPassword?: string; // Mot de passe actuel pour la validation
+  newPassword?: string; // Nouveau mot de passe
+  confirmPassword?: string; // Confirmation du nouveau mot de passe
   dateOfBirth?: string;
   profilePicture?: string;
   isPrivate?: boolean ;
@@ -79,25 +85,17 @@ export interface Site {
 }
 
 
-export enum UserType {
-  VENDEUR = 'VENDEUR',
-  CLIENT = 'CLIENT',
-  ADMIN = 'ADMIN',
-  TAILLEUR = 'TAILLEUR'
-}
-
 
 export interface Follow {
   id: number;
   followerId: number;
   followeeId: number;
-  follower?: User;
-  followee?: User;
+  follower?: UserSearchResult;
+  followee?: UserSearchResult;
 }
 
 export interface Conversation {
   id: number;
-
   lastMessage: string | null;  // Dernier message de la conversation
   unreadCount: number;   // Nombre de messages non lus
   createdAt: Date;
@@ -218,18 +216,29 @@ export interface Register {
     isOnline: boolean;
     lastSeenAt: Date | null;
   }
-  
 
-  // Configuration for Prisma includes
 export const UserIncludeConfig = {
-
   favorites: true,
   retweets: true,
-  statuses:true,
+  statuses: true,
   shares: true,
-  followedBy:true,
-  mesure: true,
-  posts: true,
-  following: true,
+  followedBy: {
+    include: {
+      follower: {
+        select: userSelectConfig,
+      },
+    },
+  },
+  following: {
+    include: {
+      followee: {
+        select: userSelectConfig,
+      },
+    },
+  },
+  mesure: true, // Assurez-vous que cela correspond à un modèle existant
+  posts: {
+    include: postIncludeConfig, // Inclut les relations spécifiques des posts
+  },
   website: true,
 };

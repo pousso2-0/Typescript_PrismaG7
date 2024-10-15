@@ -38,6 +38,11 @@ class UserController {
 
             console.log('Utilisateur connecté', userId);
 
+            // Convertir dateOfBirth en Date si elle est fournie
+            if (updatedData.dateOfBirth) {
+                updatedData.dateOfBirth = new Date(updatedData.dateOfBirth);
+            }
+
             // Appeler la méthode de service pour mettre à jour les informations de l'utilisateur
             const updatedUser = await UserService.updateUser(userId, updatedData);
 
@@ -48,7 +53,6 @@ class UserController {
             return res.status(500).json({ message: error.message });
         }
     }
-
 
 
     static async login(req: Request, res: Response) {

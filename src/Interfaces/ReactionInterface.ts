@@ -1,5 +1,5 @@
 import { User } from './UserInterface';
-import { Post } from './PostInterface';
+import {Post, userSelectConfig} from './PostInterface';
 import { Comment } from './CommentInterface';
 
 export interface Reaction {
@@ -45,7 +45,9 @@ export type ReactionWithPost = Reaction & { post: Post };
 export type ReactionWithComment = Reaction & { comment: Comment };
 
 export const ReactionIncludeConfig = {
-  user: true,
+  user: {
+    select: userSelectConfig, // Réutilisation de la configuration
+  },
   post: true,
   comment: true
 };

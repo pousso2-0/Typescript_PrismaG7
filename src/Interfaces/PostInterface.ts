@@ -1,8 +1,5 @@
 // PostInterface.ts
-
-
-
-
+import { Comment } from './CommentInterface';
 
 export interface PostService {
     createPost(userId: number, postData: CreatePostInput): Promise<Post>;
@@ -35,7 +32,7 @@ export interface Post {
   favorites: Favorite[];
   views: View[];
   retweets: Retweet[];
-  media: Media[];
+  media: MediaRecup[];
   shares: Share[];
 }
 
@@ -58,15 +55,6 @@ export interface UpdatePostInput {
   commentsEnabled?: boolean;
 }
 
-export interface Comment {
-  id: number;
-  postId: number;
-  userId: number;
-  content: string;
-  reaction: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 export interface Reaction {
   id: number;
@@ -97,6 +85,7 @@ export interface View {
 export interface Retweet {
   id: number;
   userId: number;
+  user?: UserSearchResult;
   postId: number;
   content: string | null;
   createdAt: Date;
@@ -121,22 +110,52 @@ export interface Media {
   updatedAt: Date;
 }
 
-// Configuration for Prisma includes
+export interface MediaRecup {
+  id: number;
+  url: string;
+  type: string;
+}
+
+
+/// Configuration commune pour les sélections d'utilisateur
+export const userSelectConfig = {
+  id: true,
+  name: true,
+  profilePicture: true,
+  isOnline: true,
+  lastSeenAt: true,
+};
+
+// Configuration pour Prisma
 export const postIncludeConfig = {
   user: {
+    select: userSelectConfig, // Utilisation de la configuration factorisée
+  },
+  media: {
     select: {
       id: true,
-      name: true,
-      profilePicture: true,
-      isOnline: true,
-      lastSeenAt: true,
-    }
+      url: true,
+      type: true,
+    },
   },
-  media: true,
-  comments: true,
+  comments: {
+    include: {
+      user: {
+        select: userSelectConfig, // Réutilisation de la configuration
+      },
+      reactions: true,
+    },
+  },
   reactions: true,
   favorites: true,
   views: true,
-  retweets: true,
-  shares: true
+  retweets: {
+    include: {
+      user: {
+        select: userSelectConfig, // Réutilisation encore
+      },
+      post: true
+    },
+  },
+  shares: true,
 };

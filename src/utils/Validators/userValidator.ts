@@ -28,16 +28,28 @@ class UserValidator {
                 type: z.string().min(1, { message: "Site type is required" }) // Si fourni, le type du site doit être non vide
             })
         ).optional(),
+        currentPassword: z.string().min(6, { message: 'Current password must be at least 6 characters' }).optional(),
+        newPassword: z.string().min(6, { message: 'New password must be at least 6 characters' }).optional(),
+        confirmPassword: z.string().optional(),
         profilePicture: z.string().optional(), // Si fourni, accepter une chaîne
         storeName: z.string().optional(), // Si fourni, accepter une chaîne
         storeDescription: z.string().optional(), // Si fourni, accepter une chaîne
         bio: z.string().optional(), // Si fourni, accepter une chaîne
         location: z.string().optional(), // Si fourni, accepter une chaîne
-        dateOfBirth: z.date().optional(), // Si fourni, accepter une date
+        dateOfBirth: z.string().optional(), // Si fourni, accepter une date en format string
         gender: z.string().optional(), // Si fourni, accepter une chaîne
         phone: z.string().optional(), // Si fourni, accepter une chaîne
         isPrivate: z.boolean().optional(), // Si fourni, accepter un booléen
-        notificationsEnabled: z.boolean().optional(), // Si fourni, accepter un booléen
+        notificationsEnabled: z.boolean().optional() // Si fourni, accepter un booléen
+    }).superRefine((data, ctx) => {
+        // Validation du mot de passe
+        if (data.confirmPassword && data.confirmPassword !== data.newPassword) {
+            ctx.addIssue({
+                path: ['confirmPassword'],
+                message: 'Le mot de passe de confirmation ne correspond pas au nouveau mot de passe',
+                code: 'custom'
+            });
+        }
     });
 
 

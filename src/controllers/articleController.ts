@@ -40,6 +40,27 @@ export class ArticleController {
     }
   }
 
+  // Méthode pour lister tous les magasins
+  static async getAllStores(req: Request, res: Response) {
+    try {
+      const stores = await ArticleService.getAllStores();
+      return res.status(200).json(stores);
+    } catch (error: any) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
+
+  // Méthode pour lister les magasins du vendeur connecté
+  static async getStoresByUser(req: Request, res: Response) {
+    try {
+      const userId = req.userId as number; // Récupérer l'userId depuis le middleware d'authentification
+      const userStores = await ArticleService.getStoresByUserId(userId);
+      return res.status(200).json(userStores);
+    } catch (error: any) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
+
   static async deleteArticleFromStore(req: Request, res: Response) {
     try {
       const storeId = parseInt(req.params.storeId, 10); // Convertir storeId en entier

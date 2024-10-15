@@ -67,13 +67,25 @@ router.post('/register', uploadMiddleware, UserController.register);
  *                 type: string
  *                 format: email
  *                 description: Adresse email de l'utilisateur
- *               password:
+ *               currentPassword:
  *                 type: string
  *                 format: password
- *                 description: Mot de passe de l'utilisateur
+ *                 description: Mot de passe actuel de l'utilisateur (nécessaire pour changer le mot de passe)
+ *               newPassword:
+ *                 type: string
+ *                 format: password
+ *                 description: Nouveau mot de passe de l'utilisateur (nécessaire pour changer le mot de passe)
+ *               confirmPassword:
+ *                 type: string
+ *                 format: password
+ *                 description: Confirmation du nouveau mot de passe (doit correspondre au nouveau mot de passe)
  *               type:
  *                 type: string
  *                 description: Type d'utilisateur
+ *               dateOfBirth:
+ *                 type: string
+ *                 format: date
+ *                 description: "Date de naissance de l'utilisateur (format: YYYY-MM-DD)"
  *               profilePicture:
  *                 type: string
  *                 format: binary
@@ -109,10 +121,10 @@ router.post('/register', uploadMiddleware, UserController.register);
  *                     url:
  *                       type: string
  *                       format: uri
- *                       description: "URL of the website"
+ *                       description: "URL du site web"
  *                     type:
  *                       type: string
- *                       description: "Type of the website (e.g., Facebook, YouTube, etc.)"
+ *                       description: "Type du site web (par exemple, Facebook, YouTube, etc.)"
  *     responses:
  *       200:
  *         description: Utilisateur modifié avec succès
@@ -550,6 +562,56 @@ router.get('/notifications', authMiddleware, NotificationController.getNotificat
  *         description: Notification marquée comme lue
  */
 router.patch('/notifications/:id', authMiddleware, NotificationController.markAsRead);
+
+/**
+ * @swagger
+ * /api/users/notifications/{id}:
+ *   delete:
+ *     summary: Supprimer une notification
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de la notification à supprimer
+ *     responses:
+ *       200:
+ *         description: Notification supprimée avec succès
+ *       404:
+ *         description: Notification non trouvée
+ *       403:
+ *         description: Non autorisé à supprimer cette notification
+ */
+router.delete('/notifications/:id', authMiddleware, NotificationController.deleteNotification);
+
+/**
+ * @swagger
+ * /api/users/notifications/{id}/unread:
+ *   patch:
+ *     summary: Marquer une notification comme non lue
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de la notification à marquer comme non lue
+ *     responses:
+ *       200:
+ *         description: Notification marquée comme non lue
+ *       404:
+ *         description: Notification non trouvée
+ *       403:
+ *         description: Non autorisé à marquer cette notification
+ */
+router.patch('/notifications/:id/unread', authMiddleware, NotificationController.markAsUnread);
 
 /**
  * @swagger

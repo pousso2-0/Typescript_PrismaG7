@@ -17,7 +17,7 @@ export interface Comment {
   userId: number;
   content: string;
   reaction: string | null;
-  parentId: number;
+  parentId: number | null; // Rendre parentId nullable
   createdAt: Date;
   updatedAt: Date;
   user: UserSearchResult;

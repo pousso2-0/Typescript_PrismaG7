@@ -13,7 +13,7 @@ class PostController {
   static async createPost(req: Request, res: Response) {
     try {
       const userId = req.userId as number;
-      console.log('les donné du request', req.body)
+      console.log('les données du request', req.body);
 
       // Journaliser le corps de la requête
       console.log('Corps de la requête:', req.body);
@@ -23,6 +23,10 @@ class PostController {
       // Vérifiez si postData est correctement peuplé
       console.log('Données du post avant traitement:', req.files);
 
+      // Si isPublic est présent dans req.body, assurez-vous qu'il est bien un booléen
+      if (typeof postData.isPublic === 'string') {
+        postData.isPublic = postData.isPublic === 'true'; // Convertir la chaîne 'true' ou 'false' en booléen
+      }
 
       const files = req.files as Express.Multer.File[];
 

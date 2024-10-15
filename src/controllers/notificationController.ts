@@ -41,6 +41,28 @@ class NotificationController {
       res.status(400).json({ message: `Failed to send notification: ${error.message}` });
     }
   }
+
+  static async deleteNotification(req: Request, res: Response): Promise<void> {
+    try {
+      const notificationId = parseInt(req.params.id, 10);
+      const userId = req.userId as number;
+      await NotificationService.deleteNotification(notificationId, userId);
+      res.status(200).json({ message: 'Notification deleted successfully' });
+    } catch (error: any) {
+      res.status(400).json({ message: `Failed to delete notification: ${error.message}` });
+    }
+  }
+
+  static async markAsUnread(req: Request, res: Response): Promise<void> {
+    try {
+      const notificationId = parseInt(req.params.id, 10);
+      const userId = req.userId as number;
+      const notification = await NotificationService.markAsUnread(notificationId, userId);
+      res.status(200).json({ message: 'Notification marked as unread', notification });
+    } catch (error: any) {
+      res.status(400).json({ message: `Failed to mark notification as unread: ${error.message}` });
+    }
+  }
 }
 
 export default NotificationController;

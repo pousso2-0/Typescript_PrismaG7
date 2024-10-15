@@ -106,6 +106,7 @@ class UserService {
           Object.entries(updatedData).filter(([_, value]) => value !== undefined && value !== "")
       );
 
+      // Validation des données d'update, y compris les mots de passe
       const validatedData = UserValidator.validateUpdate(sanitizedData);
 
       if (!userId) throw new ValidationError('User ID is required');
@@ -113,16 +114,45 @@ class UserService {
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) throw new ValidationError('User not found');
 
+      // Vérifier si l'utilisateur veut changer son mot de passe
+      if (validatedData.currentPassword && validatedData.newPassword && validatedData.confirmPassword) {
+        // Vérifier que le mot de passe de confirmation correspond au nouveau mot de passe
+        if (validatedData.newPassword !== validatedData.confirmPassword) {
+          throw new ValidationError('New password and confirmation password do not match');
+        }
+
+        // Vérifier le mot de passe actuel
+        const isPasswordValid = await bcrypt.compare(validatedData.currentPassword, user.password);
+        if (!isPasswordValid) {
+          throw new ValidationError('Current password is incorrect');
+        }
+
+        // Hachage du nouveau mot de passe avant de le sauvegarder
+        validatedData.password = await bcrypt.hash(validatedData.newPassword, 10);
+        delete validatedData.currentPassword; // Supprimer le mot de passe actuel des données
+        delete validatedData.confirmPassword; // Supprimer le mot de passe de confirmation des données
+      }
+
+      // Supprimer les champs `newPassword` et `confirmPassword` si non utilisés
+      delete validatedData.newPassword;
+      delete validatedData.confirmPassword;
+
+      // Conversion de la date de naissance en format ISO si elle est présente
+      if (validatedData.dateOfBirth) {
+        validatedData.dateOfBirth = new Date(validatedData.dateOfBirth).toISOString(); // Format ISO
+      }
+
+      // Vérifiez les crédits pour changer le type d'utilisateur
       if (validatedData.type && user.credits < 100) {
         throw new ValidationError('Not enough credits to change user type');
       }
 
       const prismaData: Prisma.UserUpdateInput = validatedData as Prisma.UserUpdateInput;
 
-      // Exclude the website field from prismaData because websites are handled separately
+      // Exclure le champ `website` de prismaData car les sites web sont gérés séparément
       delete prismaData.website;
 
-      // If the user is updating websites, handle it separately
+      // Si l'utilisateur met à jour les sites web, gérez cela séparément
       if (validatedData.website && Array.isArray(validatedData.website)) {
         const websiteUpdates = validatedData.website.map(async (site) => {
           const existingWebsite = await prisma.website.findFirst({
@@ -130,13 +160,13 @@ class UserService {
           });
 
           if (existingWebsite) {
-            // Update existing website
+            // Mettre à jour le site web existant
             return prisma.website.update({
               where: { id: existingWebsite.id },
               data: { url: site.url },
             });
           } else {
-            // Create new website
+            // Créer un nouveau site web
             return prisma.website.create({
               data: {
                 userId,
@@ -147,14 +177,16 @@ class UserService {
           }
         });
 
-        await Promise.all(websiteUpdates); // Wait for all updates to complete
+        await Promise.all(websiteUpdates); // Attendre que toutes les mises à jour soient complètes
       }
 
+      // Mise à jour de l'utilisateur avec les données validées (sans le site web)
       const updatedUser = await prisma.user.update({
         where: { id: userId },
-        data: prismaData, // Pass only the non-relation data (without website)
+        data: prismaData, // Passer uniquement les données non-relationnelles (sans site web)
       });
 
+      // Gérer la création ou la mise à jour de store pour un `VENDEUR`
       if (validatedData.type === 'VENDEUR') {
         if (!validatedData.storeName) throw new ValidationError('Store name is required for vendors.');
 

@@ -45,7 +45,6 @@ router.get('/stores/:storeId/category/:categoryId', authMiddleware, ArticleContr
  *         description: Internal server error
  */
 router.get('/categories' , authMiddleware, ArticleController.listAllCategoriesAndArticles);
-
 /**
  * @swagger
  * /api/articles/store/{storeId}:
@@ -62,7 +61,7 @@ router.get('/categories' , authMiddleware, ArticleController.listAllCategoriesAn
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -79,12 +78,12 @@ router.get('/categories' , authMiddleware, ArticleController.listAllCategoriesAn
  *               stockCount:
  *                 type: integer
  *                 example: 50
- *               storeId:
- *                 type: integer
- *                 example: 1
  *               categoryId:
  *                 type: integer
  *                 example: 2
+ *               image:  # Champ pour le fichier
+ *                 type: string
+ *                 format: binary  # Indique que c'est un fichier binaire
  *     responses:
  *       201:
  *         description: Article added
@@ -96,7 +95,43 @@ router.post('/store/:storeId', roleMiddleware(['VENDEUR']), authMiddleware, uplo
 
 /**
  * @swagger
- * /api/stores:
+ * /api/articles/stores:
+ *   get:
+ *     summary: Get all stores
+ *     tags: [Stores]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all stores
+ *       500:
+ *         description: Internal server error
+ */
+// Liste tous les magasins
+router.get('/stores', roleMiddleware(['ADMIN', 'VENDEUR']), authMiddleware, ArticleController.getAllStores);
+
+
+/**
+ * @swagger
+ * /api/articles/stores/user:
+ *   get:
+ *     summary: Get stores of the connected user
+ *     tags: [Stores]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of stores belonging to the connected user
+ *       500:
+ *         description: Internal server error
+ */
+// Liste les magasins du vendeur connecté
+router.get('/stores/user', roleMiddleware(['VENDEUR']), authMiddleware, ArticleController.getStoresByUser);
+
+
+/**
+ * @swagger
+ * /api/articles/stores:
  *   post:
  *     summary: Create a new store for a user
  *     tags: [Stores]
@@ -148,7 +183,7 @@ router.post('/stores', roleMiddleware(['VENDEUR']), authMiddleware, ArticleContr
  *       500:
  *         description: Server error
  */
-router.delete('/stores/:storeId/articles/:articleId', authMiddleware, roleMiddleware, ArticleController.deleteArticleFromStore);
+router.delete('/stores/:storeId/articles/:articleId', authMiddleware, roleMiddleware(['VENDEUR']), ArticleController.deleteArticleFromStore);
 
 
 

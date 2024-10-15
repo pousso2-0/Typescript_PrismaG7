@@ -84,37 +84,47 @@ class StatusService {
       }
     }
 
-    // Méthode statique pour récupérer les statuts des utilisateurs suivis par un utilisateur donné
-    static async getFollowedUserStatuses(userId: number, page: number = 1, limit: number = 10): Promise<Status[]> {
-      try {
-        // Calculer le nombre de statuts à ignorer pour la pagination
-        const skip = (page - 1) * limit;
-        // Rechercher les statuts des utilisateurs suivis par l'utilisateur donné
-        const statuses = await prisma.status.findMany({
-          where: {
-            user: {
-              followedBy: {
-                some: {
-                  followerId: userId
-                }
-              }
-            },
-            expiresAt: {
-              gt: new Date() // Assurer que seuls les statuts non expirés sont récupérés
-            }
+  static async getFollowedUserStatuses(userId: number, page: number = 1, limit: number = 10): Promise<Status[]> {
+    try {
+      const skip = (page - 1) * limit;
+
+      // Récupérer la liste des utilisateurs suivis par l'utilisateur connecté en utilisant le bon champ
+      const followedUsers = await prisma.follow.findMany({
+        where: {
+          followerId: userId, // Utiliser 'followerId' pour trouver les utilisateurs que l'utilisateur suit
+        },
+        select: {
+          followeeId: true, // Utiliser 'followeeId' pour récupérer les IDs des utilisateurs suivis
+        },
+      });
+
+      // Extraire les IDs des utilisateurs suivis
+      const followedUserIds = followedUsers.map(f => f.followeeId);
+
+      // Inclure l'utilisateur connecté dans la liste des IDs
+      followedUserIds.push(userId);
+
+      // Requête pour récupérer les statuts de l'utilisateur connecté et des utilisateurs qu'il suit
+      const statuses = await prisma.status.findMany({
+        where: {
+          userId: {
+            in: followedUserIds, // Récupérer les statuts de tous les utilisateurs dans cette liste (y compris l'utilisateur connecté)
           },
-          orderBy: { createdAt: 'desc' }, // Trier les statuts par date de création (du plus récent au plus ancien)
-          skip, // Ignorer les premiers résultats pour la pagination
-          take: limit, // Limiter le nombre de résultats retournés
-          include: StatusIncludeConfig, // Inclure les détails définis dans StatusIncludeConfig
-        });
-        // Retourner les statuts récupérés
-        return statuses;
-      } catch (error: any) {
-        // Gérer les erreurs liées à la base de données en lançant une erreur personnalisée
-        throw new DatabaseError(`Failed to get followed user statuses: ${error.message}`);
-      }
+          expiresAt: {
+            gt: new Date(), // Ne récupérer que les statuts non expirés
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        include: StatusIncludeConfig,
+      });
+
+      return statuses;
+    } catch (error: any) {
+      throw new DatabaseError(`Failed to get followed user statuses: ${error.message}`);
     }
+  }
 
     // Méthode statique pour supprimer un statut par ID et vérifier que l'utilisateur est autorisé
     static async deleteStatus(statusId: number, userId: number): Promise<Status> {
@@ -145,31 +155,27 @@ class StatusService {
       }
     }
 
-    // Méthode statique pour récupérer tous les statuts d'un utilisateur donné
-    static async getUserStatuses(userId: number, page: number = 1, limit: number = 10): Promise<Status[]> {
-      try {
-        // Calculer le nombre de statuts à ignorer pour la pagination
-        const skip = (page - 1) * limit;
-        // Rechercher les statuts de l'utilisateur donné
-        const statuses = await prisma.status.findMany({
-          where: { 
-            userId,
-            expiresAt: {
-              gt: new Date() // Assurer que seuls les statuts non expirés sont récupérés
-            }
-          },
-          orderBy: { createdAt: 'desc' }, // Trier les statuts par date de création (du plus récent au plus ancien)
-          skip, // Ignorer les premiers résultats pour la pagination
-          take: limit, // Limiter le nombre de résultats retournés
-          include: StatusIncludeConfig, // Inclure les détails définis dans StatusIncludeConfig
-        });
-        // Retourner les statuts récupérés
-        return statuses;
-      } catch (error: any) {
-        // Gérer les erreurs liées à la base de données en lançant une erreur personnalisée
-        throw new DatabaseError(`Failed to get user statuses: ${error.message}`);
-      }
+
+  static async getUserStatuses(userId: number, page: number = 1, limit: number = 10): Promise<Status[]> {
+    try {
+      const skip = (page - 1) * limit;
+      const statuses = await prisma.status.findMany({
+        where: {
+          userId,
+          expiresAt: {
+            gt: new Date() // Cette ligne garantit que seuls les statuts non expirés sont récupérés
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        include: StatusIncludeConfig,
+      });
+      return statuses;
+    } catch (error : any) {
+      throw new DatabaseError(`Failed to get user statuses: ${error.message}`);
     }
+  }
 
   static async deleteExpiredStatuses() {
     try {
