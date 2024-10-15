@@ -77,26 +77,41 @@ class StatusService {
   static async getFollowedUserStatuses(userId: number, page: number = 1, limit: number = 10): Promise<Status[]> {
     try {
       const skip = (page - 1) * limit;
+
+      // Récupérer la liste des utilisateurs suivis par l'utilisateur connecté en utilisant le bon champ
+      const followedUsers = await prisma.follow.findMany({
+        where: {
+          followerId: userId, // Utiliser 'followerId' pour trouver les utilisateurs que l'utilisateur suit
+        },
+        select: {
+          followeeId: true, // Utiliser 'followeeId' pour récupérer les IDs des utilisateurs suivis
+        },
+      });
+
+      // Extraire les IDs des utilisateurs suivis
+      const followedUserIds = followedUsers.map(f => f.followeeId);
+
+      // Inclure l'utilisateur connecté dans la liste des IDs
+      followedUserIds.push(userId);
+
+      // Requête pour récupérer les statuts de l'utilisateur connecté et des utilisateurs qu'il suit
       const statuses = await prisma.status.findMany({
         where: {
-          user: {
-            followedBy: {
-              some: {
-                followerId: userId
-              }
-            }
+          userId: {
+            in: followedUserIds, // Récupérer les statuts de tous les utilisateurs dans cette liste (y compris l'utilisateur connecté)
           },
           expiresAt: {
-            gt: new Date() // Cette ligne garantit que seuls les statuts non expirés sont récupérés
-          }
+            gt: new Date(), // Ne récupérer que les statuts non expirés
+          },
         },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
         include: StatusIncludeConfig,
       });
+
       return statuses;
-    } catch (error : any) {
+    } catch (error: any) {
       throw new DatabaseError(`Failed to get followed user statuses: ${error.message}`);
     }
   }
@@ -132,7 +147,7 @@ class StatusService {
     try {
       const skip = (page - 1) * limit;
       const statuses = await prisma.status.findMany({
-        where: { 
+        where: {
           userId,
           expiresAt: {
             gt: new Date() // Cette ligne garantit que seuls les statuts non expirés sont récupérés

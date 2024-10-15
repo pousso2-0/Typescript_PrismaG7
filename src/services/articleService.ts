@@ -1,5 +1,11 @@
 import { PrismaClient } from '@prisma/client';
-import { ArticleData, CatalogueResponse, CategoryWithArticlesResponse } from '../Interfaces/ArticleInterface';
+import {
+  ArticleData,
+  articleSelection,
+  CatalogueResponse,
+  CategoryWithArticlesResponse, Store, StoreResponse
+} from '../Interfaces/ArticleInterface';
+import {userSelectConfig} from "../Interfaces/PostInterface";
 
 const prisma = new PrismaClient();
 
@@ -21,6 +27,49 @@ export class ArticleService {
       return newStore;
     } catch (error:any) {
       throw new Error('Error creating store: ' + error.message);
+    }
+  }
+
+  // Récupérer tous les magasins avec les utilisateurs et les articles associés
+  static async getAllStores(): Promise<StoreResponse[]> {
+    try {
+      const stores = await prisma.store.findMany({
+        include: {
+          user: { select: userSelectConfig }, // Réutilisation de la configuration de sélection pour l'utilisateur
+          Catalogue: {
+            include: {
+              article: { select: articleSelection }, // Récupérer les articles via Catalogue
+            },
+          },
+        },
+      });
+
+      return stores;
+    } catch (error: any) {
+      throw new Error('Error fetching stores: ' + error.message);
+    }
+  }
+
+  // Récupérer les magasins d'un utilisateur spécifique avec les articles associés
+  static async getStoresByUserId(userId: number): Promise<StoreResponse[]> {
+    try {
+      const userStores = await prisma.store.findMany({
+        where: {
+          userId: userId,
+        },
+        include: {
+          user: { select: userSelectConfig }, // Réutilisation de la configuration de sélection pour l'utilisateur
+          Catalogue: {
+            include: {
+              article: { select: articleSelection }, // Récupérer les articles via Catalogue
+            },
+          },
+        },
+      });
+
+      return userStores;
+    } catch (error: any) {
+      throw new Error('Error fetching user stores: ' + error.message);
     }
   }
 
@@ -108,6 +157,8 @@ export class ArticleService {
           price: catalogue.price,
           stockCount: catalogue.stockCount,
           storeName: catalogue.store.name,
+          storeDescription: catalogue.store.description,
+          storeId: catalogue.store.id,
         }));
       }),
     }));

@@ -67,10 +67,18 @@ router.post('/register', uploadMiddleware, UserController.register);
  *                 type: string
  *                 format: email
  *                 description: Adresse email de l'utilisateur
- *               password:
+ *               currentPassword:
  *                 type: string
  *                 format: password
- *                 description: Mot de passe de l'utilisateur
+ *                 description: Mot de passe actuel de l'utilisateur (nécessaire pour changer le mot de passe)
+ *               newPassword:
+ *                 type: string
+ *                 format: password
+ *                 description: Nouveau mot de passe de l'utilisateur (nécessaire pour changer le mot de passe)
+ *               confirmPassword:
+ *                 type: string
+ *                 format: password
+ *                 description: Confirmation du nouveau mot de passe (doit correspondre au nouveau mot de passe)
  *               type:
  *                 type: string
  *                 description: Type d'utilisateur
@@ -113,10 +121,10 @@ router.post('/register', uploadMiddleware, UserController.register);
  *                     url:
  *                       type: string
  *                       format: uri
- *                       description: "URL of the website"
+ *                       description: "URL du site web"
  *                     type:
  *                       type: string
- *                       description: "Type of the website (e.g., Facebook, YouTube, etc.)"
+ *                       description: "Type du site web (par exemple, Facebook, YouTube, etc.)"
  *     responses:
  *       200:
  *         description: Utilisateur modifié avec succès

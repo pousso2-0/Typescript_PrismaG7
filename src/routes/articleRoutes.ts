@@ -96,7 +96,43 @@ router.post('/store/:storeId', roleMiddleware(['VENDEUR']), authMiddleware, uplo
 
 /**
  * @swagger
- * /api/stores:
+ * /api/articles/stores:
+ *   get:
+ *     summary: Get all stores
+ *     tags: [Stores]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all stores
+ *       500:
+ *         description: Internal server error
+ */
+// Liste tous les magasins
+router.get('/stores', roleMiddleware(['ADMIN', 'VENDEUR']), authMiddleware, ArticleController.getAllStores);
+
+
+/**
+ * @swagger
+ * /api/articles/stores/user:
+ *   get:
+ *     summary: Get stores of the connected user
+ *     tags: [Stores]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of stores belonging to the connected user
+ *       500:
+ *         description: Internal server error
+ */
+// Liste les magasins du vendeur connecté
+router.get('/stores/user', roleMiddleware(['VENDEUR']), authMiddleware, ArticleController.getStoresByUser);
+
+
+/**
+ * @swagger
+ * /api/articles/stores:
  *   post:
  *     summary: Create a new store for a user
  *     tags: [Stores]
@@ -148,7 +184,7 @@ router.post('/stores', roleMiddleware(['VENDEUR']), authMiddleware, ArticleContr
  *       500:
  *         description: Server error
  */
-router.delete('/stores/:storeId/articles/:articleId', authMiddleware, roleMiddleware, ArticleController.deleteArticleFromStore);
+router.delete('/stores/:storeId/articles/:articleId', authMiddleware, roleMiddleware(['VENDEUR']), ArticleController.deleteArticleFromStore);
 
 
 /**

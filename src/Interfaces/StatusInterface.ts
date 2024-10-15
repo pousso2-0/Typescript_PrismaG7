@@ -1,4 +1,5 @@
 import { User , UserSearchResult } from './UserInterface';
+import {userSelectConfig} from "./PostInterface";
 
 export interface Status {
   id: number;
@@ -31,12 +32,6 @@ export type StatusWithUser = Status & { user: User };
 
 export const StatusIncludeConfig = {
   user: {
-    select: {
-      id: true,
-      name: true,
-      profilePicture: true,
-      isOnline: true,
-      lastSeenAt: true,
-    }
-  }
+    select: userSelectConfig, // Réutilisation de la configuration
+  },
 };

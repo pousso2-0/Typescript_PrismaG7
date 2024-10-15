@@ -1,5 +1,7 @@
 // Interfaces/ArticleInterface.ts
 
+import {UserSearchResult} from "./UserInterface";
+
 export enum UserType {
     CLIENT = 'CLIENT',
     TAILLEUR = 'TAILLEUR',
@@ -11,7 +13,6 @@ export enum UserType {
     id: number;
     name: string;
     image: string | null;
-    description?: string | null; 
     price: number;
     stockCount: number;
     storeId: number;
@@ -21,6 +22,16 @@ export enum UserType {
     createdAt: Date;
     updatedAt: Date;
   }
+export interface StoreResponse {
+  id: number;
+  name: string;
+  description: string | null;
+  userId: number;
+  user: UserSearchResult; // Association avec l'utilisateur
+  catalogues?: Catalogue[]; // Association avec Catalogue (liaison Many-to-Many)
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 
   export interface PrismaArticle {
@@ -43,25 +54,46 @@ export enum UserType {
     lastSeenAt: Date | null;
     type: UserType;
   }
-  
-  export interface Store {
-    id: number;
-    name: string;
-    description: string | null;
-    userId: number;
-    user: User; 
-    articles?: Article[]; 
-    createdAt: Date;
-    updatedAt: Date;
-  }
-  
+export interface Store {
+  id: number;
+  name: string;
+  description: string | null;
+  userId: number;
+  user: User; // Association avec l'utilisateur
+  catalogues?: Catalogue[]; // Association avec Catalogue (liaison Many-to-Many)
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Article {
+  id: number;
+  name: string;
+  image: string | null;
+  description: string | null;
+  categoryId: number;
+  category: Category; // Association avec la catégorie
+  catalogues?: Catalogue[]; // Association avec Catalogue (liaison Many-to-Many)
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Catalogue {
+  id: number;
+  storeId: number;
+  store: Store; // Lien vers le magasin
+  articleId: number;
+  article: Article; // Lien vers l'article
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Category {
   id: number;
   name: string;
   image: string | null;
-  articles?: Article[];
- 
+  articles?: Article[]; // Articles dans cette catégorie
 }
+
   
   export interface Order {
     id: number;
@@ -140,6 +172,7 @@ export interface CreateOrderDto {
     categoryId: number;
     stockCount: number;
   }
+
   
   export interface CatalogueResponse {
     articleId: number;
@@ -158,5 +191,22 @@ export interface CategoryWithArticlesResponse {
     price?: number; // Peut être undefined si non applicable
     stockCount?: number; // Peut être undefined si non applicable
     storeName?: string; // Peut être undefined si non applicable
+    storeDescription?: string | null;
+    storeId?: number; // Peut etre undefined si non applicable
   }[];
 }
+
+// Configuration pour inclure les informations de l'utilisateur dans la requête'
+
+
+// Configuration pour inclure les informations de la catégorie d'un article
+export const categorySelection = {
+  id: true,
+  name: true,
+};
+// Configuration pour inclure les informations des articles dans une requête
+export const articleSelection = {
+  category: {
+    select: categorySelection, // Utilisation de la sélection de catégorie
+  },
+};

@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-import { Post, Favorite, Retweet } from '../Interfaces/PostInterface'; // Supposons que vos interfaces sont dans un fichier séparé
+import {Post, Favorite, Retweet, userSelectConfig} from '../Interfaces/PostInterface'; // Supposons que vos interfaces sont dans un fichier séparé
 
 const prisma = new PrismaClient();
 
@@ -13,7 +13,9 @@ class ShareFavService {
     if (!post) throw new Error("Post not found");
 
     const existingShare = await prisma.retweet.findFirst({
-      where: { userId, postId }
+      where: { userId, postId },
+      include: { user: { select: userSelectConfig } }
+
     });
 
     if (existingShare) throw new Error("Post already shared by this user");
@@ -69,7 +71,10 @@ class ShareFavService {
   static async getUserRetweet(userId: number): Promise<Retweet[]> {
     return prisma.retweet.findMany({
       where: { userId },
-      include: { post: true }
+      include: {
+        post: true,
+        user: { select: userSelectConfig }
+      }
     });
   }
 
