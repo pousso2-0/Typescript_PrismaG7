@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: Documentation de notre API pour le réseau social des tailleurs
 servers:
-  - url: 'https://backendg7-jhgt.onrender.com/'
+  - url: 'https://tcouture.onrender.com/'
     description: Serveur de développement
   - url: 'http://localhost:5000/'
     description: Serveur local
