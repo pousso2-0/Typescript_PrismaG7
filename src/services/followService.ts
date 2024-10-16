@@ -47,8 +47,8 @@ class FollowService {
     const follower = await prisma.user.findUnique({
       where: { id: userId },
       select: {
-        name: true,
-        profilePicture: true,
+        id: true,
+
       },
     });
 
@@ -57,10 +57,10 @@ class FollowService {
     }
 
     // Créer le message de notification
-    const message = `L'utilisateur ${follower.name} ${follower.profilePicture}  a commencé à vous suivre.`;
+    const message = `a commencé à vous suivre.`;
 
-    // Envoyer une notification à l'utilisateur suivi
-    await NotificationService.sendNotification(followId, message);
+    // Envoyer la notification
+    await NotificationService.sendNotification(followId, message, follower.id);
 
     return follow;
   }

@@ -150,6 +150,7 @@ export interface Notification {
   createdAt: Date;
   updatedAt: Date;
   user?: User;
+  userNotif?: UserSearchResult | null;  // UserNotif est optionnel
 }
 
 export interface Status {
@@ -223,18 +224,11 @@ export const UserIncludeConfig = {
   statuses: true,
   shares: true,
   followedBy: {
-    include: {
-      follower: {
-        select: userSelectConfig,
-      },
-    },
+
   },
   following: {
-    include: {
-      followee: {
-        select: userSelectConfig,
-      },
-    },
+
+
   },
   mesure: true, // Assurez-vous que cela correspond à un modèle existant
   posts: {

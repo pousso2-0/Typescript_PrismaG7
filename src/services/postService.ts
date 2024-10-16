@@ -69,18 +69,26 @@ export class PostServiceImpl implements PostService {
             },
             include: postIncludeConfig
         });
-
-        // Récupérer les followers
         const followers = await prisma.follow.findMany({
-            where: { followeeId: userId },
-            select: { followerId: true },
+            where: { followeeId: 3 },  // Remplacez 3 par la variable userId si nécessaire
+            include: {
+                follower: {
+                    select: { id: true, name: true }, // Inclure les détails des followers
+                },
+            },
         });
+
+        console.log('Followers de l\'utilisateur 3 :', followers);
+
 
         // Envoyer des notifications aux followers
         for (const follower of followers) {
-            await NotificationService.sendNotification(follower.followerId, `${user.name} a publié un nouveau post.`); // Utiliser le nom de l'utilisateur
+            await NotificationService.sendNotification(
+                follower.followerId,
+                `a publié un nouveau post.`,
+                user.id  // Inclure l'ID de l'utilisateur qui a posté
+            );
         }
-
         // Associer les fichiers médias au post
         if (postData.media && postData.media.length > 0) {
             const mediaData = postData.media.map(media => ({

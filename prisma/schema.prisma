@@ -50,7 +50,8 @@ model User {
   sentMessages         Message[]      @relation("Sender")
   receivedMessages     Message[]      @relation("Receiver")
   mesure               Mesure?
-  notifications        Notification[]
+  notifications        Notification[] @relation("NotificationReceiver") // Notifications reçues
+  notificationsSent    Notification[] @relation("NotificationSender")   // Notifications envoyées
   statuses             Status[]
   votes                Vote[]         @relation("UserVotes")
   votesAsTailor        Vote[]         @relation("TailorVotes")
@@ -202,15 +203,18 @@ model Mesure {
   updatedAt      DateTime @updatedAt
   user           User     @relation(fields: [userId], references: [id])
 }
-
 model Notification {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  message   String
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
+  id           Int       @id @default(autoincrement())
+  userId       Int       // Le destinataire de la notification
+  message      String
+  read         Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user         User      @relation("NotificationReceiver", fields: [userId], references: [id]) // Nom de la relation pour le destinataire
+
+  userNotifId  Int?      // L'utilisateur à l'origine de la notification (optionnel)
+  userNotif    User?     @relation("NotificationSender", fields: [userNotifId], references: [id]) // Nom de la relation pour l'émetteur (optionnel)
 }
 
 model Status {

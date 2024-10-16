@@ -1,25 +1,33 @@
 // src/services/NotificationService.ts
 import { Notification  } from '../Interfaces/UserInterface';
 import { PrismaClient } from '@prisma/client';
+import {userSelectConfig} from "../Interfaces/PostInterface";
 
 const prisma = new PrismaClient();
 class NotificationService  {
-  static async sendNotification(userId: number, message: string): Promise<void> {
+  static async sendNotification(userId: number, message: string, userNotifId?: number): Promise<void> {
     const notification = await prisma.notification.create({
       data: {
-        userId: userId,
+        userId,
         message,
         read: false,
         createdAt: new Date(),
+        userNotifId: userNotifId ?? null,  // Ajouter l'ID de l'utilisateur à l'origine de la notification, si disponible
       }
     });
     console.log(`Notification envoyée à l'utilisateur ${userId}: ${message}`);
   }
 
+
   static async getNotifications(userId: number): Promise<Notification[]> {
     const notifications = await prisma.notification.findMany({
-      where: { userId: userId },
+      where: { userId },
       orderBy: { createdAt: 'desc' },
+      include: {
+        userNotif: {
+          select: userSelectConfig,
+        },
+      },
     });
 
     return notifications ;
