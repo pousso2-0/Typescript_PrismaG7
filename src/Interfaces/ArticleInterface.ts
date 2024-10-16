@@ -206,6 +206,10 @@ export const categorySelection = {
 };
 // Configuration pour inclure les informations des articles dans une requête
 export const articleSelection = {
+  id: true,
+  name: true,
+  image: true,
+  description: true,
   category: {
     select: categorySelection, // Utilisation de la sélection de catégorie
   },

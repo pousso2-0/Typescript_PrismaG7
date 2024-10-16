@@ -13,7 +13,7 @@ const router = Router();
  */
 /**
  * @swagger
- * /api/articles/category/{categoryId}:
+ * /api/articles/stores/{storeId}/category/{categoryId}:
  *   get:
  *     summary: List articles by category for a store
  *     tags: [Articles]
@@ -22,6 +22,12 @@ const router = Router();
  *         in: path
  *         required: true
  *         description: Category ID
+ *         schema:
+ *           type: integer
+ *       - name: storeId
+ *         in: path
+ *         required: true
+ *         description: Store ID
  *         schema:
  *           type: integer
  *     responses:
