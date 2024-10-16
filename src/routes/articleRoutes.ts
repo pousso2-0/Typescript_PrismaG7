@@ -114,7 +114,7 @@ router.post('/store/:storeId', roleMiddleware(['VENDEUR']), authMiddleware, uplo
  *         description: Internal server error
  */
 // Liste tous les magasins
-router.get('/stores', roleMiddleware(['ADMIN', 'VENDEUR']), authMiddleware, ArticleController.getAllStores);
+router.get('/stores', roleMiddleware(['TAILLEUR', 'VENDEUR']), authMiddleware, ArticleController.getAllStores);
 
 
 /**
