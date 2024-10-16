@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Tailor API
+  title: Tailor API for life
   version: 1.0.0
   description: Documentation de notre API pour le réseau social des tailleurs
 servers:
