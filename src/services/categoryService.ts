@@ -17,6 +17,12 @@ class CategoryService {
     });
   }
 
+  static async getCategoryByName(name: string): Promise<Category | null> {
+    return prisma.category.findUnique({
+      where: { name },
+    });
+  }
+  
   // Méthode statique pour créer une nouvelle catégorie
   static async createCategory(categoryData: CreateCategoryDto): Promise<Category> {
     // Vérifier si une catégorie avec le même nom existe déjà dans la base de données

@@ -54,4 +54,27 @@ router.get('/', CategoryController.getAllCategories);
 router.post('/', authMiddleware, roleMiddleware(['VENDEUR']), uploadMiddleware, CategoryController.createCategory);
 
 
+
+
+/**
+ * @swagger
+ * /api/categories/name/{name}:
+ *   get:
+ *     summary: Récupérer une catégorie par son nom
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Détails de la catégorie
+ *       404:
+ *         description: Catégorie non èxistée
+ */
+router.get('/name/:name', CategoryController.getCategoryByName);
+
+
 export default router;
