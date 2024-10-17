@@ -359,9 +359,6 @@ CREATE UNIQUE INDEX "Mesure_userId_key" ON "Mesure"("userId");
 CREATE UNIQUE INDEX "Report_signaledId_signalerId_key" ON "Report"("signaledId", "signalerId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Store_userId_key" ON "Store"("userId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
 
 -- CreateIndex
