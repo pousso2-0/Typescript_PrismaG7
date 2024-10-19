@@ -15,14 +15,14 @@ const router = express.Router();
  * @swagger
  * /api/posts:
  *   post:
- *     summary: Créer un nouveau post
+ *     summary: Créer un nouveau post avec des médias
  *     tags: [Posts]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -38,17 +38,16 @@ const router = express.Router();
  *               media:
  *                 type: array
  *                 items:
- *                   type: object
- *                   properties:
- *                     url:
- *                       type: string
- *                     type:
- *                       type: string
+ *                   type: string
+ *                   format: binary
+ *                 description: Fichiers médias à télécharger (images ou vidéos)
  *     responses:
  *       201:
  *         description: Post créé avec succès
  *       400:
  *         description: Données invalides
+ *       401:
+ *         description: Non autorisé
  */
 router.post('/', authMiddleware, roleMiddleware(['TAILLEUR']), uploadMiddleware, PostController.createPost);
 

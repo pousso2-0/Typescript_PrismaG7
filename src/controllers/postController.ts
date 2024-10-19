@@ -23,16 +23,19 @@ class PostController {
       // Vérifiez si postData est correctement peuplé
       console.log('Données du post avant traitement:', req.files);
 
-      // Si isPublic est présent dans req.body, assurez-vous qu'il est bien un booléen
+      // Convertir les chaînes 'true' ou 'false' en booléens
       if (typeof postData.isPublic === 'string') {
-        postData.isPublic = postData.isPublic === 'true'; // Convertir la chaîne 'true' ou 'false' en booléen
+        postData.isPublic = String(postData.isPublic).toLowerCase() === 'true';
+      }
+      if (typeof postData.commentsEnabled === 'string') {
+        postData.commentsEnabled = String(postData.commentsEnabled).toLowerCase() === 'true';
       }
 
       const files = req.files as Express.Multer.File[];
 
       // Traiter les fichiers multimédia
       if (files && files.length > 0) {
-        const mediaUrls: string[] = await handleMediaFiles(files, 'media'); // Supposons que le champ "media" contienne les fichiers
+        const mediaUrls: string[] = await handleMediaFiles(files, 'media');
 
         // Ajouter les URLs des médias traités au postData
         postData.media = mediaUrls.map((url, index) => ({
