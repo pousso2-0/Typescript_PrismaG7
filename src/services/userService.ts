@@ -190,11 +190,7 @@ class UserService {
       if (validatedData.type === 'VENDEUR') {
         if (!validatedData.storeName) throw new ValidationError('Store name is required for vendors.');
 
-        const existingStore = await prisma.store.findUnique({
-          where: { userId },
-        });
 
-        if (!existingStore) {
           await prisma.store.create({
             data: {
               name: validatedData.storeName,
@@ -202,7 +198,6 @@ class UserService {
               userId: updatedUser.id,
             },
           });
-        }
       }
 
       return updatedUser;

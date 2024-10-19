@@ -15,6 +15,21 @@ class CategoryController {
     }
   }
 
+  static async getCategoryByName(req: Request, res: Response) {
+    try {
+      const { name } = req.params;
+      const category = await CategoryService.getCategoryByName(name);
+
+      if (!category) {
+        return res.status(404).json({ message: 'Category not found' });
+      }
+
+      res.json(category);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+
   // Méthode pour créer une nouvelle catégorie
   static async createCategory(req: Request, res: Response) {
     try {

@@ -12,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: `https://tcouture.onrender.com/`,
+        url: `https://typescript-prismag7.onrender.com`,
         description: 'Serveur de développement',
       },
       {
