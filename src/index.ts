@@ -3,20 +3,21 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
-
+import { createServer } from 'http'; // Importer createServer depuis le module http
+import { initSocketIO } from './config/socketManager.js'; // Importer votre configuration Socket.io
 
 const prisma = new PrismaClient();
-
-
 import './config/cloudinary';
 import { PORT } from './config/env';
 import errorHandler from './middlewares/errorHandler';
 import Routes from './routes/index';
 import logger from './utils/logger';
-// import configureRoutes from './routes';
 import { swaggerUi, specs } from './config/swagger';
 import './utils/Tasks/ViewStatusCleanup';
+
 const app = express();
+const server = createServer(app); // Créer une instance de serveur HTTP
+
 
 // Middleware de base
 app.use(express.json());
@@ -45,11 +46,14 @@ process.on('unhandledRejection', (reason, promise) => {
   process.exit(1);
 });
 
+// Initialisation de Socket.io
+const io = initSocketIO(server); // Passer le serveur à la configuration Socket.io
+
 // Fonction de démarrage du serveur
 const startServer = async () => {
   try {
     logger.info('Attempting to connect to the database...');
-    
+
     // Test de connexion Prisma
     await prisma.$connect();
     logger.info('Successfully connected to the database');
@@ -58,7 +62,7 @@ const startServer = async () => {
     const userCount = await prisma.user.count();
     logger.info(`Database connection test successful. User count: ${userCount}`);
 
-    app.listen(PORT || 3000, () => {
+    server.listen(PORT || 3000, () => { // Démarrer le serveur HTTP
       logger.info(`Server is running on port ${PORT}`);
       logger.info(`Swagger documentation available at http://localhost:${PORT}/api-docs`);
     });
