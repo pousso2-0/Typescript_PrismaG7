@@ -114,30 +114,27 @@ class UserService {
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) throw new ValidationError('User not found');
 
-      // Vérifier si l'utilisateur veut changer son mot de passe
+      // Vérification des mots de passe
       if (validatedData.currentPassword && validatedData.newPassword && validatedData.confirmPassword) {
-        // Vérifier que le mot de passe de confirmation correspond au nouveau mot de passe
         if (validatedData.newPassword !== validatedData.confirmPassword) {
           throw new ValidationError('New password and confirmation password do not match');
         }
 
-        // Vérifier le mot de passe actuel
         const isPasswordValid = await bcrypt.compare(validatedData.currentPassword, user.password);
         if (!isPasswordValid) {
           throw new ValidationError('Current password is incorrect');
         }
 
-        // Hachage du nouveau mot de passe avant de le sauvegarder
         validatedData.password = await bcrypt.hash(validatedData.newPassword, 10);
-        delete validatedData.currentPassword; // Supprimer le mot de passe actuel des données
-        delete validatedData.confirmPassword; // Supprimer le mot de passe de confirmation des données
+        delete validatedData.currentPassword; // Supprimer le mot de passe actuel
+        delete validatedData.confirmPassword; // Supprimer le mot de passe de confirmation
       }
 
-      // Supprimer les champs `newPassword` et `confirmPassword` si non utilisés
+      // Supprimer les champs newPassword et confirmPassword
       delete validatedData.newPassword;
       delete validatedData.confirmPassword;
 
-      // Conversion de la date de naissance en format ISO si elle est présente
+      // Conversion de la date de naissance en format ISO
       if (validatedData.dateOfBirth) {
         validatedData.dateOfBirth = new Date(validatedData.dateOfBirth).toISOString(); // Format ISO
       }
@@ -147,10 +144,13 @@ class UserService {
         throw new ValidationError('Not enough credits to change user type');
       }
 
-      const prismaData: Prisma.UserUpdateInput = validatedData as Prisma.UserUpdateInput;
+      // Extraire storeName et storeDescription
+      const { storeName, storeDescription, website, ...prismaData } = validatedData;
 
-      // Exclure le champ `website` de prismaData car les sites web sont gérés séparément
-      delete prismaData.website;
+      // Log des données pour vérifier
+      console.log(prismaData);
+
+
 
       // Si l'utilisateur met à jour les sites web, gérez cela séparément
       if (validatedData.website && Array.isArray(validatedData.website)) {
@@ -160,13 +160,11 @@ class UserService {
           });
 
           if (existingWebsite) {
-            // Mettre à jour le site web existant
             return prisma.website.update({
               where: { id: existingWebsite.id },
               data: { url: site.url },
             });
           } else {
-            // Créer un nouveau site web
             return prisma.website.create({
               data: {
                 userId,
@@ -186,18 +184,17 @@ class UserService {
         data: prismaData, // Passer uniquement les données non-relationnelles (sans site web)
       });
 
-      // Gérer la création ou la mise à jour de store pour un `VENDEUR`
+      // Gérer la création ou la mise à jour de store pour un VENDEUR
       if (validatedData.type === 'VENDEUR') {
-        if (!validatedData.storeName) throw new ValidationError('Store name is required for vendors.');
+        if (!storeName) throw new ValidationError('Store name is required for vendors.');
 
-
-          await prisma.store.create({
-            data: {
-              name: validatedData.storeName,
-              description: validatedData.storeDescription,
-              userId: updatedUser.id,
-            },
-          });
+        await prisma.store.create({
+          data: {
+            name: storeName,
+            description: storeDescription,
+            userId: updatedUser.id,
+          },
+        });
       }
 
       return updatedUser;
@@ -209,7 +206,6 @@ class UserService {
         }, {});
         throw new ValidationError(JSON.stringify(errors));
       }
-
       if (error instanceof ValidationError) throw error;
       throw new DatabaseError(`User update failed: ${error.message}`);
     }

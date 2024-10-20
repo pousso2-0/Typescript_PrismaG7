@@ -1221,3 +1221,8 @@
 {"level":"info","message":"Database connection test successful. User count: 6","service":"user-service"}
 {"level":"info","message":"Server is running on port 5000","service":"user-service"}
 {"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
+{"level":"info","message":"Attempting to connect to the database...","service":"user-service"}
+{"level":"info","message":"Successfully connected to the database","service":"user-service"}
+{"level":"info","message":"Database connection test successful. User count: 6","service":"user-service"}
+{"level":"info","message":"Server is running on port 5000","service":"user-service"}
+{"level":"info","message":"Swagger documentation available at http://localhost:5000/api-docs","service":"user-service"}
