@@ -130,7 +130,7 @@ class UserService {
         delete validatedData.confirmPassword; // Supprimer le mot de passe de confirmation
       }
 
-      // Supprimer les champs `newPassword` et `confirmPassword`
+      // Supprimer les champs newPassword et confirmPassword
       delete validatedData.newPassword;
       delete validatedData.confirmPassword;
 
@@ -184,7 +184,7 @@ class UserService {
         data: prismaData, // Passer uniquement les données non-relationnelles (sans site web)
       });
 
-      // Gérer la création ou la mise à jour de store pour un `VENDEUR`
+      // Gérer la création ou la mise à jour de store pour un VENDEUR
       if (validatedData.type === 'VENDEUR') {
         if (!storeName) throw new ValidationError('Store name is required for vendors.');
 
@@ -206,7 +206,6 @@ class UserService {
         }, {});
         throw new ValidationError(JSON.stringify(errors));
       }
-
       if (error instanceof ValidationError) throw error;
       throw new DatabaseError(`User update failed: ${error.message}`);
     }
