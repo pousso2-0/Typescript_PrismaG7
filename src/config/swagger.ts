@@ -12,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: `https://typescript-prismag7.onrender.com`,
+        url: `https://tailor-hazt.onrender.com`,
         description: 'Serveur de développement',
       },
       {
