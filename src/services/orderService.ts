@@ -7,25 +7,26 @@ class OrderService {
   static async createOrder(userId: number, orderData: CreateOrderDto): Promise<PrismaOrder> {
     const { vendorId, articleId, quantity, paymentType, storeId } = orderData;
 
-    // Retrieve the article and check stock availability
-    const article = await prisma.catalogue.findUnique({
+    // Récupérer l'article et vérifier la disponibilité du stock
+    const article = await prisma.article.findUnique({
       where: {
-        storeId_articleId: { storeId, articleId },
+        id: articleId,
+        storeId: storeId, // La relation directe entre article et store
       },
     });
-    if (!article) throw new Error(`Article with ID ${articleId} not found in store ${storeId}`);
-    if (article.stockCount < quantity) throw new Error("Insufficient stock available");
+    if (!article) throw new Error(`Article avec ID ${articleId} introuvable dans le magasin ${storeId}`);
+    if (article.stockCount < quantity) throw new Error("Stock insuffisant disponible");
 
-    // Calculate total amount
+    // Calculer le montant total
     const totalAmount = article.price * quantity;
 
-    // Retrieve PaymentType record based on the name
+    // Récupérer le type de paiement
     const paymentTypeRecord = await prisma.paymentType.findUnique({
       where: { type: paymentType },
     });
-    if (!paymentTypeRecord) throw new Error(`Payment type "${paymentType}" not found`);
+    if (!paymentTypeRecord) throw new Error(`Type de paiement "${paymentType}" introuvable`);
 
-    // Create the order
+    // Créer la commande
     const order = await prisma.order.create({
       data: {
         userId,
@@ -38,7 +39,7 @@ class OrderService {
         deliveryMode: "DELIVERY",
       },
       include: {
-        user:  {
+        user: {
           select: {
             id: true,
             name: true,
@@ -55,27 +56,26 @@ class OrderService {
       },
     });
 
-    // Create initial payment entry
+    // Créer une entrée de paiement initiale
     await prisma.payment.create({
       data: {
         orderId: order.id,
         amount: totalAmount,
-        paymentTypeId: paymentTypeRecord.id, 
+        paymentTypeId: paymentTypeRecord.id,
         status: paymentType === 'CASH_ON_DELIVERY' ? 'ON_DELIVERED' : 'PENDING',
       },
     });
 
-    // Update stock count
-    await prisma.catalogue.update({
-      where: {
-        storeId_articleId: { storeId, articleId },
-      },
+    // Mettre à jour le stock de l'article
+    await prisma.article.update({
+      where: { id: articleId },
       data: { stockCount: article.stockCount - quantity },
     });
 
     return order;
   }
-  private static  getIncludeOptions(field: 'userId' | 'vendorId' | 'storeId') {
+
+  private static getIncludeOptions(field: 'userId' | 'vendorId' | 'storeId') {
     const includeOptions: any = {
       store: {
         select: {
@@ -90,9 +90,9 @@ class OrderService {
         },
       },
     };
-  
+
     if (field === 'userId') {
-      includeOptions.vendor  = {
+      includeOptions.vendor = {
         select: {
           id: true,
           name: true,
@@ -100,7 +100,6 @@ class OrderService {
           isOnline: true,
           lastSeenAt: true,
           location: true,
-
         },
       };
     } else if (field === 'vendorId') {
@@ -115,7 +114,7 @@ class OrderService {
         },
       };
     }
-  
+
     return includeOptions;
   }
 
@@ -124,10 +123,10 @@ class OrderService {
       where: { id: orderId },
       include: { payment: true },
     });
-    if (!order) throw new Error('Order not found');
+    if (!order) throw new Error('Commande non trouvée');
 
     if (order.payment && order.payment.status === 'SUCCESS') {
-      throw new Error('Cannot cancel a paid order');
+      throw new Error('Impossible d’annuler une commande payée');
     }
 
     await prisma.order.update({
@@ -135,33 +134,24 @@ class OrderService {
       data: { status: 'CANCELED' },
     });
 
-    // Optional: You might also want to revert the stock if the order is canceled.
-    await prisma.catalogue.update({
-      where: {
-        storeId_articleId: {
-          storeId: order.storeId,
-          articleId: order.articleId,
-        },
-      },
+    // Optionnel : vous pouvez aussi vouloir rétablir le stock si la commande est annulée
+    await prisma.article.update({
+      where: { id: order.articleId },
       data: { stockCount: { increment: order.quantity } },
     });
   }
 
   static async getOrdersByField(field: 'userId' | 'vendorId' | 'storeId', id: number): Promise<PrismaOrder[]> {
-  
     console.log(field, id);
-  
-    // Utiliser la fonction importée pour obtenir `includeOptions`
     const includeOptions = this.getIncludeOptions(field);
-  
-    // Requête Prisma avec les options `include` dynamiques
+
     return prisma.order.findMany({
       where: { [field]: id },
       include: includeOptions,
     });
   }
 
-  static async updateOrderStatus(orderId: number,status: string): Promise<PrismaOrder> {
+  static async updateOrderStatus(orderId: number, status: string): Promise<PrismaOrder> {
     return prisma.order.update({
       where: { id: orderId },
       data: { status },
@@ -175,15 +165,12 @@ class OrderService {
   }
 
   static async markOrderAsCompleted(orderId: number): Promise<void> {
-    // Find the order and payment record
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: { payment: true },
     });
-    if (!order) throw new Error('Order not found');
+    if (!order) throw new Error('Commande non trouvée');
 
-
-    // Check if the order status is 'PAY' or 'PENDING' with payment status 'ON_DELIVERED'
     if (order.payment) {
       if (order.status === 'PAY' || (order.status === 'PENDING' && order.payment.status === 'ON_DELIVERED')) {
         await prisma.order.update({
@@ -191,10 +178,10 @@ class OrderService {
           data: { status: 'COMPLETED' },
         });
       } else {
-        throw new Error('Order cannot be marked as completed');
+        throw new Error('Impossible de marquer la commande comme complétée');
       }
     } else {
-      throw new Error('Payment record not found');
+      throw new Error('Enregistrement de paiement introuvable');
     }
   }
 }

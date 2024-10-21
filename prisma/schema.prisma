@@ -290,17 +290,6 @@ model Share {
 
 
 
-model Store {
-  id          Int        @id @default(autoincrement())
-  name        String
-  description String?
-  userId      Int        
-  user        User       @relation(fields: [userId], references: [id])
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  Catalogue Catalogue[]
-  orders      Order[]
-}
 
 model Category {
   id        Int       @id @default(autoincrement())
@@ -311,17 +300,33 @@ model Category {
   updatedAt DateTime  @updatedAt
 }
 
+model Store {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String?
+  userId      Int
+  user        User       @relation(fields: [userId], references: [id])
+  articles    Article[]  // Nouvelle relation directe
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  orders      Order[]
+}
+
 model Article {
-  id          Int            @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
   image       String?
   description String?
+  price       Float     // Nouveau champ
+  stockCount  Int       // Nouveau champ
   categoryId  Int
-  category    Category       @relation(fields: [categoryId], references: [id])
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  Catalogue Catalogue[]
+  storeId     Int       // Nouveau champ
+  store       Store     @relation(fields: [storeId], references: [id])
+  category    Category  @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
+
 
 model Order {
   id           Int           @id @default(autoincrement())
@@ -364,20 +369,6 @@ model PaymentType {
 
 
 // Modèle pour le catalogue d'un magasin spécifique
-model Catalogue {
-  id          Int       @id @default(autoincrement())
-  articleId   Int
-  article     Article   @relation(fields: [articleId], references: [id])
-  storeId     Int
-  store       Store     @relation(fields: [storeId], references: [id])
-  price       Float
-  stockCount  Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-    @@unique([storeId, articleId])
-
-}
 // model OrderDetail {
 //   id        Int     @id @default(autoincrement())
 //   orderId   Int

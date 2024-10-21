@@ -1,245 +1,181 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import {
   ArticleData,
   articleSelection,
-  CatalogueResponse,
-  CategoryWithArticlesResponse, Store, StoreResponse
+  CategoryWithArticlesResponse
 } from '../Interfaces/ArticleInterface';
-import {userSelectConfig} from "../Interfaces/PostInterface";
+import { userSelectConfig } from "../Interfaces/PostInterface";
 
 const prisma = new PrismaClient();
 
-// La classe `ArticleService` encapsule plusieurs méthodes pour gérer les articles, les magasins, et les catégories.
 export class ArticleService {
-
-   // Méthode pour créer un nouveau magasin pour un utilisateur
-   static async createStoreForUser(userId: number, storeData: { name: string, description?: string }) {
+  static async createStoreForUser(userId: number, storeData: { name: string, description?: string }) {
     try {
-      // Création du magasin et association avec l'utilisateur
       const newStore = await prisma.store.create({
         data: {
           name: storeData.name,
           description: storeData.description,
-          userId: userId, // Association avec l'utilisateur via userId
+          userId: userId,
         },
       });
-
       return newStore;
-    } catch (error:any) {
+    } catch (error: any) {
       throw new Error('Error creating store: ' + error.message);
     }
   }
 
-  // Récupérer tous les magasins avec les utilisateurs et les articles associés
-  static async getAllStores(): Promise<StoreResponse[]> {
+  static async getAllStores() {
     try {
       const stores = await prisma.store.findMany({
         include: {
-          user: { select: userSelectConfig }, // Réutilisation de la configuration de sélection pour l'utilisateur
-          Catalogue: {
+          user: { select: userSelectConfig },
+          articles: {
             include: {
-              article: { select: articleSelection }, // Récupérer les articles via Catalogue
-            },
+              category: true,
+              store: {
+                select: {
+                  id: true,
+                  name: true,
+                  description: true,
+                }
+              }
+            }
           },
         },
       });
-
       return stores;
     } catch (error: any) {
       throw new Error('Error fetching stores: ' + error.message);
     }
   }
 
-  // Récupérer les magasins d'un utilisateur spécifique avec les articles associés
-  static async getStoresByUserId(userId: number): Promise<StoreResponse[]> {
+  static async getStoresByUserId(userId: number) {
     try {
       const userStores = await prisma.store.findMany({
         where: {
           userId: userId,
         },
         include: {
-          user: { select: userSelectConfig }, // Réutilisation de la configuration de sélection pour l'utilisateur
-          Catalogue: {
+          user: { select: userSelectConfig },
+          articles: {
             include: {
-              article: { select: articleSelection }, // Récupérer les articles via Catalogue
-            },
+              category: true,
+              store: {
+                select: {
+                  id: true,
+                  name: true,
+                  description: true,
+                }
+              }
+            }
           },
         },
       });
-
       return userStores;
     } catch (error: any) {
       throw new Error('Error fetching user stores: ' + error.message);
     }
   }
 
-  // Méthode pour lister les articles d'une catégorie spécifique dans un magasin donné.
-  static async listArticlesByCategoryForStore(storeId: number, categoryId: number): Promise<CatalogueResponse[]> {
-
-    // Vérifie si le magasin existe dans la base de données.
-    const storeExists = await prisma.store.findUnique({
-      where: { id: storeId },
+  static async listArticlesByCategoryForStore(storeId: number, categoryId: number) {
+    const articles = await prisma.article.findMany({
+      where: {
+        storeId: storeId,
+        categoryId: categoryId,
+      },
     });
-    if (!storeExists) {
-      throw new Error('Store not found');
-    }
 
-    // Vérifie si la catégorie existe dans la base de données.
-    const categoryExists = await prisma.category.findUnique({
-      where: { id: categoryId },
-    });
-    if (!categoryExists) {
-      throw new Error('Category not found');
-    }
+    return articles.map((article) => ({
+      articleId: article.id,
+      articleName: article.name,
+      articleImage: article.image,
+      price: article.price,
+      stockCount: article.stockCount,
+    }));
+  }
 
-    // Récupère les articles d'un magasin spécifique appartenant à une catégorie donnée.
-    const store = await prisma.store.findUnique({
-      where: { id: storeId },
+  static async listCategoriesWithArticles(storeId?: number): Promise<CategoryWithArticlesResponse[]> {
+    const categories = await prisma.category.findMany({
       include: {
-        Catalogue: {
-          where: {
-            article: {
-              categoryId: categoryId,
-
-            },
-          },
+        articles: {
+          where: storeId ? {
+            storeId: storeId
+          } : undefined,
           include: {
-            article: true,
+            store: true,
           },
         },
       },
     });
 
-    if (!store) {
-      throw new Error('Store not found');
-    }
-
-    // Mappe les résultats pour créer une liste de `CatalogueResponse`, une structure définie pour les réponses.
-    return store.Catalogue.map((catalogue) => ({
-      articleId: catalogue.article.id,
-      articleName: catalogue.article.name,
-      articleImage: catalogue.article.image,
-      price: catalogue.price,
-      stockCount: catalogue.stockCount,
-    }));
-  }
-
-  // Méthode pour lister toutes les catégories avec leurs articles, optionnellement filtrée par magasin.
-  static async listCategoriesWithArticles(storeId?: number): Promise<CategoryWithArticlesResponse[]> {
-    // Récupère toutes les catégories et leurs articles, en incluant les catalogues associés si un storeId est fourni.
-    const categories = await prisma.category.findMany({
-      include: {
-        articles: {
-          include: {
-            Catalogue: {
-              where: storeId ? { storeId } : {},
-              include: { store: true },
-            },
-          },
-        },
-      }
-    });
-
-    // Mappe les catégories et leurs articles pour créer une structure de réponse.
     return categories.map((category) => ({
       categoryId: category.id,
       categoryName: category.name,
-
-      articles: category.articles.flatMap((article) => {
-        // Filtre les catalogues par magasin si storeId est fourni.
-        const storeCatalogues = storeId ? article.Catalogue.filter(catalogue => catalogue.storeId === storeId) : article.Catalogue;
-
-        // Mappe les catalogues filtrés en une structure de réponse pour les articles.
-        return storeCatalogues.map((catalogue) => ({
-          articleId: article.id,
-          articleName: article.name,
-          articleImage: article.image ?? "", // Remplacer null par une chaîne vide (ou undefined si vous préférez)
-          price: catalogue.price,
-          stockCount: catalogue.stockCount,
-          storeName: catalogue.store.name,
-          storeDescription: catalogue.store.description,
-          storeId: catalogue.store.id,
-        }));
-      }),
+      articles: category.articles.map((article) => ({
+        articleId: article.id,
+        articleName: article.name,
+        articleImage: article.image ?? "",
+        price: article.price,
+        stockCount: article.stockCount,
+        storeName: article.store.name,
+        storeDescription: article.store.description,
+        storeId: article.store.id,
+      })),
     }));
   }
 
-  // Méthode pour ajouter un article à un magasin, ou mettre à jour l'existant.
-  static async addArticleToStore(storeId: number, articleData: ArticleData): Promise<void> {
-    // Cherche si un article avec le même nom et catégorie existe déjà.
+  static async addArticleToStore(storeId: number, articleData: ArticleData) {
     const existingArticle = await prisma.article.findFirst({
-      where: { name: articleData.name, categoryId: articleData.categoryId },
+      where: {
+        name: articleData.name,
+        storeId: storeId,
+        categoryId: articleData.categoryId,
+      },
     });
 
     if (existingArticle) {
-      // Vérifie si cet article est déjà dans le catalogue du magasin spécifié.
-      const storeArticle = await prisma.catalogue.findUnique({
-        where: {
-          storeId_articleId: { storeId, articleId: existingArticle.id },
+      // Mise à jour de l'article existant et retour de l'article mis à jour
+      return await prisma.article.update({
+        where: { id: existingArticle.id },
+        data: {
+          price: articleData.price,
+          stockCount: existingArticle.stockCount + articleData.stockCount,
         },
       });
-
-      if (storeArticle) {
-        // Met à jour le stock de l'article existant dans le magasin.
-        await prisma.catalogue.update({
-          where: { id: storeArticle.id },
-          data: { stockCount: storeArticle.stockCount + articleData.stockCount },
-        });
-      } else {
-        // Ajoute l'article au catalogue du magasin.
-        await prisma.catalogue.create({
-          data: {
-            storeId,
-            articleId: existingArticle.id,
-
-            stockCount: articleData.stockCount,
-            price: articleData.price,
-          },
-        });
-      }
     } else {
-      // Crée un nouvel article s'il n'existe pas, puis l'ajoute au catalogue du magasin.
-      const newArticle = await prisma.article.create({
+      // Création du nouvel article et retour de l'article créé
+      return await prisma.article.create({
         data: {
           name: articleData.name,
           image: articleData.image,
           description: articleData.description,
+          price: articleData.price,
+          stockCount: articleData.stockCount,
+          storeId: storeId,
           categoryId: articleData.categoryId,
         },
       });
-
-      await prisma.catalogue.create({
-        data: {
-          storeId,
-          articleId: newArticle.id,
-          stockCount: articleData.stockCount,
-          price: articleData.price,
-        },
-      });
     }
   }
-   // Méthode pour supprimer un article spécifique d'un magasin
-   static async deleteArticleFromStore(storeId: number, articleId: number): Promise<void> {
-    // Vérifie si l'article existe dans le catalogue du magasin
-    const storeArticle = await prisma.catalogue.findUnique({
+
+  static async deleteArticleFromStore(storeId: number, articleId: number): Promise<void> {
+    const article = await prisma.article.findFirst({
       where: {
-        storeId_articleId: { storeId, articleId },
+        id: articleId,
+        storeId: storeId,
       },
     });
 
-    if (!storeArticle) {
+    if (!article) {
       throw new Error('Article not found in the specified store');
     }
 
-    // Supprime l'article du catalogue du magasin
-    await prisma.catalogue.delete({
-      where: { id: storeArticle.id },
+    await prisma.article.delete({
+      where: { id: articleId },
     });
   }
 
-  // Méthode pour supprimer un magasin ou une catégorie associée aux articles d'un magasin spécifique.
   static async deleteStoreOrCategory(userId: number, storeId: number, categoryId?: number): Promise<void> {
-    // Vérifie si l'utilisateur a les droits d'accès au magasin spécifié.
     const store = await prisma.store.findUnique({
       where: { id: storeId },
       select: { userId: true },
@@ -250,26 +186,18 @@ export class ArticleService {
     }
 
     if (categoryId) {
-      // Supprime les articles d'une catégorie spécifique dans le magasin.
-      const storeArticles = await prisma.catalogue.findMany({
+      await prisma.article.deleteMany({
         where: {
           storeId,
-          article: {
-            categoryId,
-          },
+          categoryId,
         },
       });
-
-      for (const catalogue of storeArticles) {
-        await prisma.catalogue.delete({ where: { id: catalogue.id } });
-      }
     } else {
-      // Supprime tous les articles du magasin, puis le magasin lui-même.
-      await prisma.catalogue.deleteMany({ where: { storeId } });
-      await prisma.store.delete({ where: { id: storeId } });
+      await prisma.store.delete({
+        where: { id: storeId },
+      });
     }
   }
 }
 
-// Exportation de la classe `ArticleService` pour qu'elle puisse être utilisée ailleurs dans le projet.
 export default ArticleService;
